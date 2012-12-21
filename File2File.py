@@ -22,13 +22,12 @@ import TrLib
 import subprocess
 import glob
 import threading
-
+from TrLib_constants import OGRLIB
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
 IS_PY2EXE=False
 
 if IS_WINDOWS:
-	OGRLIB="libtrogr.dll"
 	try:
 		sys.frozen
 	except:
@@ -37,11 +36,7 @@ if IS_WINDOWS:
 		IS_PY2EXE=True
 		import win32process
 	
-elif "darwin" in sys.platform:
-	OGRLIB="libtrogr.dylib"
-	
-else:
-	OGRLIB="libtrogr.so"
+
 
 TROGR=None
 

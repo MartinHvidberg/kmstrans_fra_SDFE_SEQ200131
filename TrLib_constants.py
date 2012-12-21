@@ -17,6 +17,21 @@
  */
  """
 from math import pi,floor
+import sys
+IS_WINDOWS=sys.platform.startswith("win")
+#LIBRARYNAMES
+#PATH TO TRLIB, OGRLIB#
+if IS_WINDOWS:
+	TRLIB="TrLib.dll"
+	OGRLIB="libtrogr.dll"
+elif "darwin" in sys.platform:
+	LIBNAME="TrLib.dylib"
+	OGRLIB="libtrogr.dylib"
+else:
+	LIBNAME="TrLib.so"
+	OGRLIB="libtrogr.so"
+TROGRNAME="trogr"
+
 #CONSTANTS RELEVANT TO KMSTRLIB
 #DK
 SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",

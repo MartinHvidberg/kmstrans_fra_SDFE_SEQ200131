@@ -20,13 +20,13 @@
 #Very simplistic build instructions which should work under win, linux and mac as long as gdal is built and findable and gcc or something very similar works....
 #Use -cc compiler, e.g. -cc gcc to specify which compiler to use to build trogr.
 import os, sys, shutil
-from File2File import OGRLIB
-from GSTtrans import LIBNAME,TROGRNAME
+from TrLib_constants import OGRLIB,TRLIB,TROGRNAME
 
 def Usage():
 	print("To run:")
 	print("%s <path_to_trlib> -gdal <path_to_gdal_dev_installation> -cc <gcc_like_compiler> -notrlib OR ...extra args... to py_build.py" %os.path.basename(sys.argv[0]))
-	print("-gdal <path_to_gdal_dev_installation> MUST be used ONLY on windows. On Linux set LD_LIBRARY_PATH.")
+	print("-gdal <path_to_gdal_dev_installation> MUST be used on windows. On Linux you can also set LD_LIBRARY_PATH.")
+	print("e.g. -gdal C:\gdal192 or -gdal /opt/local, where these have subdirs 'lib' and 'include'.") 
 	print("Use -notrlib to NOT build TrLib, or append extra args to the trlib build script TR_BUILD/py_build.py")
 	print("-cc <gcc_like_compiler> to override the specific compiler 'gcc' in the builds of trogr and trlib.")
 	print("Use space between option key and option value! e.g. -cc /opt/local/bin/gcc4.6")
@@ -40,12 +40,15 @@ def RunCommand(cmd):
 if len(sys.argv)<2:
 	Usage()
 	sys.exit()
-
 args=sys.argv[1:]
 trlib=os.path.realpath(args[0])
 curdir=os.path.realpath(os.path.dirname(__file__))
 outdir=curdir #use this dir as output....	
 
+IS_WINDOWS=sys.platform.startswith("win")
+if IS_WINDOWS and not "-gdal" in args:
+	Usage()
+	sys.exit()
 #arg which should not be removed
 if "-cc" in args:
 	index=args.index("-cc")+1
@@ -53,21 +56,22 @@ if "-cc" in args:
 else:
 	CC="gcc"
 
-IS_WINDOWS=sys.platform.startswith("win")
-
-if (not IS_WINDOWS) and "-gdal" in args:
-	Usage()
-	sys.exit()
-
-if IS_WINDOWS:
-	if not "-gdal" in args:
-		Usage()
-		sys.exit()
+#pop this arg and its value...
+if "-gdal" in args:
 	index=args.index("-gdal")+1
-	#pop these two args#
 	gdal=os.path.realpath(args.pop(index))
 	args.pop(index-1)
-	link_gdal="-I%s %s" %(os.path.join(gdal,"include"),os.path.join(gdal,"lib","gdal_i.lib"))
+	if IS_WINDOWS:
+		link_gdal="-I%s %s" %(os.path.join(gdal,"include"),os.path.join(gdal,"lib","gdal_i.lib"))
+	else:
+		link_gdal="-L%s -lgdal" %(os.path.join(gdal,"lib"))
+else:
+	link_gdal="-lgdal"
+
+
+
+
+if IS_WINDOWS:
 	options=""
 	dll=".dll"
 	exe=".exe"
@@ -75,12 +79,12 @@ elif "darwin" in sys.platform: #MAC
 	options="-fPIC"
 	dll=".dylib"
 	exe=""
-	link_gdal="-lgdal"
+	
 else: #Linux, or something similar....
 	options="-fPIC"
 	dll=".so"
 	exe=""
-	link_gdal="-lgdal"
+	
 
 BIN_DIR=os.path.join(outdir,"bin")
 try:
@@ -89,7 +93,7 @@ except:
 	pass
 libogr=os.path.join(BIN_DIR,OGRLIB)
 libreport=os.path.join(BIN_DIR,"libreport")+dll
-libtr=os.path.join(BIN_DIR,LIBNAME)
+libtr=os.path.join(BIN_DIR,TRLIB)
 trogr=os.path.join(BIN_DIR,TROGRNAME)+exe
 buildtrlib=os.path.join(trlib,"TR_BUILD","py_build.py")
 #BUILD C-source#

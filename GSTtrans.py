@@ -30,7 +30,7 @@ import File2File
 import sys,os,time
 import EmbedPython
 DEBUG=False
-IS_WINDOWS=sys.platform.startswith("win")
+
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
 	sys.frozen
@@ -44,7 +44,6 @@ os.chdir(PREFIX)
 import platform
 IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
-TROGRNAME="trogr"
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
 #PATHS TO A MINIMAL DEFAULT GDAL INSTALLATION ON WINDOWS
 GDAL_PREFIX=os.path.join(PREFIX,"gdal")
@@ -98,13 +97,7 @@ PROJ_LABELS=["Easting:","Northing:","H:"]
 CRT_LABELS=["X:","Y:","Z:"]
 SYSTEM_LABELS={Minilabel.CRT_CODE:CRT_LABELS,Minilabel.PROJ_CODE:PROJ_LABELS,Minilabel.GEO_CODE:GEO_LABELS}
 
-#PATH TO TRLIB#
-if IS_WINDOWS:
-	LIBNAME="TrLib.dll"
-elif "darwin" in sys.platform:
-	LIBNAME="TrLib.dylib"
-else:
-	LIBNAME="TrLib.so"
+
 
 VERSION="GSTtrans demo december 2012"
 
@@ -380,7 +373,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		sys.stdout=RedirectOutput(self.log_pythonStdOut)
 		sys.stderr=RedirectOutput(self.log_pythonStdErr)
 		#init TrLib and load settings#
-		ok,msg=TrLib.LoadLibrary(LIBNAME,BIN_PREFIX)
+		ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
 		TrLib.SetMessageHandler(LordCallback)
 		if not ok:
 			self.message("Failed to load transformation library: %s" %msg)
