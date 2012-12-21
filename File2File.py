@@ -99,15 +99,15 @@ def InitOGR(prefix,lib_name=OGRLIB):
 	return True
 	
 
-def RunCommand(cmd,post_method=None):
+def RunCommand(args,post_method=None):
 	if post_method is not None:
-		post_method(cmd)
+		post_method(repr(args))
 	try:
 		#hack to make piping work under py2exe
 		if IS_PY2EXE:
-			prc=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True,creationflags=win32process.CREATE_NO_WINDOW)
+			prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True,creationflags=win32process.CREATE_NO_WINDOW)
 		else:
-			prc=prc=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+			prc=prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 	except Exception,msg:
 		if post_method is not None:
 			post_method(repr(msg))
@@ -117,13 +117,14 @@ def RunCommand(cmd,post_method=None):
 		line=prc.stdout.readline()
 		if post_method is not None:
 			post_method(line.rstrip())
+	post_method(prc.stdout.read())
 	return prc.poll()
 	
 def TestCommand(post_method):
 	if TROGR is None:
 		return TrLib.TR_ERROR
 	else:
-		return RunCommand(TROGR+" --version",post_method)
+		return RunCommand([TROGR,"--version"],post_method)
 
 class ReturnValue(object):
 	def __init__(self,msg="",rc=0):
@@ -132,67 +133,66 @@ class ReturnValue(object):
 
 def TransformDatasource(options,log_method,post_method):
 	#compose command and preanalyze validity#
-	args=""
+	args=[]
 	if options.log_file is not None:
-		args='-l "%s"' %options.log_file
+		args+=['-l',options.log_file]
 	if not options.set_projection:
-		args+=" -n"
+		args+=['-n']
 	if options.be_verbose:
-		args+=" -v"
+		args+=['-v']
 	if options.mlb_in is not None:
-		args+=" -p %s" %options.mlb_in
+		args+=['-p',options.mlb_in]
 	if options.driver=="OGR":
 		if options.format_out is not None:
-			args+=' -f "%s"' %options.format_out
+			args+= ['-f',options.format_out]
 	elif options.driver=="TEXT":
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'TEXT' driver you can batch several files using the * expansion char."
-		args+=" -d TEXT"
+		args+=['-d','TEXT']
 		if options.col_x is not None:
-			args+=" -x %d" %options.col_x
+			args+=['-x','%d' %options.col_x]
 		if options.col_y is not None:
-			args+=" -y %d" %options.col_y
+			args+=['-y', '%d' %options.col_y]
 		if options.col_z is not None:
-			args+=" -z %d" %options.col_z
+			args+=['-z', '%d' %options.col_z]
 		if options.sep_char is not None:
-			args+=' -s "%s"' %options.sep_char
+			args+=['-s', options.sep_char]
 	elif options.driver=="DSFL":
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'DSFL' driver you can batch several files using the * expansion char."
-		args+=" -d DSFL"
+		args+=['-d', 'DSFL']
 	elif options.driver=="KMS":
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'KMS' driver you can batch several files using the * expansion char."
-		args+=" -d KMS"
+		args+=['-d','KMS']
 		#TODO: implement extra options for KMS-driver#
 	files=glob.glob(options.ds_in)
 	if len(files)>1 and not os.path.isdir(options.ds_out):
 		return False,"More than one input datasource specified - output datasource must be a directory."
 	#Really start a thread here#
-	cmd="%s %s %s" %(TROGR,args,options.mlb_out)
+	args=[TROGR]+args+[options.mlb_out]
 	if len(files)>0 and os.path.isdir(options.ds_out):
 		files_out=[os.path.join(options.ds_out,fname) for fname in files]
 	else:
 		files_out=[options.ds_out]
 	options.output_files=files_out
-	thread=WorkerThread(log_method,post_method,cmd,files,files_out)
+	thread=WorkerThread(log_method,post_method,args,files,files_out)
 	thread.start()
 	return True,"Thread started..."
 
 class WorkerThread(threading.Thread):
-	def __init__(self,log_method,post_method,cmd,files_in,files_out):
+	def __init__(self,log_method,post_method,args,files_in,files_out):
 		threading.Thread.__init__(self)
 		self.log_method=log_method
 		self.post_method=post_method
 		self.files_in=files_in
 		self.files_out=files_out
-		self.cmd=cmd
+		self.args=args
 	def run(self):
 		n_errs=0
 		for f_in,f_out in zip(self.files_in,self.files_out):
-			out='"%s" "%s"' %(f_out,f_in)
-			cmd=self.cmd+" "+out
-			rc=RunCommand(cmd,self.log_method)
+			args=self.args+[f_out,f_in]
+			rc=RunCommand(args,self.log_method)
 			if rc!=0:
 				n_errs+=1
 			if n_errs>10:

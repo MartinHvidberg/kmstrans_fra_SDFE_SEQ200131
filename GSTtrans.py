@@ -66,13 +66,9 @@ if IS_WINDOWS:
 		sep=""
 	if os.path.exists(GDAL_PREFIX):
 		add_path=GDAL_PREFIX
-	else:
-		add_path=PREFIX
-	env+="%s%s" %(sep,add_path)
-	os.environ["PATH"]=env
-#MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX
-else:
-	os.environ["LD_LIBRARY_PATH"]+=os.pathsep+BIN_PREFIX
+		env+="%s%s" %(sep,add_path)
+		os.environ["PATH"]=env
+#MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX - THEY SEEM TO AUTOMATICALLY BE AS LONG AS LOCATED NEXT TO EXECUTABLE...
 #END SETUP ENV#
 
 if DEBUG:
@@ -224,8 +220,6 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		self.settings.col_x=col_x
 		self.settings.col_y=col_y
 		self.settings.col_z=col_z
-		if sep_char.isspace():
-			sep_char=None
 		self.settings.sep_char=sep_char
 		self.settings.accepted=True
 		self.hide()
