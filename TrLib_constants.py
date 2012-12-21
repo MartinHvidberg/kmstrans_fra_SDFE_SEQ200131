@@ -25,10 +25,10 @@ if IS_WINDOWS:
 	TRLIB="TrLib.dll"
 	OGRLIB="libtrogr.dll"
 elif "darwin" in sys.platform:
-	LIBNAME="TrLib.dylib"
+	TRLIB="TrLib.dylib"
 	OGRLIB="libtrogr.dylib"
 else:
-	LIBNAME="TrLib.so"
+	TRLIB="TrLib.so"
 	OGRLIB="libtrogr.so"
 TROGRNAME="trogr"
 
