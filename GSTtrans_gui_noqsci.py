@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UI\GSTtrans.ui'
+# Form implementation generated from reading ui file 'UI\GSTtrans_noqsci.ui'
 #
-# Created: Sat Dec 22 11:35:10 2012
+# Created: Sat Dec 22 11:35:11 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -878,9 +878,7 @@ class Ui_GSTtrans(object):
         spacerItem26 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem26)
         self.verticalLayout_11.addLayout(self.horizontalLayout_7)
-        self.txt_python_in = Qsci.QsciScintilla(self.tab)
-        self.txt_python_in.setToolTip(_fromUtf8(""))
-        self.txt_python_in.setWhatsThis(_fromUtf8(""))
+        self.txt_python_in = QtGui.QTextEdit(self.tab)
         self.txt_python_in.setObjectName(_fromUtf8("txt_python_in"))
         self.verticalLayout_11.addWidget(self.txt_python_in)
         self.tab_gsttrans.addTab(self.tab, _fromUtf8(""))
@@ -1135,7 +1133,6 @@ class Ui_GSTtrans(object):
         self.actionNt_derived.setText(QtGui.QApplication.translate("GSTtrans", "nt: ddd mm.mmmm", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFile2file_settings.setText(QtGui.QApplication.translate("GSTtrans", "File2file settings", None, QtGui.QApplication.UnicodeUTF8))
 
-from PyQt4 import Qsci
 
 if __name__ == "__main__":
     import sys

@@ -17,10 +17,20 @@
  * 
  */
  """
-from PyQt4 import QtCore, QtGui, Qsci
+from PyQt4 import QtCore, QtGui
+try:
+	from PyQt4 import Qsci
+except:
+	HAS_QSCI=False
+else:
+	HAS_QSCI=True
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
-from GSTtrans_gui import Ui_GSTtrans
+#If Qsci defined, import the proper UI
+if HAS_QSCI:
+	from GSTtrans_gui import Ui_GSTtrans
+else:
+	from GSTtrans_gui_noqsci import Ui_GSTtrans
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 import Minilabel
 import TrLib
@@ -394,11 +404,19 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.python_console=EmbedPython.PythonConsole({})
 		self.log_pythonStdOut("Python version:\n"+sys.version)
 		self.python_console.ExecuteCode("from TrLib import *")
-		self.txt_python_in.setLexer(Qsci.QsciLexerPython())
-		self.txt_python_in.setAutoIndent(True)
+		if HAS_QSCI:
+			self.txt_python_in.setLexer(Qsci.QsciLexerPython())
+			self.txt_python_in.setAutoIndent(True)
 		self.txt_python_in.keyPressEvent=self.onPythonKey
 		self.pythonExample()
+		if not HAS_QSCI:
+			self.log_pythonStdOut("Qscintilla not installed. Python input lexer will not work...")
 		self.python_console.ClearCache()
+		#move to interactive tab
+		try:
+			self.tab_gsttrans.setCurrentIndex(0)
+		except:
+			pass
 	def onExit(self):
 		self.close()
 	def onActionWhatsThis(self):
@@ -1148,7 +1166,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	
 	#TAB PYTHON#
 	def onPythonCommand(self):
-		cmd=str(self.txt_python_in.text()).strip()
+		if HAS_QSCI:
+			cmd=str(self.txt_python_in.text()).strip()
+		else:
+			cmd=str(self.txt_python_in.toPlainText()).strip()
 		if len(cmd)==0:
 			return
 		if cmd.lower()=="clear":
@@ -1170,7 +1191,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.clearPythonIn()
 	def clearPythonIn(self):
 		self.txt_python_in.clear()
-		self.txt_python_in.setCursorPosition(0,0)
+		if HAS_QSCI:
+			self.txt_python_in.setCursorPosition(0,0)
 	#really subclassing the TextEdit/Qscintilla object - however this is more convenient when using designer...	
 	def onPythonKey(self,event):
 		if (not event.isAutoRepeat()):
@@ -1188,7 +1210,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				event.accept()
 				self.onPythonCommand()
 				return
-		Qsci.QsciScintilla.keyPressEvent(self.txt_python_in,event)
+		type(self.txt_python_in).keyPressEvent(self.txt_python_in,event)
+		#if HAS_QSCI:
+		#	Qsci.Qscintilla.keyPressEvent(self.txt_python_in,event)
+		#else:
+		#	QTextEdit.keyPressEvent(self.txt_python_in,event)
 	def pythonExample(self):
 		stars="*"*50
 		self.log_pythonStdOut(stars,"blue")
