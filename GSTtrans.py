@@ -65,16 +65,16 @@ DOC_PATH=PREFIX+"/"+"doc"
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
 #SET UP ENVIRONMENT#
 if IS_WINDOWS:
-	if not "GDAL_DATA" in os.environ:
+	if (not "GDAL_DATA" in os.environ) and os.path.exists(DATA_PREFIX):
 		os.environ["GDAL_DATA"]=DATA_PREFIX
-	#APPEND GDAL TO PATH  
+	#APPEND GDAL TO PATH  -
 	#THIS WILL ALLOW USE OF A SEPARATE GDAL INSTALLATION WHICH OVERRIDES THE DEFAULT ONE
-	env=os.environ["PATH"]
-	if env[-1]!=os.pathsep:
-		sep=os.pathsep
-	else:
-		sep=""
 	if os.path.exists(GDAL_PREFIX):
+		env=os.environ["PATH"]
+		if env[-1]!=os.pathsep:
+			sep=os.pathsep
+		else:
+			sep=""
 		add_path=GDAL_PREFIX
 		env+="%s%s" %(sep,add_path)
 		os.environ["PATH"]=env
@@ -109,7 +109,7 @@ VERSION="GSTtrans demo december 2012"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
-\nWritten in PyQt4. Report bugs to simlk@kms.dk.
+\nWritten in PyQt4. Report bugs to simlk@gst.dk.
 """
 
 #Custom events and threads# 
@@ -186,13 +186,13 @@ class BesselHelmertCache(object):
 
 
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
-	"""Class for inputing options to TEXT and KMS drivers"""
+	"""Class for specifying options to TEXT and KMS drivers"""
 	def __init__(self,parent,settings):
 		QtGui.QDialog.__init__(self,parent)
 		self.setupUi(self)
 		self.settings=settings
 		self.settings.accepted=False
-	#TODO: implement save and load settings like in MainWindow
+	#TODO: implement save and load settings like in MainWindow - should also *always* display the current settings, so that the cancel button should uncheck/recheck stuff.
 	def accept(self):
 		col_x=self.spb_col_x.value()
 		col_y=self.spb_col_y.value()
@@ -237,12 +237,18 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		QMessageBox.warning(self,title,text)
 
 class TextViewer(QDialog):
+	"""Class to display text files"""
 	def __init__(self,parent,txt=None,fname=None):
 		QDialog.__init__(self,parent)
-		layout=QVBoxLayout(self)
+		self.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 		txt_field=QTextEdit(self)
-		layout.addWidget(txt_field)
 		txt_field.setCurrentFont(QFont("Courier",9))
+		txt_field.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+		txt_field.setReadOnly(True)
+		txt_field.setMinimumSize(600,200)
+		#self.setMinimumSize(600,400)
+		layout=QVBoxLayout(self)
+		layout.addWidget(txt_field)
 		if txt is not None:
 			txt_field.setText(txt)
 		elif fname is not None:
@@ -266,8 +272,10 @@ class TextViewer(QDialog):
 					nlines+=1
 				txt_field.append(txt)
 				f.close()
+		
 		self.setLayout(layout)
-		self.setMinimumSize(200,200)
+		self.adjustSize()
+		
 
 	
 class RedirectOutput(object):
@@ -433,7 +441,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def openFile2FileSettings(self):
 		self.dialog_f2f_settings.show()
 	def onNewKMSTrans(self):
-		subprocess.Popen("%s %s" %(sys.executable,sys.argv[0]))
+		subprocess.Popen([sys.executable,sys.argv[0]])
 		self.log_interactive("Starting new KMSTrans process")
 	#Map Stuff#	
 	def drawMap(self):
@@ -1011,7 +1019,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.bt_f2f_view_log.setEnabled(False)
 	def onF2FReturnCode(self,rc):
 		if rc==0:
-			self.log_f2f("Done....")
+			pass
 		else:
 			self.log_f2f("Errors occured....")
 		#we're running#
