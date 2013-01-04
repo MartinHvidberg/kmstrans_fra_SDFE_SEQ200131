@@ -20,7 +20,7 @@ DOC=glob.glob(".\\doc\\*")
 #Husk pythonw.exe.manifest!!! -not needed in python2.6
 excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx"]
 setup(   options = {'py2exe': {'excludes': excludes, 'includes':['encodings','sip','win32process','numpy']}},
-windows=[{"script" : "KMSTrans.py"}],
+windows=[{"script" : "GSTtrans.py"}],
 data_files=[("",extra_files),("bin",BIN),("coast",COAST),("doc",DOC),("gdal",GDAL),("gdal-data",GDAL_DATA),
 ("Microsoft.VC90.MFC", mfc_files),("Microsoft.VC90.CRT",crt_files),])
 sys.exit()
