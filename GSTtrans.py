@@ -26,11 +26,7 @@ else:
 	HAS_QSCI=True
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
-#If Qsci defined, import the proper UI
-if HAS_QSCI:
-	from GSTtrans_gui import Ui_GSTtrans
-else:
-	from GSTtrans_gui_noqsci import Ui_GSTtrans
+from GSTtrans_gui import Ui_GSTtrans
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 import Minilabel
 import TrLib
@@ -105,7 +101,7 @@ SYSTEM_LABELS={Minilabel.CRT_CODE:CRT_LABELS,Minilabel.PROJ_CODE:PROJ_LABELS,Min
 
 
 
-VERSION="GSTtrans demo december 2012"
+VERSION="GSTtrans demo januar 2012"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -159,6 +155,7 @@ class MapThread(threading.Thread):
 		t2=time.clock()
 		app.postEvent(self.win,MapEvent(RENDER_COMPLETE))
 
+
 #Very very simple callback handling messages from TrLib# 
 def LordCallback(err_class,err_code,msg):
 	try:
@@ -193,7 +190,15 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		self.settings=settings
 		self.settings.accepted=False
 	#TODO: implement save and load settings like in MainWindow - should also *always* display the current settings, so that the cancel button should uncheck/recheck stuff.
-	def accept(self):
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_close_clicked(self):
+		ok=self.apply()
+		if ok:
+			self.hide()
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_apply_clicked(self):
+		self.apply()
+	def apply(self):
 		col_x=self.spb_col_x.value()
 		col_y=self.spb_col_y.value()
 		if self.chb_has_z.isChecked():
@@ -202,7 +207,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 			col_z=None
 		if  col_x==col_y or col_x==col_z or col_y==col_x:
 			self.message("Geometry columns must differ!")
-			return
+			return False
 		sep_char=""
 		if self.chb_whitespace.isChecked():
 			sep_char=None
@@ -221,18 +226,18 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 				#Do something#
 				self.message("Specify separation chars.")
 				self.txt_pattern.setFocus()
-				return
+				return False
 			sep_char+=sc
 		if sep_char=="":
 			self.message("Specify column separation chars.")
-			return
+			return False
 		#else get the stuff from other boxes...#
 		self.settings.col_x=col_x
 		self.settings.col_y=col_y
 		self.settings.col_z=col_z
 		self.settings.sep_char=sep_char
 		self.settings.accepted=True
-		self.hide()
+		return True
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)
 
@@ -413,8 +418,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.log_pythonStdOut("Python version:\n"+sys.version)
 		self.python_console.ExecuteCode("from TrLib import *")
 		if HAS_QSCI:
+			self.txt_python_in=Qsci.QsciScintilla(self.tab_python)
 			self.txt_python_in.setLexer(Qsci.QsciLexerPython())
 			self.txt_python_in.setAutoIndent(True)
+		else:
+			self.txt_python_in=QTextEdit(self.tab_python)
+		self.tab_python.layout().addWidget(self.txt_python_in)
 		self.txt_python_in.keyPressEvent=self.onPythonKey
 		self.pythonExample()
 		if not HAS_QSCI:
@@ -793,6 +802,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		
 		
 	def transform_input(self):
+		self.log_interactive("",clear=True)
 		self.output_cache.is_valid=False
 		mlb_in=str(self.cb_input_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
@@ -1173,6 +1183,24 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			ct.Close()
 	
 	#TAB PYTHON#
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_python_load_clicked(self):
+		if self.script_dir is None:
+			dir=self.dir
+		else:
+			dir=self.script_dir
+		my_file = str(QFileDialog.getOpenFileName(self, "Select a python script file",dir,"*.py"))
+		if len(my_file)>0:
+			self.script_dir=os.path.dirname(my_file)
+			try:
+				f=open(my_file)
+			except:
+				self.message("Unable to open file!")
+			else:
+				txt=f.read()
+				self.txt_python_in.setText(txt)
+				f.close()
+				self.chb_python_process_enter.setChecked(False)
 	def onPythonCommand(self):
 		if HAS_QSCI:
 			cmd=str(self.txt_python_in.text()).strip()
@@ -1235,9 +1263,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.python_console.ExecuteCode(cmd)
 		self.log_pythonStdOut(stars,"blue")
 	#MESSAGE AND LOG METHODS#
-	def log_interactive(self,text,color="black"):
+	def log_interactive(self,text,color="black",clear=False):
 		self.txt_log.setTextColor(QColor(color))
-		self.txt_log.append(text)
+		if clear:
+			self.txt_log.setText(text)
+		else:
+			self.txt_log.append(text)
 		self.txt_log.ensureCursorVisible()
 	def log_f2f(self,text,color="black"):
 		self.txt_f2f_log.append(text)
@@ -1267,7 +1298,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.log_interactive(text,"blue")
 	#SETTINGS#
 	def saveSettings(self):
-		settings = QSettings("GST","GSTrans")
+		settings = QSettings("GST","GSTtrans")
 		settings.beginGroup('MainWindow')
 		settings.setValue('size', self.size())
 		settings.setValue('position', self.pos())
@@ -1275,9 +1306,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		settings.beginGroup('data')
 		settings.setValue('geoids',self.geoids)
 		settings.setValue('path',self.dir)
+		settings.setValue('script_path',self.script_dir)
 		settings.endGroup()
 	def loadSettings(self):
-		settings = QSettings("GST","GSTrans")
+		settings = QSettings("GST","GSTtrans")
 		settings.beginGroup('MainWindow')
 		self.resize(settings.value('size', self.size()).toSize())
 		self.move(settings.value('position', self.pos()).toPoint())
@@ -1293,7 +1325,13 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.dir=str(dir.toString())
 		else:
 			self.dir=DEFAULT_DIR
+		dir=settings.value('script_path')
+		if dir.isValid():
+			self.script_dir=str(dir.toString())
+		else:
+			self.script_dir=self.dir
 		settings.endGroup()
+		
 	def selectTabDir(self):
 		my_file = str(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
 		return my_file

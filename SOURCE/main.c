@@ -28,7 +28,7 @@
 #include "Report.h"
 #include "lord.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.0 - 2012-12-17")
+#define VERSION  ("1.01 - 2013-01-05")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);

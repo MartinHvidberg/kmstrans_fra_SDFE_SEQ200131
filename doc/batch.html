@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=ISO-8859-1"
+      http-equiv="Content-Type">
+    <title>Batch</title>
+  </head>
+  <body>
+    <h1>Batch Tab</h1>
+    <p>GSTtrans uses a command line program in the ./bin subfolder
+      called <b>trogr</b> to perform transformations of datasources
+      like files and databases.<br>
+      <b>trogr</b> is linked against <a href="http://gdal.org">GDAL </a>which
+      must be installed on your system in order for the program to run.<br>
+    </p>
+    <h2>Formats:</h2>
+    <p>Generally input and output datasource formats will be the same,
+      except for input formats readable by OGR, where a specific OGR
+      output format can be chosen. See a list of OGR formats <a
+        href="http://www.gdal.org/ogr/ogr_formats.html">here.</a><br>
+    </p>
+    <ul>
+      <li>OGR - a range of common vector formats, including various
+        databases, depending on your gdal installation.</li>
+      <li>TEXT - simple column based text format. Column separator and
+        geometry columns can be specified in a settings dialog. The
+        column separator defaults to all whitespace</li>
+    </ul>
+    <blockquote>e.g. a valid format could be:<br>
+      <br>
+      K-47-200 ,&nbsp; 11.75 , 55.10 , 100 , windy<br>
+      CITY,&nbsp;&nbsp;&nbsp; 9.31, 56.20 , 127, sunny<br>
+      <br>
+      where col_x=2, col_y=3, col_z=4 and the column separator is
+      ","&nbsp; (comma).<br>
+      An input system can be specified like using a hash in front of a
+      minilabel, e.g.:&nbsp;&nbsp; #geoEwgs84&nbsp;&nbsp;&nbsp;
+      (geographical coordinates in WGS84 datum, ellipsoidal heights).<br>
+      <br>
+    </blockquote>
+    <ul>
+      <li>KMS - A special 'old' text format internal to KMS/GST. Column
+        separator is *always* at least two spaces and&nbsp; coordinates
+        have units, e.g.:</li>
+    </ul>
+    <blockquote>BUDD &nbsp; 6 143 200.5 m&nbsp; 512 200.12 m&nbsp;
+      ...some other attributes...<br>
+      <br>
+      So the format is:<br>
+      <br>
+      &lt;Station_name&gt; &lt;two_spaces&gt; &lt;X or Y&gt;&nbsp;
+      &lt;two_spaces&gt; &lt;X or Y&gt; &lt;two_spaces&gt; &lt;An
+      optional Z-value - depending on the system&gt; &lt;two_spaces&gt;
+      &lt;extra_attributes&gt;<br>
+      <br>
+      The order of the coordinates, e.g. X,Y (,Z) or Y,X (,Z) depends on
+      the input system, which is specified like for the TEXT-format,
+      e.g. #utm32_wgs84<br>
+      <br>
+    </blockquote>
+    <ul>
+      <li>DSFL - a specific danish exchange format for vector
+        data.&nbsp; &nbsp;&nbsp; </li>
+    </ul>
+  </body>
+</html>

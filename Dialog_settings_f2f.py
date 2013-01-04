@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Sat Dec 22 11:35:12 2012
+# Created: Fri Jan 04 11:44:02 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,6 +47,8 @@ class Ui_Dialog(object):
         self.label = QtGui.QLabel(self.groupBox)
         self.label.setObjectName(_fromUtf8("label"))
         self.verticalLayout_3.addWidget(self.label)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem)
         self.label_2 = QtGui.QLabel(self.groupBox)
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.verticalLayout_3.addWidget(self.label_2)
@@ -84,9 +86,11 @@ class Ui_Dialog(object):
         self.chb_comma = QtGui.QCheckBox(self.groupBox)
         self.chb_comma.setObjectName(_fromUtf8("chb_comma"))
         self.gridLayout.addWidget(self.chb_comma, 2, 0, 1, 1)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem, 0, 2, 1, 1)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem1, 0, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout)
+        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem2)
         self.label_6 = QtGui.QLabel(self.groupBox)
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.verticalLayout_3.addWidget(self.label_6)
@@ -146,16 +150,32 @@ class Ui_Dialog(object):
         self.formLayout_4.setWidget(0, QtGui.QFormLayout.FieldRole, self.spb_col_z)
         self.gridLayout_3.addLayout(self.formLayout_4, 0, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_3)
+        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem3)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem4)
+        self.bt_apply = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bt_apply.sizePolicy().hasHeightForWidth())
+        self.bt_apply.setSizePolicy(sizePolicy)
+        self.bt_apply.setObjectName(_fromUtf8("bt_apply"))
+        self.horizontalLayout.addWidget(self.bt_apply)
+        self.bt_close = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bt_close.sizePolicy().hasHeightForWidth())
+        self.bt_close.setSizePolicy(sizePolicy)
+        self.bt_close.setObjectName(_fromUtf8("bt_close"))
+        self.horizontalLayout.addWidget(self.bt_close)
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
         self.verticalLayout.addWidget(self.groupBox)
-        self.buttonBox = QtGui.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(Dialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
         QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("pressed()")), self.chb_space.click)
         QtCore.QObject.connect(self.chb_has_z, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.spb_col_z.setEnabled)
         QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("pressed()")), self.chb_tab.click)
@@ -164,7 +184,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "File2File settings", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "TextDriver", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Format for text driver:  field1 <sep_char> field2 <sep_char> field3 <sep_char> .....", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Format for text driver:  field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Column separators:", None, QtGui.QApplication.UnicodeUTF8))
         self.chb_semicolon.setText(QtGui.QApplication.translate("Dialog", "; Semicolon ", None, QtGui.QApplication.UnicodeUTF8))
         self.chb_tab.setText(QtGui.QApplication.translate("Dialog", "Tab", None, QtGui.QApplication.UnicodeUTF8))
@@ -178,6 +198,10 @@ class Ui_Dialog(object):
         self.chb_has_z.setText(QtGui.QApplication.translate("Dialog", "Has z", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "X column", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("Dialog", "Z column", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_apply.setToolTip(QtGui.QApplication.translate("Dialog", "Click to apply changes", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_apply.setText(QtGui.QApplication.translate("Dialog", "Apply", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_close.setToolTip(QtGui.QApplication.translate("Dialog", "Press to apply changes and close", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_close.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":
