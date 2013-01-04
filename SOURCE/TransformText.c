@@ -28,6 +28,8 @@ static int split_tokens(char *line, char *delimiter, char **items, int max_items
 	}
 	return n_items;
 }
+
+/*slightly complicated because of that !?! format....*/
 /* skip single spaces and comments - gives a more machine readable kms-format*/
 static int extract_kms(char *buf, char *buf_out, int *in_comment){
 	char *pos=buf;
@@ -188,7 +190,7 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 	int current_col=0, coords_found=0, found_z=0, insert_z=0,found_next_col;
 	/*struct typ_dec type_out;*/
 	lines_read++;
-	/*slightly complicated because of that stupid format....*/
+	
 	
 	/*look for input system label*/
 	if (look_for_label){
@@ -196,7 +198,7 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 		if (argc==1){
 			err=TR_Insert(trf,mlb_in_file,0);
 			if (err==TR_OK){
-				Report(REP_INFO,0,VERB_LOW,"Projection %s->%s",GET_MLB(trf->proj_in),GET_MLB(trf->proj_out));
+				Report(REP_INFO,0,VERB_LOW,"Tranformation: %s->%s",GET_MLB(trf->proj_in),GET_MLB(trf->proj_out));
 				is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 				mlbs_found++;
 				/*special handling of kms-formats*/
@@ -416,24 +418,33 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 	/*TODO: make this more failsafe - perhaps by applying the column spooler above.... or by composing the output buffer above and saving the places to insert coords.*/
 	while(*current_pos){
 		if (coords_found<coords_to_find && current_pos==coord_positions[2*coords_found]){
+			
 			if (1==1){/*or coords_found!=coord_order[2] || IS_3D(trf->proj_out)) if we do not want to write z when output is 2d....*/
 				current_pos_out+=sprintf(current_pos_out,frmt_out,coords[coords_found]);
-				if (append_unit)
-					current_pos_out+=sprintf(current_pos_out,"%s",unit_out);
-			} 
+				if (append_unit){
+					if (coords_found!=coord_order[2]) /*if not z*/
+						current_pos_out+=sprintf(current_pos_out,"%s",unit_out);
+					else
+						current_pos_out+=sprintf(current_pos_out,"m");
+				}
+			}
+			
 			current_pos=coord_positions[2*coords_found+1];
 			coords_found++;
+			/*test here if we should insert a z value also*/
+			if (insert_z && coords_found==2){
+				current_pos_out+=sprintf(current_pos_out,"%s",default_separator);
+				current_pos_out+=sprintf(current_pos_out,frmt_out,coords[coord_order[2]]);
+				if (append_unit)
+					current_pos_out+=sprintf(current_pos_out,"m");
+				insert_z=0;
+			}
 		}
-		else{
-			*(current_pos_out++)=*(current_pos++); /*copy char*/
+		else{ /*copy char*/
+			*(current_pos_out++)=*(current_pos++); 
 		}
-		if (insert_z && coords_found==2){
-			current_pos_out+=sprintf(current_pos_out,"%s",default_separator);
-			current_pos_out+=sprintf(current_pos_out,frmt_out,coords[coord_order[2]]);
-			if (append_unit)
-				current_pos_out+=sprintf(current_pos_out,"m");
-			insert_z=0;
-		}
+		
+		
 		
 	} /*end compose output */
 	*current_pos_out='\0';
