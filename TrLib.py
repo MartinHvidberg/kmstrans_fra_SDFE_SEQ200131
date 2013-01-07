@@ -450,7 +450,7 @@ def GetDatum(mlb):
 #Converts mlb to 2d-geographic projection based on same datum
 def Convert2Geo(mlb):
 	region,prj,dtm,h_dtm,h_type=SplitMLB(mlb)
-	if len(dtm)>0:
+	if len(dtm)==0:
 		dtm=GetDatum(mlb)
 	return "geo_"+dtm
 

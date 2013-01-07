@@ -56,7 +56,7 @@ GDAL_PREFIX=os.path.join(PREFIX,"gdal")
 DATA_PREFIX=os.path.join(PREFIX,"gdal-data")
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
-DOC_PATH=PREFIX+"/"+"doc"
+DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
 #SET UP ENVIRONMENT#
