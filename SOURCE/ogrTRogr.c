@@ -1,3 +1,19 @@
+/* Copyright (c) 2012, National Survey and Cadastre, Denmark
+* (Kort- og Matrikelstyrelsen), kms@kms.dk
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * 
+ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -25,12 +41,13 @@ void RedirectOGRErrors(){
 
 void GetOGRDrivers(char *text){
 	int iDriver,ndrivers;
+	OGRSFDriverH poDriver;
 	*text='\0';
 	OGRRegisterAll();
 	ndrivers=OGRGetDriverCount();
 	for(iDriver = 0; iDriver < ndrivers; iDriver++ )
 	{
-        OGRSFDriverH poDriver=OGRGetDriver (iDriver);
+	poDriver=OGRGetDriver (iDriver);
 	if( OGR_Dr_TestCapability( poDriver,ODrCCreateDataSource ) ){
 		strcat(text,OGR_Dr_GetName (poDriver));
 		strcat(text,"\n");
@@ -112,8 +129,8 @@ OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
 }
 
  OGRDataSourceH Open(char *inname){
-	 OGRRegisterAll();
 	 OGRDataSourceH hDSin;
+	 OGRRegisterAll();
 	 hDSin = OGROpen(inname, FALSE, NULL );
 	 return hDSin;
  }
@@ -153,21 +170,20 @@ void Close(OGRDataSourceH hDSin){
 	
 
 int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection){
-	OGRRegisterAll();
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
 	OGRSFDriverH hDriver;
 	struct stat buf;
 	OGRErr err;
 	int tr_err;
+	OGRRegisterAll();
 	InitialiseReport();
 	if (trf==NULL || trf->proj_out==NULL){
 		Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Output projection not set!");
 		return TR_LABEL_ERROR;
 	}
 	/* Create output driver */
-	const char *pszDriverName = drv_out;
-	hDriver = OGRGetDriverByName( pszDriverName );
+	hDriver = OGRGetDriverByName( drv_out);
 	if( hDriver == NULL )
        {
 	       return TR_ALLOCATION_ERROR;
@@ -198,8 +214,8 @@ int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **lay
 		
 		srs_out=TranslateMiniLabel(GET_MLB(trf->proj_out));
 		if (srs_out==NULL){
-			Report(REP_WARNING,TR_LABEL_ERROR,VERB_LOW,"Unable to translate %s to osr spatial reference",GET_MLB(trf->proj_out));
 			char mlb_flat[512];
+			Report(REP_WARNING,TR_LABEL_ERROR,VERB_LOW,"Unable to translate %s to osr spatial reference",GET_MLB(trf->proj_out));
 			tr_err=FlattenMLB(GET_MLB(trf->proj_out),mlb_flat);
 			srs_out=TranslateMiniLabel(mlb_flat);
 			if (srs_out!=NULL)
@@ -302,11 +318,12 @@ int TransformOGRDatasource(
     OGRErr err=OGRERR_NONE;
     char mlb_in[128];
     int is_geo_in=0, is_geo_out=0,look_for_srs;
+    int nlayers=0,layer_num,field_num,ngeom,feat_num=0,is_multi,tr_err,ERR=TR_OK,ntrans_ok=0,ntrans_bad=0;
     is_geo_out=(IS_GEOGRAPHIC(trf->proj_out));
     look_for_srs=(trf->proj_in==NULL);
     if (!look_for_srs)
 	    is_geo_in=(IS_GEOGRAPHIC(trf->proj_in));
-    int nlayers=0,layer_num,field_num,ngeom,feat_num=0,is_multi,tr_err,ERR=TR_OK,ntrans_ok=0,ntrans_bad=0;
+   
     nlayers=OGR_DS_GetLayerCount(hDSin);
     Report(REP_INFO,0,VERB_LOW,"#Layers: %d",nlayers);
     if (layer_names!=NULL){
@@ -316,6 +333,7 @@ int TransformOGRDatasource(
     {		
 		int layer_has_geometry=1;
 		int field_count=0;
+	        OGRFeatureDefnH hFDefn;
 		if (layer_names==NULL){ /*loop over all layers*/
 			hLayer=OGR_DS_GetLayer( hDSin,layer_num);
 		}
@@ -334,7 +352,6 @@ int TransformOGRDatasource(
 			Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Could not CREATE layer in output datasource!");
 			continue;
 		}
-		OGRFeatureDefnH hFDefn;
 		hFDefn=OGR_L_GetLayerDefn(hLayer);
 		if (hFDefn==NULL)
 		{
@@ -364,15 +381,17 @@ int TransformOGRDatasource(
 			err=OGR_L_CreateField(hLayer_out,OGR_FD_GetFieldDefn(hFDefn,field_num),TRUE);
 		while( (hFeature = OGR_L_GetNextFeature(hLayer)) != NULL )
 		{
+			OGRGeometryH hGeometry=NULL,hGeometry2=NULL;
 			feat_num++;
 			hFeature_out=OGR_F_Clone(hFeature);
-			OGRGeometryH hGeometry=NULL,hGeometry2=NULL;
+			
 			if (layer_has_geometry)
 				hGeometry = OGR_G_Clone(OGR_F_GetGeometryRef(hFeature_out));
 			if( hGeometry != NULL)
 			{
+				OGRwkbGeometryType geom_type;
 				ngeom=OGR_G_GetGeometryCount(hGeometry);
-				OGRwkbGeometryType geom_type=wkbFlatten(OGR_G_GetGeometryType(hGeometry));
+				geom_type=wkbFlatten(OGR_G_GetGeometryType(hGeometry));
 				is_multi=(geom_type== wkbGeometryCollection || geom_type==wkbMultiPoint || geom_type== wkbMultiLineString || geom_type== wkbMultiPolygon);
 				#ifdef DEBUG
 				Report(REP_DEBUG,0,VERB_HIGH,"Feature: %d Ngeom: %d, is_multi: %d",feat_num,ngeom,is_multi);

@@ -46,6 +46,7 @@ curdir=os.path.realpath(os.path.dirname(__file__))
 outdir=curdir #use this dir as output....	
 
 IS_WINDOWS=sys.platform.startswith("win")
+IS_MSVC="-msvc" in args
 if IS_WINDOWS and not "-gdal" in args:
 	Usage()
 	sys.exit()
@@ -63,6 +64,8 @@ if "-gdal" in args:
 	args.pop(index-1)
 	if IS_WINDOWS:
 		link_gdal="-I%s %s" %(os.path.join(gdal,"include"),os.path.join(gdal,"lib","gdal_i.lib"))
+		gdal_include=os.path.join(gdal,"include")
+		gdal_lib=os.path.join(gdal,"lib","gdal_i.lib")
 	else:
 		link_gdal="-L%s -lgdal" %(os.path.join(gdal,"lib"))
 else:
@@ -111,14 +114,26 @@ if not "-notrlib" in args:
 		pass
 os.chdir(os.path.join(curdir,"SOURCE"))
 print("Building %s..." %TROGRNAME)
-cmd="%s -o %s -O2 -shared %s Report.c" %(CC,libreport,options)
+if IS_MSVC:
+	cmd="cl /TC /O2 /MD Report.c /link /out:%s /def:libreport.def /DLL" %(libreport) 
+else:
+	cmd="%s -o %s -O2 -shared %s Report.c" %(CC,libreport,options)
 rc=RunCommand(cmd)
 if not os.path.exists(libtr):
 	print("Can't build %s, %s does not exist!" %(TROGRNAME,libtr))
 	sys.exit()
-cmd="%s -o %s -O2 -shared %s -I%s/TR_INC ogrTRogr.c %s %s %s" %(CC,libogr,options,trlib,link_gdal,libtr,libreport)
+if IS_MSVC:
+	libtr=os.path.splitext(libtr)[0]+".lib"
+	libreport=os.path.splitext(libreport)[0]+".lib"
+	cmd="cl /TC /I%s/TR_INC /I%s ogrTRogr.c  /link /out:%s /def:libtrogr.def /DLL %s %s %s" %(trlib,gdal_include,libogr,libtr,libreport,gdal_lib)
+else:
+	cmd="%s -o %s -O2 -shared %s -I%s/TR_INC ogrTRogr.c %s %s %s" %(CC,libogr,options,trlib,link_gdal,libtr,libreport)
 rc=RunCommand(cmd)
-cmd="%s -o %s -O2  -I%s/TR_INC/ %s TransformDSFL.c main.c TransformText.c %s %s %s" %(CC,trogr,trlib,libtr,link_gdal,libreport,libogr)
+if IS_MSVC:
+	libogr=os.path.splitext(libogr)[0]+".lib"
+	cmd="cl /TC /O2 /I%s/TR_INC /I%s /Fe%s TransformDSFL.c main.c my_get_opt.c TransformText.c /link %s %s %s %s" %(trlib,gdal_include,trogr,libtr,gdal_lib,libreport,libogr)
+else:
+	cmd="%s -o %s -O2  -I%s/TR_INC/ %s TransformDSFL.c main.c my_get_opt.c TransformText.c %s %s %s" %(CC,trogr,trlib,link_gdal,lib_tr,libreport,libogr)
 rc=RunCommand(cmd)
 
 

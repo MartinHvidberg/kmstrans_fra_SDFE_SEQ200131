@@ -16,7 +16,6 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> 
 #include <sys/stat.h>
 #include <time.h>
 #include "gdal.h"
@@ -27,6 +26,7 @@
 #include "trlib_api.h"
 #include "Report.h"
 #include "lord.h"
+#include "my_get_opt.h"
 #define PROG_NAME ("trogr")
 #define VERSION  ("1.01 - 2013-01-05")
 void Usage(int help);
@@ -73,10 +73,11 @@ void ListFormats(void){
 	char stars[]="********************************************";
 	char *drv_in;
 	int i=0;
+	char formats[16438];
 	fprintf(stdout,"%s\nInput drivers:\n%s\n",stars,stars);
 	while ((drv_in=INPUT_DRIVERS[i++]))
 		fprintf(stdout,"%s\n",drv_in);
-	char formats[16438];
+	
 	fprintf(stdout,"%s\nOutput drivers provided by OGR (option -f <driver>):\n%s\n",stars,stars);
 	GetOGRDrivers(formats);
 	fprintf(stdout,formats);
@@ -106,12 +107,14 @@ int message_handler(int err_class, int err_code, const char *msg){
 	return 0;
 }
 
+
 int main(int argc, char *argv[])
 {  int c;
     int digit_optind = 0;
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL;
-    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0;
+    char *key,*val,opts[]="p:d:f:s:x:y:z:l:n;v;"; /*for processing command line options*/
+    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts;
     time_t rawtime;
     struct tm * timeinfo;
     TR *trf=NULL;
@@ -134,63 +137,86 @@ int main(int argc, char *argv[])
 	    }
     }
     /*parse options*/
-    while ( (c = getopt(argc, argv, "p:d:f:s:x:y:z:l:nv")) != -1) {
-        int this_option_optind = optind ? optind : 1;
-        switch (c) {
-       
-		case 'p':
-			mlb_in=optarg;
-			break;
-		case 'f':
-			drv_out = optarg;
-			break;
-		case 'd':
-			drv_in=optarg;
-			break;
-		case 's':
-			sep_char=optarg;
-			break;
-		case 'n':
-			set_output_projection=0;
-			break;
-		case 'x':
-			col_x=atoi(optarg)-1; /*zero based index used - user should input 1 based indexing...*/
-			break;
-		case 'y':
-			col_y=atoi(optarg)-1;
-			break;
-		case 'z':
-			col_z=atoi(optarg)-1;
-			break;
-		case 'l':
-			log_name=optarg;
-			break;
-		case 'v':
+    do{
+	n_opts=my_get_opt(opts,argc,argv,&key,&val);
+	if (key){
+		if (!strcmp(key,"p")){
+			if (val)
+				mlb_in=val;
+		else
+			goto usage;
+		}
+		else if (!strcmp(key,"f")){
+			if (val)
+				drv_out=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key, "d")){
+			if (val)
+				drv_in=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"s")){
+			if (val)
+			     sep_char=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"x")){
+			if (val)
+				col_x=atoi(val)-1; /*zero based index used - user should input 1 based indexing...*/
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"y")){
+			if (val)
+				col_y=atoi(val)-1;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key, "z")){
+			if (val)
+				col_z=atoi(val)-1;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"l")){
+			if (val)
+				log_name=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"v"))
 			be_verbose=1;
-			break;
-		case '?':
-			break;
-		default:
-			printf ("?? getopt returned character code 0%o ??\n", c);
+		else if (!strcmp(key,"n"))
+			set_output_projection=0;
+		else{
+			printf ("?? getopt returned character unknown option %s\n", key);
+			goto usage;
+		}
         }
-    }
-    /*if not enough args*/
-   if (argc<optind+3){
-        Usage(0);
-	exit(0);
+   } /*end do*/
+    while (n_opts == 0 && key); 
+	
+   /*if not enough args*/
+   if (n_opts<3){
+        goto usage;
     }
     
     
-    mlb_out=argv[optind];
-    inname=argv[optind+2];
-    outname=argv[optind+1];
+    mlb_out=argv[1];
+    outname=argv[2];
+    inname=argv[3];
+    
     /* check if layers specified*/
-    if (argc>optind+3){
+    if (n_opts>3){
 	    int i;
-	    n_layers=argc-optind-3;
+	    n_layers=n_opts-3;
 	    layer_names=malloc(sizeof( char*)*(n_layers+1));
 	    for (i=0; i<n_layers; i++){
-		    layer_names[i]=argv[optind+3+i];
+		    layer_names[i]=argv[3+i];
 	    }
 	    layer_names[n_layers]=NULL; /*terminator*/
     }
@@ -313,4 +339,7 @@ int main(int argc, char *argv[])
     if (layer_names!=NULL)
 		free(layer_names);
     return err;
-   }
+    usage:
+	Usage(0);
+	exit(1);
+}

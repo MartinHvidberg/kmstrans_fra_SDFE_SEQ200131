@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <float.h>
+#define INFINITY (DBL_MAX+DBL_MAX)
+#define NAN (INFINITY-INFINITY)
+#endif
 #include "geo_lab.h"
 #include "fgetln_kms.h"
 #include "sgetg.h"
@@ -15,6 +20,8 @@
 #define MAX_WARNINGS (50)
 #define CHECK_WARNING_RATIO (500) /*check ratio for every 500 lines*/
 #define MAX_ITEMS (256)
+
+
 static int split_tokens(char *line, char *delimiter, char **items, int max_items){
 	char *item;
 	int n_items=0;
