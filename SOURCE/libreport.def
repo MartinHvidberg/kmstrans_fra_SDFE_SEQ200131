@@ -1,0 +1,9 @@
+EXPORTS
+    Report
+    SetCallBack
+    InitialiseReport
+    TerminateReport
+    SetLogFile
+    GetErrors
+    AppendGeoid
+    LogGeoids

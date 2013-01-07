@@ -1,0 +1,9 @@
+EXPORTS
+   TransformOGR
+   GetOGRDrivers
+   Close
+   Open
+   GetLayer
+   GetNextGeometry
+   GetCoords
+   RedirectOGRErrors

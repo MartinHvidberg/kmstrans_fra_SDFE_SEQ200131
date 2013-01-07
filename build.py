@@ -24,11 +24,12 @@ from TrLib_constants import OGRLIB,TRLIB,TROGRNAME
 
 def Usage():
 	print("To run:")
-	print("%s <path_to_trlib> -gdal <path_to_gdal_dev_installation> -cc <gcc_like_compiler> -notrlib OR ...extra args... to py_build.py" %os.path.basename(sys.argv[0]))
+	print("%s <path_to_trlib> -gdal <path_to_gdal_dev_installation> -cc <gcc_like_compiler> OR -msvc -notrlib OR ...extra args... to py_build.py" %os.path.basename(sys.argv[0]))
 	print("-gdal <path_to_gdal_dev_installation> MUST be used on windows. On Linux you can also set LD_LIBRARY_PATH.")
 	print("e.g. -gdal C:\gdal192 or -gdal /opt/local, where these have subdirs 'lib' and 'include'.") 
 	print("Use -notrlib to NOT build TrLib, or append extra args to the trlib build script TR_BUILD/py_build.py")
 	print("-cc <gcc_like_compiler> to override the specific compiler 'gcc' in the builds of trogr and trlib.")
+	print("OR (optionally) -msvc to build with msvc (cl).")
 	print("Use space between option key and option value! e.g. -cc /opt/local/bin/gcc4.6")
 
 def RunCommand(cmd):
