@@ -35,7 +35,8 @@ import threading, subprocess
 import File2File
 import sys,os,time
 import EmbedPython
-DEBUG=False
+
+DEBUG="-debug" in sys.argv
 
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
@@ -56,6 +57,12 @@ GDAL_PREFIX=os.path.join(PREFIX,"gdal")
 DATA_PREFIX=os.path.join(PREFIX,"gdal-data")
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
+PLUGIN_PATH=os.path.expanduser(os.path.join("~",".gsttrans","plugins"))
+if not os.path.exists(PLUGIN_PATH):
+	try:
+		os.makedirs(PLUGIN_PATH)
+	except:
+		pass
 DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
@@ -163,6 +170,17 @@ def LordCallback(err_class,err_code,msg):
 	except:
 		pass
 
+#Get a list of plugins
+def GetPlugins(path):
+	if not os.path.exists(path):
+		return []
+	files=os.listdir(path)
+	plugins=[]
+	for name in files:
+		location=os.path.join(path,name)
+		if os.path.isdir(location):
+			plugins.append(os.path.basename(name))
+	return plugins
 
 #A class to keep cached output data#
 class PointData(object):
@@ -388,7 +406,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.log_interactive("Running thorugh py2exe")
 		#redirect python output#
 		sys.stdout=RedirectOutput(self.log_pythonStdOut)
-		sys.stderr=RedirectOutput(self.log_pythonStdErr)
 		#init TrLib and load settings#
 		ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
 		TrLib.SetMessageHandler(LordCallback)
@@ -414,9 +431,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.initRegion()
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
 		#Setup for interactive python session. TODO: add some stuff to namespace#
-		self.python_console=EmbedPython.PythonConsole({})
 		self.log_pythonStdOut("Python version:\n"+sys.version)
+		namespace={"loadPlugins":self.loadPlugins,"mainWindow":self}
+		self.python_console=EmbedPython.PythonConsole(namespace)
 		self.python_console.ExecuteCode("from TrLib import *")
+		self.loadPlugins()
 		if HAS_QSCI:
 			self.txt_python_in=Qsci.QsciScintilla(self.tab_python)
 			self.txt_python_in.setLexer(Qsci.QsciLexerPython())
@@ -434,6 +453,9 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.tab_gsttrans.setCurrentIndex(0)
 		except:
 			pass
+		#Only now - redirect python stderr - to be able to see errors in the initialisation#
+		sys.stderr=RedirectOutput(self.log_pythonStdErr)
+		
 	def onExit(self):
 		self.close()
 	def onActionWhatsThis(self):
@@ -1345,6 +1367,20 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				os.environ["TR_TABDIR"]=self.geoids
 			else:
 				self.message("Failed to set geoid dir!\n%s" %msg)
+	#PLUGIN LOADER#
+	def loadPlugins(self):
+		plugins=GetPlugins(PLUGIN_PATH)
+		if len(plugins)>0:
+			if not PLUGIN_PATH in sys.path:
+				sys.path.insert(0,PLUGIN_PATH)
+			for plugin in plugins:
+				self.log_pythonStdOut("Loading plugin: %s" %plugin,color="brown")
+				try:
+					self.python_console.ExecuteCode("import %s" %plugin)
+				except Exception,msg:
+					print repr(msg)
+		else:
+			self.log_pythonStdOut("No python plugins in "+PLUGIN_PATH)
 	#ON CLOSE - SAVE SETTINGS#
 	def closeEvent(self, event):
 		self.saveSettings()
