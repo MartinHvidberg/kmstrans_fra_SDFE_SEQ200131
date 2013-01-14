@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #ifdef _MSC_VER
 #include <float.h>
 #define INFINITY (DBL_MAX+DBL_MAX)
@@ -20,21 +21,6 @@
 #define MAX_WARNINGS (50)
 #define CHECK_WARNING_RATIO (500) /*check ratio for every 500 lines*/
 #define MAX_ITEMS (256)
-
-
-static int split_tokens(char *line, char *delimiter, char **items, int max_items){
-	char *item;
-	int n_items=0;
-	item=strtok(line,delimiter);
-	if (item==NULL){
-		return 0;
-	}
-	while (item && n_items<max_items){
-		*(items+n_items++)=item;
-		item=strtok(NULL,delimiter);
-	}
-	return n_items;
-}
 
 /*slightly complicated because of that !?! format....*/
 /* skip single spaces and comments - gives a more machine readable kms-format*/
@@ -70,10 +56,10 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
     double r2d=R2D;
     double d2r=D2R;
     FILE *f_in, *f_out;
-    int ERR = 0,i=0,is_geo_in=0,is_geo_out=0;
+    int ERR = 0,is_geo_in=0,is_geo_out=0;
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
     int look_for_label;
-    int lines_read=0, mlbs_found=0, n_items=0, max_col,min_col, coords_to_find,is_stdout,is_stdin;
+    int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
     int coord_order[3]={0,1,2};
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
@@ -192,9 +178,9 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
     while (0!= fgets(buf, BUFSIZE, f_in)) {
         int    argc, err;
         double coords[3]={NAN,NAN,NAN},store,x,y,z;
-	char *current_pos,*end_pointer,*current_pos_out,*current_test_char,sep_char_found,n_read;
+	char *current_pos,*end_pointer,*current_pos_out,*current_test_char,sep_char_found='\0',n_read;
 	char *coord_positions[6]={NULL,NULL,NULL,NULL,NULL,NULL};
-	int current_col=0, coords_found=0, found_z=0, insert_z=0,found_next_col;
+	int current_col=0, coords_found=0, found_z=0, insert_z=0,found_next_col=0;
 	/*struct typ_dec type_out;*/
 	lines_read++;
 	
@@ -367,7 +353,7 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 			Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
 		else if (n_warnings==MAX_WARNINGS)
 			Report(REP_WARNING,0,VERB_LOW,"Line %d, not all coords found - this warning will not be issued anymore.\nDid you set a proper column separator?",lines_read);
-		if (lines_read==CHECK_WARNING_RATIO==0 && n_warnings>MAX_WARNINGS && n_warnings*0.25>n_trans_ok)
+		if (lines_read==CHECK_WARNING_RATIO && n_warnings>MAX_WARNINGS && n_warnings*0.25>n_trans_ok)
 			Report(REP_ERROR,TR_ERROR,VERB_LOW,"High fraction of lines without coordinates, bad column separator?");
 		n_warnings++;
 		continue;

@@ -44,7 +44,7 @@ H_SYSTEMS_FO=["E","fvr09","foldmsl"]
 SYSTEMS_GR=["utm22Ngr96","utm24Ngr96","utm26Ngr96","geoNgr96"]
 H_SYSTEMS_GR=["E","N","msl"]
 #WORLD
-SYSTEMS_WORLD=["webmrcE","mrc0Ewgs84","geoEwgs84"]
+SYSTEMS_WORLD=["webmrcE","mrc0Ewgs84","geoEwgs84","crt_wgs84"]
 H_SYSTEMS_WORLD=["E","N","msl"]
 #INIT COORDS IN FIRST 'DEFAULT' SYSTEM IN LIST
 INIT_DK=[615923.206,6115220.6360,0]

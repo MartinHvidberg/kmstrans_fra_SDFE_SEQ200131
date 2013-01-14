@@ -517,7 +517,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tab_gsttrans">
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
@@ -1070,25 +1070,25 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="bt_f2f_settings">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis">
+                <string>Open settings specific for the TEXT format.</string>
+               </property>
+               <property name="text">
+                <string>Open TEXT settings</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="bt_f2f_settings">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="whatsThis">
-           <string>Open settings specific for the TEXT format.</string>
-          </property>
-          <property name="text">
-           <string>Open TEXT settings</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -1102,52 +1102,102 @@
           <property name="title">
            <string>Source</string>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
-            <widget class="QLabel" name="lbl_f2f_input_file">
-             <property name="text">
-              <string>Input path or connection string: </string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="lbl_f2f_input_file">
+               <property name="text">
+                <string>Input path or connection string: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txt_f2f_input_file">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A simple file name or, if using OGR, a connection string to e.g. a database.&lt;/p&gt;&lt;p&gt;Use * wildcards for globbing over several  input files in a directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="bt_f2f_browse_input">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Browse files</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="bt_f2f_browse_input_dir">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Browse dirs</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QLineEdit" name="txt_f2f_input_file">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="sizeIncrement">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A simple file name or, if using OGR, a connection string to e.g. a database.&lt;/p&gt;&lt;p&gt;Use * wildcards for globbing over several  input files in a directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bt_f2f_browse_input">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Browse files</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bt_f2f_browse_input_dir">
-             <property name="text">
-              <string>Browse dirs</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QCheckBox" name="chb_f2f_all_layers">
+               <property name="text">
+                <string>Transform all layers, or specify layers here:</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txt_f2f_layers_in">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Semicolon separated list of layers</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify input layers here, seperated by semicolons. Only valid for OGR input/output and formats that support layers, e.g. a directory of shape files or a FileGDB database.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="bt_f2f_input_layers">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Select input layers</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -2580,6 +2630,70 @@
     <hint type="destinationlabel">
      <x>684</x>
      <y>451</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_ogr</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bt_f2f_input_layers</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>77</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_ogr</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>chb_f2f_all_layers</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>88</x>
+     <y>190</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_ogr</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_f2f_layers_in</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chb_f2f_all_layers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_f2f_layers_in</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>572</x>
+     <y>189</y>
     </hint>
    </hints>
   </connection>

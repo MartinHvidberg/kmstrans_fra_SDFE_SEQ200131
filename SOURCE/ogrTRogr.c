@@ -27,11 +27,22 @@
 #include "Report.h"
 #define MAX_LAYERS (1000)
 
+#ifdef DLL_EXPORT
+#undef DLL_EXPORT
+#ifdef _WIN32
+#define DLL_EXPORT __declspec( dllexport )
+#else
+#define DLL_EXPORT
+#endif
+#else
+#define DLL_EXPORT
+#endif
+
 void CPL_STDCALL TR_OGR_ErrorHandler(CPLErr err, int err_no, const char *msg){
 	Report( (int) err, err_no, VERB_HIGH, msg);
 }
 
-void RedirectOGRErrors(){
+DLL_EXPORT void RedirectOGRErrors(){
 	CPLSetErrorHandler((CPLErrorHandler) TR_OGR_ErrorHandler);
 }
 
@@ -39,7 +50,7 @@ void RedirectOGRErrors(){
 
 
 
-void GetOGRDrivers(char *text){
+DLL_EXPORT void GetOGRDrivers(char *text){
 	int iDriver,ndrivers;
 	OGRSFDriverH poDriver;
 	*text='\0';
@@ -77,7 +88,7 @@ OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
      return srs_out;
 }
 
- int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
+int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
 	 char *p;
 	 char buf[128];
 	 int ok=TR_ERROR;
@@ -118,7 +129,7 @@ OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
 	 return TR_LABEL_ERROR;
  }
 	
- OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num){
+ DLL_EXPORT OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num){
 	 OGRLayerH hLayer=NULL;
 	 if (layer_num<0)
 		 layer_num=0;
@@ -128,14 +139,25 @@ OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
 	return hLayer;
 }
 
- OGRDataSourceH Open(char *inname){
+
+ DLL_EXPORT const char *GetLayerName(OGRLayerH hLayer){
+	return OGR_L_GetName(hLayer);
+}
+
+ DLL_EXPORT int GetLayerCount(OGRDataSourceH hDSin){
+	return OGR_DS_GetLayerCount(hDSin);
+}
+
+
+
+DLL_EXPORT OGRDataSourceH Open(char *inname){
 	 OGRDataSourceH hDSin;
 	 OGRRegisterAll();
 	 hDSin = OGROpen(inname, FALSE, NULL );
 	 return hDSin;
  }
 	 
-void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
+DLL_EXPORT void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
 	int i;
 	double x,y,z;
 	for (i=0;i<np;i++){
@@ -149,7 +171,7 @@ void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
 		
 	
 
- OGRGeometryH GetNextGeometry(OGRLayerH hLayer, int *point_count){
+ DLL_EXPORT OGRGeometryH GetNextGeometry(OGRLayerH hLayer, int *point_count){
 	OGRGeometryH hGeometry;
 	OGRFeatureH hFeature;
 	hFeature = OGR_L_GetNextFeature(hLayer);
@@ -161,7 +183,7 @@ void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
 	return hGeometry;
 }
 
-void Close(OGRDataSourceH hDSin){
+DLL_EXPORT void Close(OGRDataSourceH hDSin){
 	OGR_DS_Destroy( hDSin );
 }
 	
@@ -169,7 +191,7 @@ void Close(OGRDataSourceH hDSin){
 
 	
 
-int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection){
+DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection){
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
 	OGRSFDriverH hDriver;

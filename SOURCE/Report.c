@@ -5,6 +5,17 @@
 #define LEN_GEOID_LIST (1024)
 #define MAX_GEOIDS     (18)
 
+#ifdef DLL_EXPORT
+#undef DLL_EXPORT
+#ifdef _WIN32
+#define DLL_EXPORT __declspec( dllexport )
+#else
+#define DLL_EXPORT
+#endif
+#else
+#define DLL_EXPORT
+#endif
+
 static int (*CALL_BACK)(int, int, const char*) =NULL ;
 static  int N_LOGGED=0;
 static  int N_ERRS=0;
@@ -34,7 +45,7 @@ static unsigned long hash(const char *str)
 This is controlled via the verbosity parameter...
 */
 
-void Report(int class_code, int err_no, int verbosity, const char *frmt, ...){
+DLL_EXPORT void Report(int class_code, int err_no, int verbosity, const char *frmt, ...){
 	char msg[512];
 	int written_now=0;
 	va_list ap;
@@ -49,21 +60,21 @@ void Report(int class_code, int err_no, int verbosity, const char *frmt, ...){
 		va_end(ap);
 		strcat(msg,"\n");
 	}
-	N_LOGGED++;	
-	/* if call back set - handle messages yourself */
+	N_LOGGED++;
+	/* if call back set - handle messages */
 	if (CALL_BACK!=NULL && (verbosity==VERB_LOW || log_file==NULL))
 		CALL_BACK(class_code, err_no, msg);
-	/* else - write to standard file pointers */
 	if (log_file!=NULL)
-		fputs(msg,log_file);
+		fprintf(log_file,"%s",msg);
+	
 	
 }
 
-void SetCallBack( int (*func)(int, int , const char*) ){
+DLL_EXPORT void SetCallBack( int (*func)(int, int , const char*) ){
 	CALL_BACK=func;
 }
 
-void InitialiseReport(){
+DLL_EXPORT void InitialiseReport(){
 	N_GEOIDS=0;
 	GEOID_LIST[0]='\0';
 	N_CHARS_GEOID_LIST=0;
@@ -72,22 +83,22 @@ void InitialiseReport(){
 	N_ERRS=0;
 }
 
-void TerminateReport(){
+DLL_EXPORT void TerminateReport(){
 	if (log_file!=NULL){
 		fclose(log_file);
 		log_file=NULL;
 	}
 }
 
-void SetLogFile(FILE *fp){
+DLL_EXPORT void SetLogFile(FILE *fp){
 	log_file=fp;
 }
 
-int GetErrors(){
+DLL_EXPORT int  GetErrors(){
 	return N_ERRS;
 }
 
-void AppendGeoid(const char *geoid_name){
+DLL_EXPORT void AppendGeoid(const char *geoid_name){
 	int i,n;
 	unsigned long h;
 	if (N_GEOIDS==MAX_GEOIDS)
@@ -121,7 +132,7 @@ void AppendGeoid(const char *geoid_name){
 	return;
 }
 
-void LogGeoids(){
+DLL_EXPORT void LogGeoids(){
 	if (N_GEOIDS>0){
 		Report(REP_INFO,0,VERB_LOW,"\nGeoids used:");
 		Report(REP_INFO,0,VERB_LOW,GEOID_LIST);

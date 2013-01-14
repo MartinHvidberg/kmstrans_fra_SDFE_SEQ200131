@@ -28,6 +28,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from GSTtrans_gui import Ui_GSTtrans
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
+from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 import Minilabel
 import TrLib
 from TrLib_constants import *
@@ -298,7 +299,28 @@ class TextViewer(QDialog):
 		
 		self.setLayout(layout)
 		self.adjustSize()
-		
+
+
+class LayerSelector(QDialog, Ui_Dialog_layer_selector):
+	def __init__(self,parent,layers,txt_field):
+		QtGui.QDialog.__init__(self,parent)
+		self.setupUi(self)
+		for layer in layers:
+			self.listWidget.addItem(layer)
+		#for layer_number in range(len(layers)):
+		#	self.listWidget.setItemSelected(self.listWidget.item(layer_number),True)
+		self.txt_field=txt_field
+		self.adjustSize()
+	def accept(self):
+		txt=""
+		items=self.listWidget.selectedItems()
+		for i in range(len(items)):
+			item=items[i]
+			txt+=str(item.text())
+			if i<len(items)-1:
+				txt+=";"
+		self.txt_field.setText(txt)
+		self.close()
 
 	
 class RedirectOutput(object):
@@ -974,7 +996,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def on_bt_f2f_browse_output_dir_clicked(self):
 		my_file = QFileDialog.getExistingDirectory(self, "Select an output directory",self.dir)
 		if len(my_file)>0:
-			self.txt_f2f_input_file.setText(my_file)
+			self.txt_f2f_output_file.setText(my_file)
 			self.dir=os.path.dirname(str(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_browse_log_clicked(self):
@@ -982,6 +1004,18 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if len(my_file)>0:
 			self.txt_f2f_log_name.setText(my_file)
 			self.dir=os.path.dirname(str(my_file))
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_f2f_input_layers_clicked(self):
+		inname=str(self.txt_f2f_input_file.text())
+		if len(inname)>0:
+			ds=File2File.Open(inname)
+			if ds is not None:
+				layers=File2File.GetLayerNames(ds)
+				File2File.Close(ds)
+				dlg=LayerSelector(self,layers,self.txt_f2f_layers_in)
+				dlg.show()
+			else:
+				self.message("Failed to open %s" %inname)
 	def onF2FSystemInChanged(self):
 		mlb_in=str(self.cb_f2f_input_system.currentText())
 		text=self.GetDescription(mlb_in)

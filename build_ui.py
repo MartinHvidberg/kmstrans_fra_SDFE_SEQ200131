@@ -10,3 +10,7 @@ cmd="pyuic4 -o Dialog_settings_f2f.py -x %s" %(os.path.join("UI","Dialog_setting
 print cmd
 rc=os.system(cmd)
 print("Return code: %d" %rc)
+cmd="pyuic4 -o Dialog_layer_selector.py -x %s" %(os.path.join("UI","Dialog_layer_selector.ui"))
+print cmd
+rc=os.system(cmd)
+print("Return code: %d" %rc)

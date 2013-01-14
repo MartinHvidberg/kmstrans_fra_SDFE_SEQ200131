@@ -58,7 +58,7 @@ class F2F_Settings(object):
 		self.be_verbose=False
 		self.ds_in=None
 		self.ds_out=None
-		self.input_layers=[]
+		self.input_layers={}
 		self.accepted=False
 		self.sep_char=None
 		self.log_file=None
@@ -83,7 +83,11 @@ def InitOGR(prefix,lib_name=OGRLIB):
 		ogrlib.GetOGRDrivers.argtypes=[C_CHAR_P]
 		ogrlib.GetOGRDrivers.restype=None
 		ogrlib.GetLayer.restype=ctypes.c_void_p
-		ogrlib.GetLayer.argtypes=[ctypes.c_void_p,ctypes.c_int]
+		ogrlib.GetLayer.argtypes=[ctypes.c_void_p,C_INT]
+		ogrlib.GetLayerCount.restype=C_INT
+		ogrlib.GetLayerCount.argtypes=[ctypes.c_void_p]
+		ogrlib.GetLayerName.restype=C_CHAR_P
+		ogrlib.GetLayerName.argtypes=[ctypes.c_void_p]
 		ogrlib.GetNextGeometry.restype=ctypes.c_void_p
 		ogrlib.GetNextGeometry.argtypes=[ctypes.c_void_p,LP_c_int]
 		ogrlib.Close.restype=None
@@ -171,7 +175,7 @@ def TransformDatasource(options,log_method,post_method):
 		return False,"More than one input datasource specified - output datasource must be a directory."
 	#Really start a thread here#
 	args=[TROGR]+args+[options.mlb_out]
-	if len(files)>0 and os.path.isdir(options.ds_out):
+	if len(files)>1 and os.path.isdir(options.ds_out):
 		files_out=[os.path.join(options.ds_out,fname) for fname in files]
 	else:
 		files_out=[options.ds_out]
@@ -278,7 +282,13 @@ def GetLines(inname):
 	Close(ds)
 	return lines
 		
-	
+def GetLayerNames(ds):
+	layers=[]
+	if ds is not None:
+		n=ogrlib.GetLayerCount(ds)
+		for i in range(n):
+			layers.append(ogrlib.GetLayerName(ogrlib.GetLayer(ds,i)))
+	return layers
 
 
 #TODO: Improve KMS 'driver'#

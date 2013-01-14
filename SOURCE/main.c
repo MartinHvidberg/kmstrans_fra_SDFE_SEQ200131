@@ -28,7 +28,7 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.01 - 2013-01-05")
+#define VERSION  ("1.01 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -109,8 +109,7 @@ int message_handler(int err_class, int err_code, const char *msg){
 
 
 int main(int argc, char *argv[])
-{  int c;
-    int digit_optind = 0;
+{  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL;
     char *key,*val,opts[]="p:d:f:s:x:y:z:l:n;v;"; /*for processing command line options*/
@@ -269,6 +268,20 @@ int main(int argc, char *argv[])
     }
     else
 	    set_lord_outputs(stdout,stdout,stderr,stderr,stderr);
+    #ifdef _DEBUG
+    printf("N_OPTS: %d\n",n_opts);
+    while (n_opts>=0){
+	    puts(argv[n_opts]);
+	    n_opts--;
+    }
+    puts(drv_in);
+    if (log_name)
+	puts(log_name);
+    puts(drv_out);
+    fputs("ost\n",fp_log);
+    fflush(fp_log);
+    Report(REP_INFO,0,VERB_LOW,"POPS"); /*crashes here with MSVC*/
+    #endif
     /*TODO: control this via options*/
     set_lord_modes(be_verbose,be_verbose,1,1,1);
     set_lord_verbosity_levels(3,3,3,3,3);

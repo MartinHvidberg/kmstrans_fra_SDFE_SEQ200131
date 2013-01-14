@@ -4,6 +4,8 @@ EXPORTS
    Close
    Open
    GetLayer
+   GetLayerCount
+   GetLayerName
    GetNextGeometry
    GetCoords
    RedirectOGRErrors
