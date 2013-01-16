@@ -38,7 +38,7 @@ import sys,os,time
 import EmbedPython
 
 DEBUG="-debug" in sys.argv
-
+OVERRIDE_LOCAL_GDAL="-my_gdal" in sys.argv
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
 	sys.frozen
@@ -55,7 +55,10 @@ BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
 #PATHS TO A MINIMAL DEFAULT GDAL INSTALLATION ON WINDOWS
 GDAL_PREFIX=os.path.join(PREFIX,"gdal")
-DATA_PREFIX=os.path.join(PREFIX,"gdal-data")
+GDAL_DATA_PATH=os.path.join(GDAL_PREFIX,"gdal-data")
+GDAL_PLUGIN_PATH=os.path.join(GDAL_PREFIX,"plugins")
+GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
+#OTHER PATHS
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
 PLUGIN_PATH=os.path.expanduser(os.path.join("~",".gsttrans","plugins"))
@@ -68,21 +71,19 @@ DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
 #SET UP ENVIRONMENT#
-if IS_WINDOWS:
-	if (not "GDAL_DATA" in os.environ) and os.path.exists(DATA_PREFIX):
-		os.environ["GDAL_DATA"]=DATA_PREFIX
-	#APPEND GDAL TO PATH  -
-	#THIS WILL ALLOW USE OF A SEPARATE GDAL INSTALLATION WHICH OVERRIDES THE DEFAULT ONE
-	if os.path.exists(GDAL_PREFIX):
+#Set up local GDAL env#
+IS_LOCAL_GDAL=False
+if (os.path.exists(GDAL_PREFIX)) and (not OVERRIDE_LOCAL_GDAL) and IS_WINDOWS:
+	if os.path.exists(GDAL_DATA_PATH):
+		os.environ["GDAL_DATA"]=GDAL_DATA_PATH
+	if os.path.exists(GDAL_PLUGIN_PATH):
+		os.environ["GDAL_DRIVER_PATH"]=GDAL_PLUGIN_PATH
+	if os.path.exists(GDAL_BIN_PATH):
 		env=os.environ["PATH"]
-		if env[-1]!=os.pathsep:
-			sep=os.pathsep
-		else:
-			sep=""
-		add_path=GDAL_PREFIX
-		env+="%s%s" %(sep,add_path)
-		os.environ["PATH"]=env
-#MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX - THEY SEEM TO AUTOMATICALLY BE AS LONG AS LOCATED NEXT TO EXECUTABLE...
+		os.environ["PATH"]=GDAL_BIN_PATH+os.pathsep+env
+	IS_LOCAL_GDAL=True
+	
+#MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX/MAC - THEY SEEM TO AUTOMATICALLY BE AS LONG AS LOCATED NEXT TO EXECUTABLE...
 #END SETUP ENV#
 
 if DEBUG:
@@ -448,6 +449,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
 		#Will initialise some attributes which must be present in other methods#
+		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
 		self.initF2FTab()
 		self.drawMap()
 		self.initRegion()
@@ -507,9 +509,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.scene.addLine(0,90,0,-90)
 		self.map_point=QtGui.QGraphicsEllipseItem(0,0,10,10)
 		self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 200)))
-		self.mapthread=MapThread(self)
-		self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
-		
+		if self.has_ogr:
+			self.mapthread=MapThread(self)
+			self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
+		else:
+			self.scene.addItem(self.map_point)
 	def customEvent(self,event):
 		if int(event.type())==RENDER_COMPLETE:
 			paths=self.mapthread.paths
@@ -919,18 +923,20 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		return x,y,z
 	#TAB  File2File#
 	def initF2FTab(self):
-		ok1=File2File.InitOGR(BIN_PREFIX)
-		if not ok1:
+		if not self.has_ogr:
 			self.rdobt_f2f_ogr.setEnabled(False)
-			self.log_f2f("OGR library not available.")
-			self.rdobt_f2f_simple_text.setChecked(True)
-		else:
-			frmts=File2File.GetOGRFormats()
-			self.cb_f2f_ogr_driver.addItems(frmts)
+			self.log_f2f("OGR library not available. A proper gdal installation might not be present?")
+			self.tab_ogr.setEnabled(False)
+			return
+		if IS_LOCAL_GDAL:
+			self.log_interactive("Using local GDAL installation")
+		frmts=File2File.GetOGRFormats()
+		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
 		rc=File2File.TestCommand(self.log_f2f)
 		if (rc!=0):
-			self.message("File2File tab not available. Unable to load parsing libraries")
+			self.message("Batch transformation program %s not availabe!" %TROGR)
+			self.tab_ogr.setEnabled(False)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_execute_clicked(self):
 		self.transformFile2File()
@@ -1067,8 +1073,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.f2f_settings.ds_in=file_in
 		self.f2f_settings.ds_out=file_out
 		self.f2f_settings.mlb_out=mlb_out
-		
 		self.f2f_settings.set_projection=self.chb_f2f_set_projection.isChecked()
+		if (not self.chb_f2f_all_layers.isChecked()) and self.f2f_settings.driver=="OGR":
+			_layers=str(self.txt_f2f_layers_in.text()).split(";")
+			layers=[]
+			for layer in _layers:
+				if len(layer)>0:
+					layers.append(layer.strip())
+			self.f2f_settings.input_layers=layers
+		else:
+			self.f2f_settings.input_layers=[]
 		if not self.chb_f2f_label_in_file.isChecked():
 			self.f2f_settings.mlb_in=mlb_in
 		else:

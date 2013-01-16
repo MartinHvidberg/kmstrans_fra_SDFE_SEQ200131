@@ -26,7 +26,7 @@ from TrLib_constants import OGRLIB
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
 IS_PY2EXE=False
-
+CREATE_NO_WINDOW=134217728 #creation flag to not create a 'console' on startup of a subprocess on windows
 if IS_WINDOWS:
 	try:
 		sys.frozen
@@ -34,7 +34,8 @@ if IS_WINDOWS:
 		pass
 	else:
 		IS_PY2EXE=True
-		import win32process
+		
+		
 	
 
 
@@ -44,6 +45,8 @@ C_CHAR_P=ctypes.c_char_p
 C_INT=ctypes.c_int
 LP_c_double=ctypes.POINTER(ctypes.c_double)
 LP_c_int=ctypes.POINTER(ctypes.c_int)
+#pointer to ogrlib
+ogrlib=None
 
 class F2F_Settings(object):
 	def __init__(self):
@@ -58,7 +61,7 @@ class F2F_Settings(object):
 		self.be_verbose=False
 		self.ds_in=None
 		self.ds_out=None
-		self.input_layers={}
+		self.input_layers=[]
 		self.accepted=False
 		self.sep_char=None
 		self.log_file=None
@@ -106,18 +109,29 @@ def InitOGR(prefix,lib_name=OGRLIB):
 def RunCommand(args,post_method=None):
 	if post_method is not None:
 		post_method(repr(args))
+	if IS_WINDOWS:
+		flags=CREATE_NO_WINDOW
+	else:
+		flags=0
 	try:
-		#hack to make piping work under py2exe
-		if IS_PY2EXE:
-			prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True,creationflags=win32process.CREATE_NO_WINDOW)
-		else:
-			prc=prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+		#hack to make piping work in all cases:
+		# Under Py2EXE if started by double click, or from shell, from python if started as .pyw or .py by click or from shell.
+		#previous hack
+		#if IS_PY2EXE:
+		#	prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True,creationflags=win32process.CREATE_NO_WINDOW)
+		#else:
+		prc=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,creationflags=flags)
 	except Exception,msg:
-		if post_method is not None:
-			post_method(repr(msg))
-		return TrLib.TR_ERROR
+		try:
+			#here's the real hack, explicitely open stdin and close again!
+			prc=subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,creationflags=flags)
+			prc.stdin.close()
+		except:
+			if post_method is not None:
+				post_method(repr(msg))
+			return TrLib.TR_ERROR
 	while prc.poll() is None:
-		#read input
+		#read input - consider using orc.communicate
 		line=prc.stdout.readline()
 		if post_method is not None:
 			post_method(line.rstrip())
@@ -149,6 +163,8 @@ def TransformDatasource(options,log_method,post_method):
 	if options.driver=="OGR":
 		if options.format_out is not None:
 			args+= ['-f',options.format_out]
+	elif len(options.input_layers)>0:
+		return False,"Input layers can only be specified for OGR datasources"
 	elif options.driver=="TEXT":
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'TEXT' driver you can batch several files using the * expansion char."
@@ -171,8 +187,11 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-d','KMS']
 		#TODO: implement extra options for KMS-driver#
 	files=glob.glob(options.ds_in)
-	if len(files)>1 and not os.path.isdir(options.ds_out):
-		return False,"More than one input datasource specified - output datasource must be a directory."
+	if len(files)>1: 
+		if not os.path.isdir(options.ds_out):
+			return False,"More than one input datasource specified - output datasource must be a directory."
+		if len(options.input_layers)>0:
+			return False,"Input layers can only be specified for a single OGR datasource."
 	#Really start a thread here#
 	args=[TROGR]+args+[options.mlb_out]
 	if len(files)>1 and os.path.isdir(options.ds_out):
@@ -180,22 +199,24 @@ def TransformDatasource(options,log_method,post_method):
 	else:
 		files_out=[options.ds_out]
 	options.output_files=files_out
-	thread=WorkerThread(log_method,post_method,args,files,files_out)
+	thread=WorkerThread(log_method,post_method,args,files,files_out,options.input_layers)
 	thread.start()
 	return True,"Thread started..."
 
 class WorkerThread(threading.Thread):
-	def __init__(self,log_method,post_method,args,files_in,files_out):
+	def __init__(self,log_method,post_method,args,files_in,files_out,layers):
 		threading.Thread.__init__(self)
 		self.log_method=log_method
 		self.post_method=post_method
 		self.files_in=files_in
 		self.files_out=files_out
 		self.args=args
+		self.layers=layers
 	def run(self):
 		n_errs=0
+		rc=0
 		for f_in,f_out in zip(self.files_in,self.files_out):
-			args=self.args+[f_out,f_in]
+			args=self.args+[f_out,f_in]+self.layers
 			rc=RunCommand(args,self.log_method)
 			if rc!=0:
 				n_errs+=1

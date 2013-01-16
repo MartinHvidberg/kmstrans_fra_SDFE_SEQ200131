@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 	    n_layers=n_opts-3;
 	    layer_names=malloc(sizeof( char*)*(n_layers+1));
 	    for (i=0; i<n_layers; i++){
-		    layer_names[i]=argv[3+i];
+		    layer_names[i]=argv[4+i];
 	    }
 	    layer_names[n_layers]=NULL; /*terminator*/
     }

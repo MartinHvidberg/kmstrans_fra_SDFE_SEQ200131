@@ -105,7 +105,7 @@ except:
 libogr=os.path.join(BIN_DIR,OGRLIB)
 libreport=os.path.join(BIN_DIR,"libreport")+core.DLL
 libtr=os.path.join(BIN_DIR,TRLIB) #.DLL already appended
-trogr=os.path.join(BIN_DIR,TROGRNAME) #.EXE already appended?
+trogr=os.path.join(BIN_DIR,TROGRNAME)+core.EXE #.EXE already appended?
 buildtrlib=os.path.join(trlib,"TR_BUILD","py_build.py")
 #BUILD C-source#
 if not "-notrlib" in args:

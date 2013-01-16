@@ -360,8 +360,13 @@ int TransformOGRDatasource(
 			hLayer=OGR_DS_GetLayer( hDSin,layer_num);
 		}
 		else{/*loop over layer names only*/
-			if (layer_names[layer_num]!=NULL)
+			if (layer_names[layer_num]!=NULL){
 				hLayer=OGR_DS_GetLayerByName(hDSin,layer_names[layer_num]);
+				if (hLayer==NULL){
+					Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to fetch layer: %s",layer_names[layer_num]);
+					continue;
+				}
+			}
 			else
 				break;
 		} 
