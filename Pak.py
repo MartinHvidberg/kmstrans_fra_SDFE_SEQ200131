@@ -27,4 +27,8 @@ try:
 	shutil.copytree("gdal","dist\\gdal")
 except:
 	print("Could not copy gdal installation")
+try:
+	os.rename("dist","GSTtrans")
+except:
+	pass
 sys.exit()

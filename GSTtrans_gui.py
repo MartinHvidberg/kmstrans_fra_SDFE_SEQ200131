@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Sat Jan 12 16:07:50 2013
+# Created: Wed Jan 16 21:52:21 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -491,6 +491,7 @@ class Ui_GSTtrans(object):
         self.chb_f2f_all_layers.setObjectName(_fromUtf8("chb_f2f_all_layers"))
         self.horizontalLayout_12.addWidget(self.chb_f2f_all_layers)
         self.txt_f2f_layers_in = QtGui.QLineEdit(self.groupBox_3)
+        self.txt_f2f_layers_in.setEnabled(False)
         self.txt_f2f_layers_in.setObjectName(_fromUtf8("txt_f2f_layers_in"))
         self.horizontalLayout_12.addWidget(self.txt_f2f_layers_in)
         self.bt_f2f_input_layers = QtGui.QPushButton(self.groupBox_3)
@@ -683,13 +684,17 @@ class Ui_GSTtrans(object):
         self.bt_f2f_view_output.setObjectName(_fromUtf8("bt_f2f_view_output"))
         self.gridLayout.addWidget(self.bt_f2f_view_output, 0, 1, 1, 1)
         spacerItem19 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem19, 0, 4, 1, 1)
+        self.gridLayout.addItem(spacerItem19, 0, 5, 1, 1)
         self.bt_f2f_view_log = QtGui.QPushButton(self.tab_ogr)
         self.bt_f2f_view_log.setObjectName(_fromUtf8("bt_f2f_view_log"))
         self.gridLayout.addWidget(self.bt_f2f_view_log, 0, 2, 1, 1)
         self.bt_f2f_clear_log = QtGui.QPushButton(self.tab_ogr)
         self.bt_f2f_clear_log.setObjectName(_fromUtf8("bt_f2f_clear_log"))
         self.gridLayout.addWidget(self.bt_f2f_clear_log, 0, 3, 1, 1)
+        self.bt_f2f_kill = QtGui.QPushButton(self.tab_ogr)
+        self.bt_f2f_kill.setEnabled(False)
+        self.bt_f2f_kill.setObjectName(_fromUtf8("bt_f2f_kill"))
+        self.gridLayout.addWidget(self.bt_f2f_kill, 0, 4, 1, 1)
         self.verticalLayout_5.addLayout(self.gridLayout)
         self.tab_gsttrans.addTab(self.tab_ogr, _fromUtf8(""))
         self.tab_utilities = QtGui.QWidget()
@@ -1123,6 +1128,7 @@ class Ui_GSTtrans(object):
         self.bt_f2f_view_output.setText(QtGui.QApplication.translate("GSTtrans", "View output", None, QtGui.QApplication.UnicodeUTF8))
         self.bt_f2f_view_log.setText(QtGui.QApplication.translate("GSTtrans", "View log file", None, QtGui.QApplication.UnicodeUTF8))
         self.bt_f2f_clear_log.setText(QtGui.QApplication.translate("GSTtrans", "Clear log window", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_f2f_kill.setText(QtGui.QApplication.translate("GSTtrans", "Kill process", None, QtGui.QApplication.UnicodeUTF8))
         self.tab_gsttrans.setTabText(self.tab_gsttrans.indexOf(self.tab_ogr), QtGui.QApplication.translate("GSTtrans", "Batch", None, QtGui.QApplication.UnicodeUTF8))
         self.gb_bshlm.setTitle(QtGui.QApplication.translate("GSTtrans", "Bessel Helmert", None, QtGui.QApplication.UnicodeUTF8))
         self.label_10.setText(QtGui.QApplication.translate("GSTtrans", "Description:", None, QtGui.QApplication.UnicodeUTF8))

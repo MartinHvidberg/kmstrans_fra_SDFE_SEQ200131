@@ -26,7 +26,8 @@ from TrLib_constants import OGRLIB
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
 IS_PY2EXE=False
-CREATE_NO_WINDOW=134217728 #creation flag to not create a 'console' on startup of a subprocess on windows
+CREATE_NO_WINDOW=134217728 #creation flag to not create a 'console' on startup of a subprocess on windows - see msdn documentation... 
+PROCESS_TERMINATED=314159265 #Special signal to post when a process is terminated...
 if IS_WINDOWS:
 	try:
 		sys.frozen
@@ -79,9 +80,9 @@ def SetCommand(prog_path):
 #LOAD LIBRARY#
 def InitOGR(prefix,lib_name=OGRLIB):
 	global ogrlib
+	path=os.path.join(prefix,lib_name)
 	#SETUP HEADER#
 	try:
-		path=os.path.join(prefix,lib_name)
 		ogrlib=ctypes.cdll.LoadLibrary(path)
 		ogrlib.GetOGRDrivers.argtypes=[C_CHAR_P]
 		ogrlib.GetOGRDrivers.restype=None
@@ -101,14 +102,22 @@ def InitOGR(prefix,lib_name=OGRLIB):
 		ogrlib.GetCoords.restype=None
 	#END HEADER#
 	except Exception,msg:
-		print msg,path
+		print repr(msg),path
 		return False
 	return True
-	
 
-def RunCommand(args,post_method=None):
-	if post_method is not None:
-		post_method(repr(args))
+def KillThreads():
+	threads=threading.enumerate()
+	for thread in threads:
+		if isinstance(thread,WorkerThread):
+			thread.kill()
+	
+#Will return:
+#if return_process:
+#None, err_msg or valid_process,""
+#else
+#rc,stdout/stderr
+def RunCommand(args,return_process=False):
 	if IS_WINDOWS:
 		flags=CREATE_NO_WINDOW
 	else:
@@ -127,22 +136,22 @@ def RunCommand(args,post_method=None):
 			prc=subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,creationflags=flags)
 			prc.stdin.close()
 		except:
-			if post_method is not None:
-				post_method(repr(msg))
-			return TrLib.TR_ERROR
-	while prc.poll() is None:
-		#read input - consider using orc.communicate
-		line=prc.stdout.readline()
-		if post_method is not None:
-			post_method(line.rstrip())
-	post_method(prc.stdout.read())
-	return prc.poll()
-	
-def TestCommand(post_method):
-	if TROGR is None:
-		return TrLib.TR_ERROR
+			if return_process:
+				return None,repr(msg)
+			else:
+				return TrLib.TR_ERROR,repr(msg)
+	if return_process:
+		return prc,""
 	else:
-		return RunCommand([TROGR,"--version"],post_method)
+		stdout,stderr=prc.communicate()
+		return prc.poll(),stdout
+	
+	
+def TestCommand():
+	if TROGR is None:
+		return TrLib.TR_ERROR,"Command not set"
+	else:
+		return RunCommand([TROGR,"--version"])
 
 class ReturnValue(object):
 	def __init__(self,msg="",rc=0):
@@ -212,17 +221,40 @@ class WorkerThread(threading.Thread):
 		self.files_out=files_out
 		self.args=args
 		self.layers=layers
+		self.kill_flag=threading.Event()
+	def kill(self):
+		self.kill_flag.set()
 	def run(self):
 		n_errs=0
 		rc=0
+		last_err=0
+		self.kill_flag.clear()
 		for f_in,f_out in zip(self.files_in,self.files_out):
 			args=self.args+[f_out,f_in]+self.layers
-			rc=RunCommand(args,self.log_method)
+			self.log_method(repr(args))
+			prc,msg=RunCommand(args,True)
+			if prc is None:
+				self.log_method(msg)
+				self.post_method(1)
+				return
+			while prc.poll() is None and (not self.kill_flag.isSet()):
+				#read input - consider using prc.communicate as this might deadlock due to other os processes
+				#but then again - its the only callback mechanism for reporting progress thats really available in this setup...
+				line=prc.stdout.readline()
+				self.log_method(line.rstrip())
+			#process was killed
+			if (self.kill_flag.isSet()):
+				prc.terminate()
+				self.post_method(PROCESS_TERMINATED) #a special termination signal...
+				return
+			self.log_method(prc.stdout.read().strip())
+			rc=prc.poll()	
 			if rc!=0:
+				last_err=rc
 				n_errs+=1
 			if n_errs>10:
 				self.log_method("Many errors, aborting....")
-				self.post_method(rc)
+				self.post_method(last_err)
 				return
 		self.post_method(rc)
 	

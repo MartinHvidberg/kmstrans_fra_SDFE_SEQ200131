@@ -457,6 +457,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		#Setup for interactive python session. TODO: add some stuff to namespace#
 		self.log_pythonStdOut("Python version:\n"+sys.version)
 		namespace={"loadPlugins":self.loadPlugins,"mainWindow":self}
+		self.log_pythonStdOut("Handle to main window %s stored in name: mainWindow" %repr(self.__class__),color="brown")
 		self.python_console=EmbedPython.PythonConsole(namespace)
 		self.python_console.ExecuteCode("from TrLib import *")
 		self.loadPlugins()
@@ -929,14 +930,15 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.tab_ogr.setEnabled(False)
 			return
 		if IS_LOCAL_GDAL:
-			self.log_interactive("Using local GDAL installation")
+			self.log_interactive("Using local GDAL installation.")
 		frmts=File2File.GetOGRFormats()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
-		rc=File2File.TestCommand(self.log_f2f)
+		rc,msg=File2File.TestCommand()
 		if (rc!=0):
 			self.message("Batch transformation program %s not availabe!" %TROGR)
 			self.tab_ogr.setEnabled(False)
+		self.log_f2f(msg)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_execute_clicked(self):
 		self.transformFile2File()
@@ -1097,16 +1099,24 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.bt_f2f_execute.setEnabled(False)
 			self.bt_f2f_view_output.setEnabled(False)
 			self.bt_f2f_view_log.setEnabled(False)
+			self.bt_f2f_kill.setEnabled(True)
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_f2f_kill_clicked(self):
+		self.killBatchProcess()
+	def killBatchProcess(self):
+		self.log_f2f("Sending kill signal...")
+		File2File.KillThreads()
 	def onF2FReturnCode(self,rc):
-		if rc==0:
-			pass
-		else:
-			self.log_f2f("Errors occured....")
-		#we're running#
+		if rc==TrLib.TR_OK:
+			self.log_f2f("....done....")
+		elif rc==File2File.PROCESS_TERMINATED:
+			self.log_f2f("Process was terminated!")
+		#we're running - a method terminating the process could also enable buttons... and probably will#
 		self.f2f_settings.is_done=True
 		self.bt_f2f_execute.setEnabled(True)
 		self.bt_f2f_view_output.setEnabled(True)
 		self.bt_f2f_view_log.setEnabled(True)
+		self.bt_f2f_kill.setEnabled(False)
 	#TAB BESSEL HELMERT#
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_chb_bshlm_custom_ellipsoid_clicked(self):
