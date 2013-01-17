@@ -75,7 +75,7 @@ else:
 	elif core.IS_WINDOWS:
 		compiler=cc.mingw32()
 	elif core.IS_MAC:
-		compiler=cc.macports_gcc()
+		compiler=cc.gcc_mac()
 	else:
 		compiler=cc.gcc_nix()
 #arg which should not be removed
@@ -140,12 +140,14 @@ if (not ok):
 	sys.exit(1)
 link_libraries.append(libogr)
 ok=core.Build(compiler,trogr,SRC_MAIN,include,is_library=False,is_debug=DEBUG,link_libraries=link_libraries,build_dir=BUILD_DIR,link_all=False)
+if (not ok):
+	sys.exit(1)
 try:
 	shutil.rmtree("BUILD_PY")
 except:
 	pass
 print("Build succeded!")
-sys.exit(int(not ok))
+sys.exit(0)
 
 
 
