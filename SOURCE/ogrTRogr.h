@@ -19,8 +19,8 @@
 #include "trlib_api.h"
 
 int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad);
-int TransformOGRDatasource(TR *trf, OGRDataSourceH hDSin, OGRDataSourceH hDSout, OGRSpatialReferenceH srs_out,OGRSFDriverH hDriver,char **layer_names);
-int TransformOGR(char *inname,  char *outname, TR *trf, char *drv_out, char **layer_names, int set_projection);
+int TransformOGRDatasource(TR *trf, OGRDataSourceH hDSin, OGRDataSourceH hDSout, OGRSpatialReferenceH srs_out, char **layer_names, char **lcos, char **extra_lcos);
+int TransformOGR(char *inname,  char *outname, TR *trf, char *drv_out, char **layer_names, int set_projection, char **dscos, char **lcos);
 OGRSpatialReferenceH TranslateMiniLabel(char *mlb);
 int TranslateSrs( OGRSpatialReferenceH srs, char *mlb);
 int FlattenMLB(char *mlb_in, char *mlb_flat);

@@ -38,6 +38,8 @@
 #define DLL_EXPORT
 #endif
 
+static void ParseFileGDBLayerPath(OGRDataSourceH hDS, const char *layer_name, char *path);
+
 void CPL_STDCALL TR_OGR_ErrorHandler(CPLErr err, int err_no, const char *msg){
 	Report( (int) err, err_no, VERB_HIGH, msg);
 }
@@ -189,12 +191,51 @@ DLL_EXPORT void Close(OGRDataSourceH hDSin){
 	
 	
 
-	
+static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, char *path){
+	OGRFeatureH feat;
+	OGRLayerH sqlLayer;
+	const char *layer_def; 
+	char *pos1,*pos2;
+	int l=0,slashes_found=0;
+	char sql_request[128]="GetLayerDefinition ";
+	strcat(sql_request,layer_name);
+	sqlLayer=OGR_DS_ExecuteSQL(hDS,sql_request,NULL,NULL);
+	if (sqlLayer){
+		OGR_L_ResetReading(sqlLayer);
+		feat=OGR_L_GetNextFeature(sqlLayer);
+		layer_def=OGR_F_GetFieldAsString(feat,0);
+		pos1=strstr(layer_def,"<CatalogPath>");
+		if (pos1){
+			pos1+=14; /*do not include the first slash*/
+			pos2=strstr(pos1,"</");
+			if (pos2){
+				l=(pos2-pos1);
+				memcpy(path,pos1,l);
+				pos1=path;
+				while (pos1-path<l){
+					slashes_found+=(*pos1=='\\' || *pos1=='/');
+					if (slashes_found==1)
+						break;
+					pos1++;
+				}
+				if (slashes_found>0)
+					*pos1='\0';
+				else
+					path[0]='\0';
+				*pos1='\0'; /*mark as nothing found*/		
+			}
+		}
+	OGR_DS_ReleaseResultSet(hDS,sqlLayer);
+	}
+}
 
-DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection){
+DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection, char **dscos, char **lcos){
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
-	OGRSFDriverH hDriver;
+	OGRSFDriverH hDriver_in, hDriver_out;
+	int n_layers=0,is_fgdb_transf=0, i;
+	OGRLayerH hLayer=NULL;
+	char **extra_lcos=NULL;
 	struct stat buf;
 	OGRErr err;
 	int tr_err;
@@ -204,25 +245,29 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 		Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Output projection not set!");
 		return TR_LABEL_ERROR;
 	}
-	/* Create output driver */
-	hDriver = OGRGetDriverByName( drv_out);
-	if( hDriver == NULL )
-       {
-	       return TR_ALLOCATION_ERROR;
-	}
+	
 	 /*open input file */
-	hDSin = OGROpen(inname, FALSE, NULL );
+	hDSin = OGROpen(inname, FALSE, & hDriver_in);
 	if( hDSin == NULL ){
 		return TR_ALLOCATION_ERROR;
 	}
+	Report(REP_INFO,0,VERB_LOW,"Opened input with driver: %s",OGR_Dr_GetName(hDriver_in));
+	
+	/* Create output driver */
+	hDriver_out = OGRGetDriverByName( drv_out);
+	if( hDriver_out == NULL )
+       {
+	       return TR_ALLOCATION_ERROR;
+	}
+	
 	/* create output ds - fixup logic here for things like databases */
 	if (!stat(outname, &buf))
 		{
 			/*err=OGR_Dr_DeleteDataSource(hDriver,outname);*/
-			hDSout=OGR_Dr_Open(hDriver,outname,1);
+			hDSout=OGR_Dr_Open(hDriver_out,outname,TRUE);
 		}
 	else
-		hDSout = OGR_Dr_CreateDataSource( hDriver, outname, NULL);
+		hDSout = OGR_Dr_CreateDataSource( hDriver_out, outname, dscos);
 	
 	if( hDSout == NULL )
 	{
@@ -256,11 +301,61 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 	if (srs_out==NULL){
 		Report(REP_WARNING,0,VERB_LOW,"Spatial reference NOT set for output file!");
 	}
-	tr_err=TransformOGRDatasource(trf,hDSin,hDSout,srs_out,hDriver,layer_names);
+	/*special filegdb logic here*/
+	is_fgdb_transf=(!strcmp(OGR_Dr_GetName(hDriver_in),"FileGDB") && !strcmp(OGR_Dr_GetName(hDriver_out),"FileGDB"));
+	if (is_fgdb_transf){
+		
+		char *lco_here;
+		char path[FILENAME_MAX]="";
+		Report(REP_INFO,0,VERB_LOW,"FileGDB to FileGDB transformation - will try to preserve feature datasets.");
+		if (layer_names!=NULL){
+			char **layer_name=layer_names;
+			while (*(layer_name++)) n_layers++;
+		}
+		else
+			n_layers=OGR_DS_GetLayerCount(hDSin);
+		extra_lcos=malloc(sizeof(char*)*n_layers);
+		if (!extra_lcos)
+			Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to allocate space for layer creation options.");
+		else{
+			for(i=0;i<n_layers;i++){
+				if (layer_names!=NULL)
+					hLayer=OGR_DS_GetLayerByName(hDSin,layer_names[i]);
+				else
+					hLayer=OGR_DS_GetLayer(hDSin,i);
+				if (!hLayer){
+					Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Setting layer definition - failed to fetch layer!");
+					continue;
+				}
+				/*TODO: test if malloc ok */
+				lco_here=extra_lcos[i]=malloc(sizeof(char)*128);
+				ParseFileGDBLayerPath(hDSin,OGR_L_GetName(hLayer),path);
+				if (*path){
+					sprintf(lco_here,"FEATURE_DATASET=%s",path);
+				}
+				else{
+					free(lco_here);
+					extra_lcos[i]=NULL;
+				}
+					
+				
+			}/*end loop over layers...*/
+					
+		}/*end malloc ok*/
+	} /*end set extra lcos*/
+		
+	tr_err=TransformOGRDatasource(trf,hDSin,hDSout,srs_out,layer_names,lcos,extra_lcos);
 	OGR_DS_Destroy( hDSin );
 	OGR_DS_Destroy( hDSout);
 	if (srs_out!=NULL)
 		OSRRelease(srs_out);
+	if (extra_lcos!=NULL){
+		for(i=0;i<n_layers;i++){
+			if (extra_lcos[i]!=NULL)
+				free(extra_lcos[i]);
+		}
+		free(extra_lcos[i]);
+	}
 	LogGeoids();
 	TerminateReport();
 	return tr_err;
@@ -270,7 +365,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 	double x,y,z,xo,yo,zo;
 	int i,np,tr_err,ERR=TR_OK;
 	char geoid_name[64];
-	OGRErr err;
+	/*OGRErr err;*/
 	const double d2r=D2R;
 	const double r2d=R2D;
 	int c_dim=OGR_G_GetCoordinateDimension(hGeometry);
@@ -284,7 +379,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 		else
 			hGeometry2=hGeometry;
 	np=OGR_G_GetPointCount(hGeometry2);
-	#ifdef DEBUG
+	#ifdef VERY_VERBOSE
 	Report(REP_DEBUG,0,VERB_HIGH,"ngeom: %d, cdim: %d, gdim: %d, np: %d",ngeom,c_dim,g_dim,np);
 	#endif
 	for (i=0;i<np;i++){
@@ -311,7 +406,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 			xo*=r2d;
 		}
 		OGR_G_SetPoint(hGeometry2,i,xo,yo,zo);
-		#ifdef DEBUG
+		#ifdef VERY_VERBOSE
 		Report(REP_DEBUG,0,VERB_HIGH,"%g %g %g -> %g %g %g", x,y,z,xo,yo,zo);
 		#endif
 		}
@@ -327,27 +422,35 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 
 int TransformOGRDatasource(
     TR *trf, 
-    OGRDataSourceH 
-    hDSin, 
+    OGRDataSourceH hDSin, 
     OGRDataSourceH hDSout, 
     OGRSpatialReferenceH srs_out,
-    OGRSFDriverH hDriver,
-    char **layer_names)
+    char **layer_names,
+    char **lcos, /*an array with an extra slot in the end....*/
+    char **extra_lcos
+)
     {
 	
     OGRLayerH hLayer=NULL,hLayer_out;
     OGRFeatureH hFeature,hFeature_out;
     OGRErr err=OGRERR_NONE;
     char mlb_in[128];
-    int is_geo_in=0, is_geo_out=0,look_for_srs;
+    char *all_lcos[32]; /* MAX 32 layer creation options*/
+    int is_geo_in=0, is_geo_out=0,look_for_srs,n_lcos=0;
     int nlayers=0,layer_num,field_num,ngeom,feat_num=0,is_multi,tr_err,ERR=TR_OK,ntrans_ok=0,ntrans_bad=0;
     is_geo_out=(IS_GEOGRAPHIC(trf->proj_out));
     look_for_srs=(trf->proj_in==NULL);
     if (!look_for_srs)
 	    is_geo_in=(IS_GEOGRAPHIC(trf->proj_in));
-   
+    /*copy lcos...*/
+    if (lcos!=NULL){
+	    while(lcos[n_lcos]!=NULL && n_lcos<30){
+		    all_lcos[n_lcos]=lcos[n_lcos];
+		    n_lcos++;
+	    }
+    }
     nlayers=OGR_DS_GetLayerCount(hDSin);
-    Report(REP_INFO,0,VERB_LOW,"#Layers: %d",nlayers);
+    Report(REP_INFO,0,VERB_LOW,"#Layers in input datasource: %d",nlayers);
     if (layer_names!=NULL){
 		nlayers=MAX_LAYERS; /*quick fix - max layers...*/
     }
@@ -355,6 +458,7 @@ int TransformOGRDatasource(
     {		
 		int layer_has_geometry=1;
 		int field_count=0;
+	        char *lco=NULL;
 	        OGRFeatureDefnH hFDefn;
 		if (layer_names==NULL){ /*loop over all layers*/
 			hLayer=OGR_DS_GetLayer( hDSin,layer_num);
@@ -374,7 +478,17 @@ int TransformOGRDatasource(
 			break;
 		OGR_L_ResetReading(hLayer);
 		Report(REP_INFO,0,VERB_LOW,"Layer: %s", OGR_L_GetName(hLayer));
-		hLayer_out=OGR_DS_CreateLayer(hDSout,OGR_L_GetName(hLayer),srs_out,OGR_L_GetGeomType(hLayer),NULL);
+		
+		if (extra_lcos!=NULL && extra_lcos[layer_num]){
+			/*insert the extra lco*/
+			all_lcos[n_lcos]=extra_lcos[layer_num];
+			all_lcos[n_lcos+1]=NULL;
+			Report(REP_DEBUG,0,VERB_LOW,"Creation option: %s",extra_lcos[layer_num]);
+		}
+		else
+			all_lcos[n_lcos]=NULL;
+		
+		hLayer_out=OGR_DS_CreateLayer(hDSout,OGR_L_GetName(hLayer),srs_out,OGR_L_GetGeomType(hLayer),all_lcos);
 		if (hLayer_out==NULL){
 			Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Could not CREATE layer in output datasource!");
 			continue;
@@ -389,19 +503,22 @@ int TransformOGRDatasource(
 		field_count=OGR_FD_GetFieldCount(hFDefn);
 		if (layer_has_geometry && look_for_srs){
 			int ok=TranslateSrs(OGR_L_GetSpatialRef(hLayer),mlb_in);
-			if (ok==TR_OK)
-				Report(REP_INFO,0,VERB_LOW,"Translating input srs to mlb: %s",mlb_in);
 			if (ok==TR_OK){
+				Report(REP_INFO,0,VERB_LOW,"Translating input srs to mlb: %s",mlb_in);
 				ok=TR_Insert(trf,mlb_in,0);
 				if (ok!=TR_OK){
-					Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to translate input srs - skipping layer.");
+					Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to insert mini label %s",mlb_in);
 					continue;
 				}
 				is_geo_in=(IS_GEOGRAPHIC(trf->proj_in));
 			}
+			else{
+				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to translate input srs - skipping layer.");
+				continue;
+			}
 				
 		}
-		#ifdef DEBUG
+		#ifdef VERY_VERBOSE
 		Report(REP_DEBUG,0,VERB_HIGH,"Field count: %d",field_count);
 		#endif
 		for (field_num=0; field_num<field_count; field_num++)
@@ -420,7 +537,7 @@ int TransformOGRDatasource(
 				ngeom=OGR_G_GetGeometryCount(hGeometry);
 				geom_type=wkbFlatten(OGR_G_GetGeometryType(hGeometry));
 				is_multi=(geom_type== wkbGeometryCollection || geom_type==wkbMultiPoint || geom_type== wkbMultiLineString || geom_type== wkbMultiPolygon);
-				#ifdef DEBUG
+				#ifdef VERY_VERBOSE
 				Report(REP_DEBUG,0,VERB_HIGH,"Feature: %d Ngeom: %d, is_multi: %d",feat_num,ngeom,is_multi);
 				#endif
 				while ((--ngeom>=0)||(!is_multi))
@@ -439,7 +556,7 @@ int TransformOGRDatasource(
 				if (!is_multi)
 					break;
 				}
-				#ifdef DEBUG
+				#ifdef VERY_VERBOSE
 				Report(REP_DEBUG,0,VERB_HIGH,"Setting geometry and creating feature, tr_err: %d",ERR);
 				#endif
 				OGR_F_SetGeometryDirectly(hFeature_out,hGeometry);

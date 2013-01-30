@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include <time.h>
 #include "gdal.h"
 #include "geo_lab.h"
@@ -39,12 +40,15 @@ void Usage(int help){
 	printf("%s ..options.. <mlb_out> <fname_out> <fname_in> <layer_name1> <layer_name2> ...\n",PROG_NAME);
 	printf("Layer names are optional - if not given the program will loop over all layers.\n");
 	printf("Available options:\n");
-	printf("-p <mlb_in> If not included input metadata should be extracted from input file.\n");
+	printf("-pin <mlb_in> If not included input metadata should be extracted from input file.\n");
 	if (help)
 		printf("For the DSFL driver the -p switch can *not* be used.\n");
-	printf("-d <input_driver> Optional. Will default to 'OGR'. Output driver will be the same as the input driver.\n");
+	printf("-drv <input_driver> Optional. Will default to 'OGR'. Output driver will be the same as the input driver.\n");
 	printf("-f <output_ogr_driver> Optional. defaults to 'ESRI Shapefile'.\n");
-	printf("-l <log_file> Specify log file.\n");
+	printf("-dco <datasource_creation_options> OGR driver specific datasource creation options (comma separated list of key=value pairs).\n");
+	printf("-lco <layer_creation_options> OGR driver specific layer creation options (comma separated list of key=value pairs).\n");
+	printf("-log <log_file> Specify log file.\n");
+	printf("-a Append to log file if it exists (and -log <log_file> is used)");
 	if (help)
 		printf("Will append output if the file already exists.\n");
 	printf("-n Do NOT try to set the projection metadata on the output datasource/layer.\n");
@@ -52,7 +56,7 @@ void Usage(int help){
 		printf("Useful for some drivers which fail to create layers unless projection metadata satisfy striqt requirements.\n");
 	printf("-v Be verbose - i.e. enable info and debug messages.\n");
 	printf("\nOptions specific for the 'TEXT' driver:\n");
-	printf("-s <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
+	printf("-sep <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
@@ -107,13 +111,45 @@ int message_handler(int err_class, int err_code, const char *msg){
 	return 0;
 }
 
+char **ParseCreationOptions(char *text){
+	char **pairs,*pos1,*pos2;
+	int n_pairs=0;
+	/*puts(text);*/
+	pairs=malloc(sizeof(char*)*24);
+	/*remove whitespace - could of course be done in one go*/
+	for (pos1=pos2=text; *pos1; pos1++){
+		if (!isspace(*pos1))
+			*(pos2++)=*pos1;
+	}
+	*pos2='\0';
+	/*puts(text);*/
+	pos1=text; /*save this pos - when we find a '=' we store the key=value pair*/
+	while (*text && n_pairs<23){
+		/*start looking for a new pair*/
+		if (*text==','){
+			*text='\0';
+			pos1=text+1;
+		}
+		/*save the pair*/
+		else if (*text=='='){
+			pairs[n_pairs]=pos1;
+			n_pairs++;
+		}
+		text++;
+	}
+	/*printf("npairs: %d\n",n_pairs);*/
+	pairs[n_pairs]=NULL;
+	pairs=realloc(pairs,sizeof(char*)*(n_pairs+2)); /*leave some room for appending an item*/
+	return pairs;
+}
+	
 
 int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
-    char *log_name=NULL;
-    char *key,*val,opts[]="p:d:f:s:x:y:z:l:n;v;"; /*for processing command line options*/
-    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts;
+    char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
+    char *key,*val,opts[]="pin:drv:f:sep:x:y:z:log:dco:lco:n;v;a;"; /*for processing command line options*/
+    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0;
     time_t rawtime;
     struct tm * timeinfo;
     TR *trf=NULL;
@@ -139,7 +175,7 @@ int main(int argc, char *argv[])
     do{
 	n_opts=my_get_opt(opts,argc,argv,&key,&val);
 	if (key){
-		if (!strcmp(key,"p")){
+		if (!strcmp(key,"pin")){
 			if (val)
 				mlb_in=val;
 		else
@@ -151,15 +187,27 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
-		else if (!strcmp(key, "d")){
+		else if (!strcmp(key, "drv")){
 			if (val)
 				drv_in=val;
 			else
 				goto usage;
 		}
-		else if (!strcmp(key,"s")){
+		else if (!strcmp(key,"sep")){
 			if (val)
 			     sep_char=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"dco")){
+			if (val)
+				dsco=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"lco")){
+			if (val)
+				lco=val;
 			else
 				goto usage;
 		}
@@ -181,7 +229,7 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
-		else if (!strcmp(key,"l")){
+		else if (!strcmp(key,"log")){
 			if (val)
 				log_name=val;
 			else
@@ -191,6 +239,8 @@ int main(int argc, char *argv[])
 			be_verbose=1;
 		else if (!strcmp(key,"n"))
 			set_output_projection=0;
+		else if (!strcmp(key,"a"))
+			append_to_log=1;
 		else{
 			printf ("?? getopt returned character unknown option %s\n", key);
 			goto usage;
@@ -203,7 +253,7 @@ int main(int argc, char *argv[])
    if (n_opts<3){
         goto usage;
     }
-    
+ 
     
     mlb_out=argv[1];
     outname=argv[2];
@@ -237,9 +287,35 @@ int main(int argc, char *argv[])
 		    exit(TR_ALLOCATION_ERROR);
 	    }
     }
-    if (strcmp(drv_in,"OGR"))
-	    drv_out=drv_in;
     
+    if (strcmp(drv_in,"OGR")){
+	    drv_out=drv_in;
+	    if (lco || dsco) /*these options only available for OGR-input*/
+		    goto usage;
+    }
+    else{
+	    if (lco){
+		char **pos;
+		lcos=ParseCreationOptions(lco);
+		pos=lcos;
+		while (*pos){
+			puts(*pos);
+			pos++;
+		}
+		
+	    }
+	    if (dsco){
+		char **pos;
+		dscos=ParseCreationOptions(dsco);
+		pos=dscos;
+		while (*pos){
+			puts(*pos);
+			pos++;
+		}
+		
+	    }
+		    
+    }
     if (!drv_out)
 	    drv_out="ESRI Shapefile";
     
@@ -257,7 +333,10 @@ int main(int argc, char *argv[])
    
     /*init logging*/
     if (log_name!=NULL){
-	    fp_log=fopen(log_name,"a");
+	    if (append_to_log)
+		fp_log=fopen(log_name,"a");
+	    else
+		fp_log=fopen(log_name,"w");
 	    if (fp_log==NULL)
 		    fprintf(stderr,"Failed to open log file %s - will not use log.\n",log_name);
     }
@@ -301,6 +380,7 @@ int main(int argc, char *argv[])
 	    Report(REP_INFO,0,VERB_LOW,"%d layer(s) specified.",n_layers);
     else
 	    Report(REP_INFO,0,VERB_LOW,"Reading all layers in input datasource.");
+    
     {/*test if output exists*/
     struct stat buf;
     int f_err=stat(outname, &buf);
@@ -327,7 +407,7 @@ int main(int argc, char *argv[])
 	    err=TransformText(inname,outname,trf,sep_char,col_x,col_y,col_z,set_output_projection,0);
     } /* end simple text */
     else if (!strcmp(drv_in,"OGR")){ /*begin OGR */
-	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection);
+	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos);
     }/* end OGR */	     
     
     else {
@@ -350,7 +430,11 @@ int main(int argc, char *argv[])
     /*if (fp_log!=NULL)
 	fclose(fp_log);*/
     if (layer_names!=NULL)
-		free(layer_names);
+	free(layer_names);
+    if (lcos!=NULL)
+	free(lcos);
+    if (dscos!=NULL)
+	free(dscos);
     return err;
     usage:
 	Usage(0);

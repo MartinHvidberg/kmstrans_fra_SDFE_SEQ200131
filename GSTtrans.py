@@ -924,13 +924,18 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		return x,y,z
 	#TAB  File2File#
 	def initF2FTab(self):
+		#Auto completion kan saettes op saadan her
+		completer=QCompleter()
+		completer.setModel(QDirModel(completer))
+		completer.setCompletionMode(QCompleter.InlineCompletion)
+		self.txt_f2f_input_file.setCompleter(completer)
 		if not self.has_ogr:
 			self.rdobt_f2f_ogr.setEnabled(False)
 			self.log_f2f("OGR library not available. A proper gdal installation might not be present?")
 			self.tab_ogr.setEnabled(False)
 			return
 		if IS_LOCAL_GDAL:
-			self.log_interactive("Using local GDAL installation.")
+			self.log_f2f("Using local GDAL installation.")
 		frmts=File2File.GetOGRFormats()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
@@ -1047,6 +1052,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if file_in==file_out:
 			self.message("Input and output files must differ (for now)")
 			return
+		if file_in[-1] in ["/","\\"]:
+			file_in=file_in[:-1]
+		if file_out[-1] in ["/","\\"]:
+			file_out=file_out[:-1]
 		mlb_in=str(self.cb_f2f_input_system.currentText())
 		mlb_out=str(self.cb_f2f_output_system.currentText())
 		if len(mlb_out)==0:
@@ -1350,8 +1359,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		else:
 			self.txt_log.append(text)
 		self.txt_log.ensureCursorVisible()
-	def log_f2f(self,text,color="black"):
-		self.txt_f2f_log.append(text)
+	def log_f2f(self,text,color="black",insert=False):
+		self.txt_f2f_log.setTextColor(QColor(color))
+		if insert:
+			self.txt_f2f_log.insertPlainText(text)
+		else:
+			self.txt_f2f_log.append(text)
 		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
 	def log_bshlm(self,text,clear=False):
