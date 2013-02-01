@@ -197,6 +197,8 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-drv','KMS']
 		#TODO: implement extra options for KMS-driver#
 	files=glob.glob(options.ds_in)
+	if len(files)==0:
+		files=[options.ds_in]  #OK so we assume its not a file - could be a db or url.... TODO: see if WFS or similar driver is specified....
 	if len(files)>1: 
 		if not os.path.isdir(options.ds_out):
 			return False,"More than one input datasource specified - output datasource must be a directory."
