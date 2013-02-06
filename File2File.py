@@ -85,8 +85,8 @@ def InitOGR(prefix,lib_name=OGRLIB):
 	#SETUP HEADER#
 	try:
 		ogrlib=ctypes.cdll.LoadLibrary(path)
-		ogrlib.GetOGRDrivers.argtypes=[C_CHAR_P]
-		ogrlib.GetOGRDrivers.restype=None
+		ogrlib.GetOGRDrivers.argtypes=[C_INT,C_INT] #reset reading, is_output
+		ogrlib.GetOGRDrivers.restype=C_CHAR_P
 		ogrlib.GetLayer.restype=ctypes.c_void_p
 		ogrlib.GetLayer.argtypes=[ctypes.c_void_p,C_INT]
 		ogrlib.GetLayerCount.restype=C_INT
@@ -306,10 +306,13 @@ def TransformOGR(inname,outname,mlb_in,mlb_out,drv_out):
 	msg=ogrlib.GetMsgLog()
 	return ReturnValue(msg,rc)
 
-def GetOGRFormats():
-	drivers=" "*2048
-	ogrlib.GetOGRDrivers(drivers)
-	drivers=drivers.replace("\0","").strip().splitlines()
+def GetOGRFormats(is_output=True):
+	ogrlib.GetOGRDrivers(1,0)
+	drivers=[]
+	drv=ogrlib.GetOGRDrivers(0,1)
+	while drv is not None:
+		drivers.append(drv)
+		drv=ogrlib.GetOGRDrivers(0,int(is_output)) #should make a copy into python managed memory.... 1 signals output
 	return drivers
 
 def GetLayer(ds,layer_num=0):

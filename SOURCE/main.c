@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <time.h>
-#include "gdal.h"
+
 #include "geo_lab.h"
 #include "ogrTRogr.h"
 #include "TransformText.h"
@@ -76,15 +76,19 @@ void Usage(int help){
 void ListFormats(void){
 	char stars[]="********************************************";
 	char *drv_in;
-	int i=0;
-	char formats[16438];
+	const char *frmt;
+	int i=0,n_drv;
 	fprintf(stdout,"%s\nInput drivers:\n%s\n",stars,stars);
 	while ((drv_in=INPUT_DRIVERS[i++]))
 		fprintf(stdout,"%s\n",drv_in);
-	
 	fprintf(stdout,"%s\nOutput drivers provided by OGR (option -f <driver>):\n%s\n",stars,stars);
-	GetOGRDrivers(formats);
-	fprintf(stdout,formats);
+	GetOGRDrivers(1,0); /*reset reading*/
+	while ((frmt=GetOGRDrivers(0,1))!=NULL)
+		fprintf(stdout,"%s\n",frmt);
+	GetOGRDrivers(1,0); /*reset reading*/
+	fprintf(stdout,"%s\nInput drivers provided by OGR:\n%s\n",stars,stars);
+	while ((frmt=GetOGRDrivers(0,0))!=NULL)
+		fprintf(stdout,"%s\n",frmt);
 	return;
 }
 
@@ -92,7 +96,7 @@ void PrintVersion(void){
 	const char *gdal_version;
 	char trlib_version[512];
 	TR_GetVersion(trlib_version,512);
-	gdal_version=GDALVersionInfo("RELEASE_NAME");
+	gdal_version=GetGDALVersion();
 	fprintf(stdout,"%s %s\n",PROG_NAME,VERSION);
 	fprintf(stdout,"TrLib-version: %s\n",trlib_version);
 	fprintf(stdout,"GDAL/OGR-version: %s\n",gdal_version);

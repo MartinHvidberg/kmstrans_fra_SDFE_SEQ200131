@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include "gdal.h"
 #include "geo_constants.h"
 #include "geo_lab.h"
 #include "trlib_intern.h"
@@ -50,23 +51,32 @@ DLL_EXPORT void RedirectOGRErrors(){
 
 
 
+DLL_EXPORT const char* GetGDALVersion(){
+	return GDALVersionInfo("RELEASE_NAME");
+}
 
 
-DLL_EXPORT void GetOGRDrivers(char *text){
-	int iDriver,ndrivers;
+
+/*Call with reset=TRUE first - then call consequentially until NULL is returned*/
+DLL_EXPORT const char *GetOGRDrivers(int reset, int is_output){
+	static int current_driver=0;
+	static int ndrivers=0;
 	OGRSFDriverH poDriver;
-	*text='\0';
-	OGRRegisterAll();
-	ndrivers=OGRGetDriverCount();
-	for(iDriver = 0; iDriver < ndrivers; iDriver++ )
-	{
-	poDriver=OGRGetDriver (iDriver);
-	if( OGR_Dr_TestCapability( poDriver,ODrCCreateDataSource ) ){
-		strcat(text,OGR_Dr_GetName (poDriver));
-		strcat(text,"\n");
-		}
+	if (reset){
+	    OGRRegisterAll();
+	    ndrivers=OGRGetDriverCount();
+	    current_driver=0;
+	    return NULL;
 	}
-	return;
+	while (current_driver<ndrivers)
+	{
+	    poDriver=OGRGetDriver (current_driver);
+	    current_driver++;
+	    if(is_output && !OGR_Dr_TestCapability( poDriver,ODrCCreateDataSource ) )
+		    continue;
+	    return OGR_Dr_GetName(poDriver);
+	}
+	return NULL;
 }
 
 int FlattenMLB(char *mlb_in, char *mlb_flat){

@@ -138,7 +138,7 @@ ok=core.Build(compiler,libogr,SRC_LIBOGR,include,is_debug=DEBUG,link_libraries=l
 #build trogr
 if (not ok):
 	sys.exit(1)
-link_libraries.append(libogr)
+link_libraries=compiler.LINK_LIBRARIES+[libtr,libreport,libogr]
 ok=core.Build(compiler,trogr,SRC_MAIN,include,is_library=False,is_debug=DEBUG,link_libraries=link_libraries,build_dir=BUILD_DIR,link_all=False)
 if (not ok):
 	sys.exit(1)
