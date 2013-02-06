@@ -147,17 +147,21 @@ def RunCommand(args,return_process=False):
 		stdout,stderr=prc.communicate()
 		return prc.poll(),stdout
 	
-	
+#Some hardcoded options for TROGR below#
+#Update to reflect changes in main.c#
+
 def TestCommand():
 	if TROGR is None:
 		return TrLib.TR_ERROR,"Command not set"
 	else:
 		return RunCommand([TROGR,"--version"])
 
-class ReturnValue(object):
-	def __init__(self,msg="",rc=0):
-		self.msg=msg
-		self.rc=rc
+def ListFormats():
+	if TROGR is None:
+		return "trogr not available..."
+	else:
+		ok,text=RunCommand([TROGR,"--formats"])
+	return text
 
 def TransformDatasource(options,log_method,post_method):
 	#compose command and preanalyze validity#
@@ -257,7 +261,7 @@ class WorkerThread(threading.Thread):
 				#time.sleep(0.1)
 				#now=time.clock()
 				#if (now-last_log)>2:
-				#	self.log_method(".")
+				#	self.log_method(".") this will actually deadlock due to buffer overflow - perhaps flush???
 				#	last_log=now
 				try:
 					line=self.prc.stdout.readline().rstrip()
@@ -281,30 +285,7 @@ class WorkerThread(threading.Thread):
 				return
 			done+=1
 		self.post_method(rc)
-	
-			
-		
-	
-		
-		
-			
 
-def TransformDSFL(inname,outname,mlb_out):
-	msg_str=" "*1024
-	rc=palib.TransformDSFL(inname,outname,mlb_out,msg_str)
-	msg_str=msg_str.replace("\0","").strip()
-	return ReturnValue(msg_str,rc)
-
-def TransformText(inname,outname,mlb_in,mlb_out,post_msg,post_done):
-	args=" -d TEXT -p %s %s %s %s" %(mlb_in,mlb_out,outname,inname)
-	rc=RunCommand(TROGR+args,post_msg)
-	post_done(rc)
-	return ReturnValue("hej",rc)
-
-def TransformOGR(inname,outname,mlb_in,mlb_out,drv_out):
-	rc=ogrlib.TransformOGR(inname,outname,mlb_in,mlb_out,drv_out,None,0)
-	msg=ogrlib.GetMsgLog()
-	return ReturnValue(msg,rc)
 
 def GetOGRFormats(is_output=True):
 	ogrlib.GetOGRDrivers(1,0)
@@ -371,51 +352,7 @@ def GetLayerNames(ds):
 	return layers
 
 
-#TODO: Improve KMS 'driver'#
-def TransformKMS(file_in,file_out,label_in_file,mlb_in,mlb_out):
-	if not TrLib.IS_INIT:
-		return ReturnValue("TrLib not initialised",1)
-	msg=""
-	try:
-		f=open(file_in,"r")
-	except:
-		return ReturnValue("Could not open input file",1)
-	stations,mlb=Ekms.GetCRD(f,label_in_file)
-	f.close()
-	if label_in_file and mlb is None:
-		return ReturnValue("Minilabel could not be found in file!",1)
-	if len(stations)==0:
-		return ReturnValue("No stations found in input file",1)
-	if label_in_file:
-		mlb_in=mlb
-	msg+="Found %d stations. Input label is: %s\n" %(len(stations),mlb_in)
-	crd=stations.values()
-	try:
-		ct=TrLib.CoordinateTransformation(mlb_in,mlb_out)
-	except:
-		return ReturnValue("Could not open transformation %s->%s" %(mlb_in,mlb_out),1)
-	crd_out=ct.Transform(crd)
-	ct.Close()
-	keys=stations.keys()
-	try:
-		f=open(file_out,"w")
-	except:
-		return ReturnValue("Could not open input file",1)
-	f.write("#%s\n" %mlb_out)
-	is_geo=TrLib.IsGeographic(mlb_out)
-	if is_geo:
-		planar_unit="dg"
-	else:
-		planar_unit="m"
-	for i in range(len(keys)):
-		station=keys[i]
-		xyz=crd_out[i]
-		if len(xyz)==2:
-			f.write("%s  %.5f %s  %.5f %s\n" %(station,xyz[0],planar_unit,xyz[1],planar_unit))
-		elif len(xyz)==3:
-			f.write("%s  %.5f %s  %.5f %s  %.4f m\n" %(station,xyz[0],planar_unit,xyz[1],planar_unit,xyz[2]))
-	f.close()
-	return ReturnValue(msg,TrLib.TR_OK)
+
 	
 	
 

@@ -110,7 +110,7 @@ SYSTEM_LABELS={Minilabel.CRT_CODE:CRT_LABELS,Minilabel.PROJ_CODE:PROJ_LABELS,Min
 
 
 
-VERSION="GSTtrans demo januar 2012"
+VERSION="GSTtrans b1.0"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -492,7 +492,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		except Exception,msg:
 			self.message("Failed to help page in web browser:\n"+repr(msg))
 	def onAbout(self):
-		msg=ABOUT+"\nTransformation engine: %s"%TrLib.GetVersion()
+		msg=ABOUT+"\nTransformation engine:\n%s"%TrLib.GetVersion()
 		QMessageBox.about(self,"About KMSTrans",msg)
 	def openFile2FileSettings(self):
 		self.dialog_f2f_settings.show()
@@ -924,11 +924,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		return x,y,z
 	#TAB  File2File#
 	def initF2FTab(self):
-		#Auto completion kan saettes op saadan her
-		completer=QCompleter()
-		completer.setModel(QDirModel(completer))
-		completer.setCompletionMode(QCompleter.InlineCompletion)
-		self.txt_f2f_input_file.setCompleter(completer)
+		#Auto completion - dont do it for now as input might not be a *file*
+		#completer=QCompleter()
+		#completer.setModel(QDirModel(completer))
+		#completer.setCompletionMode(QCompleter.InlineCompletion)
+		#self.txt_f2f_input_file.setCompleter(completer)
 		if not self.has_ogr:
 			self.rdobt_f2f_ogr.setEnabled(False)
 			self.log_f2f("OGR library not available. A proper gdal installation might not be present?")
@@ -1029,6 +1029,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				dlg.show()
 			else:
 				self.message("Failed to open %s" %inname)
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_f2f_list_formats_clicked(self):
+		text=File2File.ListFormats()
+		self.log_f2f(text,"blue")
 	def onF2FSystemInChanged(self):
 		mlb_in=str(self.cb_f2f_input_system.currentText())
 		text=self.GetDescription(mlb_in)
