@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """/*
-* Copyright (c) 2011, National Survey and Cadastre, Denmark
+* Copyright (c) 2012, National Survey and Cadastre, Denmark
 * (Kort- og Matrikelstyrelsen), kms@kms.dk
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -488,12 +488,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.message("Failed to help page in web browser:\n"+repr(msg))
 	def onAbout(self):
 		msg=ABOUT+"\nTransformation engine:\n%s"%TrLib.GetVersion()
-		QMessageBox.about(self,"About KMSTrans",msg)
+		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
 		self.dialog_f2f_settings.show()
 	def onNewKMSTrans(self):
 		subprocess.Popen([sys.executable,sys.argv[0]])
-		self.log_interactive("Starting new KMSTrans process")
+		self.log_interactive("Starting new process")
 	#Map Stuff#	
 	def drawMap(self):
 		self.scene=QtGui.QGraphicsScene(self.gv_map)

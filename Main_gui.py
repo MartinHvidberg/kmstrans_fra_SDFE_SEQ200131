@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Wed Feb 06 11:15:20 2013
+# Created: Thu Feb 07 12:12:50 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -1168,8 +1168,8 @@ class Ui_GSTtrans(object):
         self.menuRegion.setTitle(QtGui.QApplication.translate("GSTtrans", "Region", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAngular_units.setTitle(QtGui.QApplication.translate("GSTtrans", "Angular units (coordinates)", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAngular_units_derived_output.setTitle(QtGui.QApplication.translate("GSTtrans", "Angular units (derived output)", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionNew_KMSTrans.setText(QtGui.QApplication.translate("GSTtrans", "New KMSTrans", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAbout_KMSTrans.setText(QtGui.QApplication.translate("GSTtrans", "About KMSTrans", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNew_KMSTrans.setText(QtGui.QApplication.translate("GSTtrans", "New window", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAbout_KMSTrans.setText(QtGui.QApplication.translate("GSTtrans", "About ", None, QtGui.QApplication.UnicodeUTF8))
         self.actionHelp.setText(QtGui.QApplication.translate("GSTtrans", "Online help pages", None, QtGui.QApplication.UnicodeUTF8))
         self.actionHelp.setIconText(QtGui.QApplication.translate("GSTtrans", "www help page", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDK.setText(QtGui.QApplication.translate("GSTtrans", "Denmark", None, QtGui.QApplication.UnicodeUTF8))

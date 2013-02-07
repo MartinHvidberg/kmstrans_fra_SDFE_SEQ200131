@@ -2286,12 +2286,12 @@
   </widget>
   <action name="actionNew_KMSTrans">
    <property name="text">
-    <string>New KMSTrans</string>
+    <string>New window</string>
    </property>
   </action>
   <action name="actionAbout_KMSTrans">
    <property name="text">
-    <string>About KMSTrans</string>
+    <string>About </string>
    </property>
   </action>
   <action name="actionHelp">
