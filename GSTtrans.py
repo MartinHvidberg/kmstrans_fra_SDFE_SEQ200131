@@ -26,7 +26,7 @@ else:
 	HAS_QSCI=True
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
-from GSTtrans_gui import Ui_GSTtrans
+from Main_gui import Ui_GSTtrans
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 import Minilabel
