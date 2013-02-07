@@ -50,6 +50,8 @@ else:
 os.chdir(PREFIX)
 #SETUP SOME STANDARD PATHS
 import platform
+COMPANY_NAME="GST"  #Ahh, well, this migh change....
+PROG_NAME="trui"
 IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
@@ -61,7 +63,7 @@ GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
 #OTHER PATHS
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
-PLUGIN_PATH=os.path.expanduser(os.path.join("~",".gsttrans","plugins"))
+PLUGIN_PATH=os.path.expanduser(os.path.join("~","."+PROG_NAME,"plugins"))
 if not os.path.exists(PLUGIN_PATH):
 	try:
 		os.makedirs(PLUGIN_PATH)
@@ -86,14 +88,7 @@ if (os.path.exists(GDAL_PREFIX)) and (not OVERRIDE_LOCAL_GDAL) and IS_WINDOWS:
 #MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX/MAC - THEY SEEM TO AUTOMATICALLY BE AS LONG AS LOCATED NEXT TO EXECUTABLE...
 #END SETUP ENV#
 
-if DEBUG:
-	f=open(os.path.join(PREFIX,"kms.log"),"w")
-	f.write("%s\n" %PREFIX)
-	f.write("%s\n" %repr(sys.argv))
-	f.write("%s\n" %sys.executable)
-	f.write("%s\n" %os.environ["PATH"])
-	f.close()
-	
+
 #DEFAULT DIR FOR FILE BROWSING - COULD BE STORED IN INI-FILE#
 if "HOME" in os.environ:
 	DEFAULT_DIR=os.environ["HOME"]
@@ -110,7 +105,7 @@ SYSTEM_LABELS={Minilabel.CRT_CODE:CRT_LABELS,Minilabel.PROJ_CODE:PROJ_LABELS,Min
 
 
 
-VERSION="GSTtrans b1.0"
+VERSION="TRUI b1.0 (UI for TrLib demo)"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -1395,7 +1390,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.log_interactive(text,"blue")
 	#SETTINGS#
 	def saveSettings(self):
-		settings = QSettings("GST","GSTtrans")
+		settings = QSettings(COMPANY_NAME,PROG_NAME)
 		settings.beginGroup('MainWindow')
 		settings.setValue('size', self.size())
 		settings.setValue('position', self.pos())
@@ -1406,7 +1401,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		settings.setValue('script_path',self.script_dir)
 		settings.endGroup()
 	def loadSettings(self):
-		settings = QSettings("GST","GSTtrans")
+		settings = QSettings(COMPANY_NAME,PROG_NAME)
 		settings.beginGroup('MainWindow')
 		self.resize(settings.value('size', self.size()).toSize())
 		self.move(settings.value('position', self.pos()).toPoint())
