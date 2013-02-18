@@ -5,7 +5,7 @@ import os
 import sys
 import glob
 sys.argv.append("py2exe")
-extra_files=["icon.png"]
+extra_files=["icon.png","LICENCE.isc"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
 DOC=glob.glob(".\\doc\\*")

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
     <meta content="text/html; charset=ISO-8859-1"
@@ -7,10 +7,11 @@
   </head>
   <body>
     <h1>Batch Tab</h1>
-    <p>GSTtrans uses a command line program in the ./bin subfolder
+    <p><b>trui</b> uses a command line program in the ./bin subfolder
       called <b>trogr</b> to perform transformations of datasources
       like files and databases.<br>
       <b>trogr</b> is linked against <a href="http://gdal.org">GDAL </a>which
+
       must be installed on your system in order for the program to run.<br>
     </p>
     <h2>Formats:</h2>
@@ -22,6 +23,19 @@
     <ul>
       <li>OGR - a range of common vector formats, including various
         databases, depending on your gdal installation.</li>
+    </ul>
+    <blockquote>Available input and output vector data formats will
+      depend on your GDAL installation. OGR will try to open an input
+      datasource by iteration over available drivers. This behavior can
+      be overridden by specifying a specific input driver, e.g. (if the
+      WFS driver is available):<br>
+      <br>
+WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&amp;version=1.0.0&amp;login=usr_name&amp;password=pass_wd<br>
+      <br>
+      Refer to <a href="http://www.gdal.org/ogr/ogr_formats.html">the
+        list of OGR formats</a> for more details.<br>
+    </blockquote>
+    <ul>
       <li>TEXT - simple column based text format. Column separator and
         geometry columns can be specified in a settings dialog. The
         column separator defaults to all whitespace</li>
