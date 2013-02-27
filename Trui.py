@@ -468,6 +468,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if not HAS_QSCI:
 			self.log_pythonStdOut("Qscintilla not installed. Python input lexer will not work...")
 		self.python_console.ClearCache()
+		self.txt_python_in.setWhatsThis("Enter/edit input python code here") 
 		#move to interactive tab
 		try:
 			self.tab_gsttrans.setCurrentIndex(0)

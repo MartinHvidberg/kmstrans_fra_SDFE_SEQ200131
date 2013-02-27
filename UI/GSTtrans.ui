@@ -517,7 +517,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tab_gsttrans">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
@@ -528,6 +528,12 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="lbl_input_info">
+            <property name="toolTip">
+             <string>Input system description</string>
+            </property>
+            <property name="whatsThis">
+             <string>Detailed description of input srs.</string>
+            </property>
             <property name="text">
              <string>Input system info:</string>
             </property>
@@ -548,6 +554,12 @@
           </item>
           <item>
            <widget class="QLabel" name="lbl_output_info">
+            <property name="toolTip">
+             <string>Output system description.</string>
+            </property>
+            <property name="whatsThis">
+             <string>Detailed description of output system.</string>
+            </property>
             <property name="text">
              <string>Output system info:</string>
             </property>
@@ -609,6 +621,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>Input minilabel</string>
+            </property>
+            <property name="whatsThis">
+             <string>Specify input system minilabel here by selecting from dropdown list or typing one yourself. Enter triggers parsing and transformation.</string>
+            </property>
             <property name="editable">
              <bool>true</bool>
             </property>
@@ -626,16 +644,27 @@
           </item>
           <item row="1" column="2">
            <widget class="QLineEdit" name="txt_x_in">
+            <property name="whatsThis">
+             <string>Input coordinate. Can contain units like dg, sx, nt, rad or m. Enter triggers a transformation.</string>
+            </property>
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
           <item row="1" column="3">
-           <widget class="QLineEdit" name="txt_y_in"/>
+           <widget class="QLineEdit" name="txt_y_in">
+            <property name="whatsThis">
+             <string>Input coordinate. Can contain units like dg, sx, nt, rad or m. Enter triggers a transformation.</string>
+            </property>
+           </widget>
           </item>
           <item row="1" column="4">
-           <widget class="QLineEdit" name="txt_z_in"/>
+           <widget class="QLineEdit" name="txt_z_in">
+            <property name="whatsThis">
+             <string>Input z-coordinate. Can contain unit (=m). Enter triggers a transformation.</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -656,6 +685,9 @@
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="1" column="2">
            <widget class="QLineEdit" name="txt_x_out">
+            <property name="whatsThis">
+             <string>Output coordinate. Can contain units like dg, sx, nt, rad or m. </string>
+            </property>
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -670,6 +702,9 @@
           </item>
           <item row="1" column="3">
            <widget class="QLineEdit" name="txt_y_out">
+            <property name="whatsThis">
+             <string>Output coordinate. Can contain units like dg, sx, nt, rad or m. </string>
+            </property>
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -683,6 +718,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>Output minilabel.</string>
+            </property>
+            <property name="whatsThis">
+             <string>Specify output system minilabel here by selecting from dropdown list or typing one yourself. Enter triggers parsing and transformation.</string>
+            </property>
             <property name="editable">
              <bool>true</bool>
             </property>
@@ -690,6 +731,9 @@
           </item>
           <item row="1" column="4">
            <widget class="QLineEdit" name="txt_z_out">
+            <property name="whatsThis">
+             <string>Output z coordinate.</string>
+            </property>
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -729,6 +773,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="bt_interactive_swap">
+            <property name="whatsThis">
+             <string>Swap input/output</string>
+            </property>
             <property name="text">
              <string>Swap input/output</string>
             </property>
@@ -827,6 +874,12 @@
             </item>
             <item row="0" column="0">
              <widget class="QCheckBox" name="chb_zoom_to_point">
+              <property name="toolTip">
+               <string>Check to alwyas center on zoom.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Check this box to alwyas center current point on zoom.</string>
+              </property>
               <property name="text">
                <string>Zoom to point</string>
               </property>
@@ -890,6 +943,9 @@
                 <property name="acceptDrops">
                  <bool>false</bool>
                 </property>
+                <property name="whatsThis">
+                 <string>Height of geoid above ellipsoid at current location.</string>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -903,6 +959,9 @@
                 <property name="acceptDrops">
                  <bool>false</bool>
                 </property>
+                <property name="whatsThis">
+                 <string>Name of currently used geiod. </string>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -912,6 +971,9 @@
             </item>
             <item>
              <widget class="QCheckBox" name="chb_show_scale">
+              <property name="whatsThis">
+               <string>Show results of output system scale and convergence in text fields below.</string>
+              </property>
               <property name="text">
                <string>Show output system scale and convergence.</string>
               </property>
@@ -941,6 +1003,12 @@
                 <property name="acceptDrops">
                  <bool>false</bool>
                 </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+                <property name="whatsThis">
+                 <string>Conformal scale factor of current output system at current location.</string>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -953,6 +1021,9 @@
                 </property>
                 <property name="acceptDrops">
                  <bool>false</bool>
+                </property>
+                <property name="whatsThis">
+                 <string>Meridian convergence of current output system at current location.</string>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
@@ -993,7 +1064,11 @@
            </spacer>
           </item>
           <item>
-           <widget class="QTextEdit" name="txt_log"/>
+           <widget class="QTextEdit" name="txt_log">
+            <property name="whatsThis">
+             <string>Text field for reporting things like error/log messages.</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1026,6 +1101,9 @@
             <width>0</width>
             <height>24</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>Select input 'driver' here</string>
           </property>
           <property name="whatsThis">
            <string>Select input driver here...</string>
@@ -1127,7 +1205,7 @@
                 </size>
                </property>
                <property name="whatsThis">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A simple file name or, if using OGR, a connection string to e.g. a database.&lt;/p&gt;&lt;p&gt;Use * wildcards for globbing over several  input files in a directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A simple file name or, if using OGR, a connection string to e.g. a database. Use * wildcards for globbing over several input files in a directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1163,6 +1241,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_12">
              <item>
               <widget class="QCheckBox" name="chb_f2f_all_layers">
+               <property name="toolTip">
+                <string>Check to transform all layers</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generally (with OGR input), the batch process will iterate over all input layers, e.g. all shape files in a folder or all layers in a database. This behaviour can be changed by unchecking the check box an selecting specific input layers (as a ; separated list). &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Transform all layers, or specify layers here:</string>
                </property>
@@ -1252,7 +1336,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="txt_f2f_output_file"/>
+              <widget class="QLineEdit" name="txt_f2f_output_file">
+               <property name="toolTip">
+                <string>Output datasource or connection string.</string>
+               </property>
+               <property name="whatsThis">
+                <string>Output datasource or connection string. If globbing over several input datasources (with * wildcards), the output datasource should be a directory.</string>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="bt_f2f_browse_output">
@@ -1296,6 +1387,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_11">
           <item>
            <widget class="QCheckBox" name="chb_f2f_use_log">
+            <property name="toolTip">
+             <string>Use a log file to log errors and other output from TrLib.</string>
+            </property>
             <property name="whatsThis">
              <string>Use a log file to log errors and other output from TrLib.</string>
             </property>
@@ -1312,6 +1406,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="chb_f2f_verbose">
+            <property name="toolTip">
+             <string>Turn on extra verbosity in logging.</string>
+            </property>
             <property name="whatsThis">
              <string>Turn on extra verbosity in logging.</string>
             </property>
@@ -1343,6 +1440,12 @@
            <widget class="QLineEdit" name="txt_f2f_log_name">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>File path for output log file.</string>
+            </property>
+            <property name="whatsThis">
+             <string>File path for output log file.</string>
             </property>
            </widget>
           </item>
@@ -1401,6 +1504,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
               <widget class="QCheckBox" name="chb_f2f_label_in_file">
+               <property name="toolTip">
+                <string>Use this option if projection metadata is extractable from the input datasource.</string>
+               </property>
                <property name="whatsThis">
                 <string>Use this option if projection metadata is extractable from the input datasource.</string>
                </property>
@@ -1476,6 +1582,9 @@
                <property name="toolTip">
                 <string>Specify input system</string>
                </property>
+               <property name="whatsThis">
+                <string>Specify an input spatial reference system as a minilabel, either by selecting from the dropdown list or simply typing one yourself (hit enter to try to parse it).</string>
+               </property>
                <property name="editable">
                 <bool>true</bool>
                </property>
@@ -1497,6 +1606,9 @@
                  <width>0</width>
                  <height>23</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Change height system of input srs.</string>
                </property>
                <property name="text">
                 <string>Change H</string>
@@ -1525,7 +1637,10 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Specify putput system</string>
+                <string>Specify output system</string>
+               </property>
+               <property name="whatsThis">
+                <string>Specify an output spatial reference system as a minilabel, either by selecting from the dropdown list or simply typing one yourself (hit enter to try to parse it).</string>
                </property>
                <property name="editable">
                 <bool>true</bool>
@@ -1548,6 +1663,9 @@
                  <width>0</width>
                  <height>23</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Change height system of input srs.</string>
                </property>
                <property name="text">
                 <string>Change H</string>
@@ -1610,6 +1728,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>Start the process.</string>
+            </property>
             <property name="text">
              <string>Execute</string>
             </property>
@@ -1622,6 +1743,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>View output.</string>
+            </property>
+            <property name="whatsThis">
+             <string>View output (only applies to 'TEXT' and 'KMS' output).</string>
             </property>
             <property name="text">
              <string>View output</string>
@@ -1643,6 +1770,12 @@
           </item>
           <item row="0" column="2">
            <widget class="QPushButton" name="bt_f2f_view_log">
+            <property name="toolTip">
+             <string>View the log file.</string>
+            </property>
+            <property name="whatsThis">
+             <string>View the log file (if used).</string>
+            </property>
             <property name="text">
              <string>View log file</string>
             </property>
@@ -1660,6 +1793,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="whatsThis">
+             <string>Kill the batch process if it seems to be stalled.</string>
+            </property>
             <property name="text">
              <string>Kill process</string>
             </property>
@@ -1667,6 +1803,9 @@
           </item>
           <item row="0" column="3">
            <widget class="QPushButton" name="bt_f2f_list_formats">
+            <property name="whatsThis">
+             <string>List available input and output formats for the batch transformation program.</string>
+            </property>
             <property name="text">
              <string>list formats</string>
             </property>
@@ -1745,6 +1884,9 @@
              </item>
              <item row="2" column="2">
               <widget class="QComboBox" name="cb_bshlm_system">
+               <property name="whatsThis">
+                <string>Minilabel describing the input srs (2D only).</string>
+               </property>
                <property name="editable">
                 <bool>true</bool>
                </property>
@@ -1769,6 +1911,12 @@
             <widget class="QCheckBox" name="chb_bshlm_custom_ellipsoid">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>Check this to use a custom ellipsoid.</string>
+             </property>
+             <property name="whatsThis">
+              <string>Check this to use a custom ellipsoid and define parameters (axis, flattening) yourself.</string>
              </property>
              <property name="text">
               <string>Custom Ellipsoid</string>
@@ -1826,6 +1974,9 @@
                <property name="enabled">
                 <bool>false</bool>
                </property>
+               <property name="whatsThis">
+                <string>Inverse flattening of used ellipsoid.</string>
+               </property>
                <property name="readOnly">
                 <bool>false</bool>
                </property>
@@ -1835,6 +1986,9 @@
               <widget class="QLineEdit" name="txt_bshlm_axis">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="whatsThis">
+                <string>Major axis of used ellipsoid.</string>
                </property>
                <property name="readOnly">
                 <bool>false</bool>
@@ -1872,10 +2026,18 @@
            <item>
             <layout class="QGridLayout" name="gridLayout_8">
              <item row="1" column="2">
-              <widget class="QLineEdit" name="txt_bshlm_x1"/>
+              <widget class="QLineEdit" name="txt_bshlm_x1">
+               <property name="whatsThis">
+                <string>Input coordinate for first station/point.</string>
+               </property>
+              </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QLineEdit" name="txt_bshlm_y1"/>
+              <widget class="QLineEdit" name="txt_bshlm_y1">
+               <property name="whatsThis">
+                <string>Input coordinate for first station/point.</string>
+               </property>
+              </widget>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label">
@@ -1913,10 +2075,18 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="txt_bshlm_x2"/>
+              <widget class="QLineEdit" name="txt_bshlm_x2">
+               <property name="whatsThis">
+                <string>Input coordinate for second station/point.</string>
+               </property>
+              </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QLineEdit" name="txt_bshlm_y2"/>
+              <widget class="QLineEdit" name="txt_bshlm_y2">
+               <property name="whatsThis">
+                <string>Input coordinate for second station/point.</string>
+               </property>
+              </widget>
              </item>
              <item row="1" column="4">
               <widget class="QLineEdit" name="txt_bshlm_lon1">
@@ -2002,6 +2172,9 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="whatsThis">
+                  <string>Calculated distance between points.</string>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="1">
@@ -2014,6 +2187,9 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Calculated azimuth (distance to geometrical north).</string>
                  </property>
                 </widget>
                </item>
@@ -2068,6 +2244,9 @@
              </item>
              <item>
               <widget class="QTextEdit" name="txt_bshlm_log">
+               <property name="whatsThis">
+                <string>Text field for logging error messages.</string>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -2096,6 +2275,9 @@
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
                <widget class="QRadioButton" name="rdobt_bshlm_mode1">
+                <property name="whatsThis">
+                 <string>In this mode distance and azimuths are calculated based on locations of two input points.</string>
+                </property>
                 <property name="text">
                  <string>Find distance and azimuth from positions of station1 and  station2.</string>
                 </property>
@@ -2106,6 +2288,9 @@
               </item>
               <item>
                <widget class="QRadioButton" name="rdobt_bshlm_mode2">
+                <property name="whatsThis">
+                 <string>In this mode the position of the second point is calculated based on input distance and azimuth.</string>
+                </property>
                 <property name="text">
                  <string>Find position of station2 based on distance and azimuth from station1. </string>
                 </property>
@@ -2145,6 +2330,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_11">
         <item>
          <widget class="QTextEdit" name="txt_python_out">
+          <property name="whatsThis">
+           <string>Python output from interactive sessions will be displayed in this field.</string>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -2160,6 +2348,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>Compile/run input code</string>
+            </property>
+            <property name="whatsThis">
+             <string>Compile input code. Used to enter definitions/code which span several lines (uncheck the REPL mode checkbox). </string>
+            </property>
             <property name="text">
              <string>compile</string>
             </property>
@@ -2167,6 +2361,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="bt_python_load">
+            <property name="whatsThis">
+             <string>Load a script for editing.</string>
+            </property>
             <property name="text">
              <string>load script</string>
             </property>
@@ -2174,6 +2371,12 @@
           </item>
           <item>
            <widget class="QCheckBox" name="chb_python_process_enter">
+            <property name="toolTip">
+             <string>REPL mode on/off</string>
+            </property>
+            <property name="whatsThis">
+             <string>Check this box if you want to run in an interactive mode with instant response to each command. </string>
+            </property>
             <property name="text">
              <string>Run command on enter (REPL mode)</string>
             </property>
@@ -2184,6 +2387,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="chb_python_clear">
+            <property name="whatsThis">
+             <string>Clear input code if it did not result in a error. Useful in interactive (REPL) mode. A command history is maintained and available by using up/down arrows.</string>
+            </property>
             <property name="text">
              <string>Clear input code on succes</string>
             </property>
