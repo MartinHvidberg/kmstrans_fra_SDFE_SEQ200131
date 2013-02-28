@@ -474,6 +474,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.tab_gsttrans.setCurrentIndex(0)
 		except:
 			pass
+		#Setup tab indices dynamically - easier to maintain. Useful for displaying call back messages the right place#
+		self.tabs=[self.tab_interactive,self.tab_ogr,self.tab_utilities,self.tab_python]
+		self.tab_indices=[self.tab_gsttrans.indexOf(tab) for tab in self.tabs]
+		self.log_methods=[self.log_interactive,self.log_f2f,self.log_bshlm,self.log_python]
+		self.log_method_map=dict(zip(self.tab_indices,self.log_methods))
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
 		sys.stderr=RedirectOutput(self.log_pythonStdErr)
 		
@@ -1267,7 +1272,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				self.message("Error: could not do inverse Bessel Helmert calculation")
 		#always display ouput in geo field - even if not transformed
 		self.setOutput([x2,y2],self.output_bshlm_geo[2:],geo_mlb,z_fields=[])
-		self.log_bshlm("Successful calculation....",True)
+		self.log_bshlm("Successful calculation....",clear=True)
 		if not is_custom:
 			ct.Close()
 	
@@ -1367,7 +1372,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.txt_f2f_log.append(text)
 		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
-	def log_bshlm(self,text,clear=False):
+	def log_bshlm(self,text,color="black",clear=False):
+		self.txt_bshlm_log.setTextColor(QColor(color))
 		if (not clear):
 			self.txt_bshlm_log.append(text)
 		else:
@@ -1385,10 +1391,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.log_python(text,color)
 	def displayCallbackMessage(self,text):
 		i=self.tab_gsttrans.currentIndex()
-		if (i==3): #this should be the INDEX of the python tab
-			self.log_python(text,"blue")
+		if i in self.log_method_map:
+			self.log_method_map[i](text,"blue")
 		else:
-			self.log_interactive(text,"blue")
+			self.message(text)
 	#SETTINGS#
 	def saveSettings(self):
 		settings = QSettings(COMPANY_NAME,PROG_NAME)

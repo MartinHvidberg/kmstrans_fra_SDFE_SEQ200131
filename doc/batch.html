@@ -12,6 +12,7 @@
       like files and databases.<br>
       <b>trogr</b> is linked against <a href="http://gdal.org">GDAL </a>which
 
+
       must be installed on your system in order for the program to run.<br>
     </p>
     <h2>Formats:</h2>
@@ -50,6 +51,13 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       An input system can be specified like using a hash in front of a
       minilabel, e.g.:&nbsp;&nbsp; #geoEwgs84&nbsp;&nbsp;&nbsp;
       (geographical coordinates in WGS84 datum, ellipsoidal heights).<br>
+      <br>
+      <b>NOTE:</b> the TEXT driver expects geographical input
+      coordinates to be in decimal degrees. Generally input coordinates
+      should be decimal numbers without spaces or units. If you have a
+      more complicated format consider using the KMS-format which
+      accepts things like units and spaces in coordinates (and remember
+      to use two spaces as column separator).<br>
       <br>
     </blockquote>
     <ul>
