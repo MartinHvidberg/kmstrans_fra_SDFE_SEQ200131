@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python
 """/*
 * Copyright (c) 2012, National Survey and Cadastre, Denmark
 * (Kort- og Matrikelstyrelsen), kms@kms.dk
@@ -36,6 +36,12 @@ import threading, subprocess
 import File2File
 import sys,os,time
 import EmbedPython
+try:
+	import importlib
+except ImportError:
+	HAS_IMPORTLIB=False
+else:
+	HAS_IMPORTLIB=True
 
 DEBUG="-debug" in sys.argv
 OVERRIDE_LOCAL_GDAL="-my_gdal" in sys.argv
@@ -1448,20 +1454,39 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def loadPlugins(self):
 		plugins=GetPlugins(PLUGIN_PATH)
 		if len(plugins)>0:
+			if not HAS_IMPORTLIB:
+				self.log_pythonStdOut("Plugin loader needs importlib (python version>=2.7)",color="red")
+				return
 			if not PLUGIN_PATH in sys.path:
 				sys.path.insert(0,PLUGIN_PATH)
 			for plugin in plugins:
 				self.log_pythonStdOut("Loading plugin: %s" %plugin,color="brown")
 				try:
-					self.python_console.ExecuteCode("import %s" %plugin)
+					_plugin=importlib.import_module(plugin)
 				except Exception,msg:
 					print repr(msg)
+				else:
+					#Test if this is a widget type plugin!
+					if hasattr(_plugin,"classFactory"):
+						self.addPluginWidget(_plugin)
+					self.python_console.python_locals[plugin]=_plugin
 		else:
 			self.log_pythonStdOut("No python plugins in "+PLUGIN_PATH)
+	#Add TAB - for widget type plugins#
+	def addPluginWidget(self,plugin):
+		#TODO: implement a manager, which allows enabling/disabling plugins - which means that we should store info 
+		#on loaded plugins and tab positions....
+		if hasattr(plugin,"getName"):
+			name=plugin.getName()
+		else:
+			name="some_plugin"
+		widget=plugin.classFactory(self)
+		self.tab_gsttrans.addTab(widget,name)
 	#ON CLOSE - SAVE SETTINGS#
 	def closeEvent(self, event):
 		self.saveSettings()
 		QMainWindow.closeEvent(self, event)
+		
 
 if __name__=="__main__":
 	 global app
