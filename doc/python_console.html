@@ -16,8 +16,8 @@
       On windows, the users home directory ~ is typically: C:\Documents
       and Settings\&lt;my_user_name&gt;<br>
     </p>
-    <p>A plugin must be a python package (see
-      <a href="http://docs.python.org/2/tutorial/modules.html">
+    <p>A plugin must be a python package (see <a
+        href="http://docs.python.org/2/tutorial/modules.html">
         http://docs.python.org/2/tutorial/modules.html </a>) i.e. a
       collection of scripts in a folder which contains a __init__.py
       script. This file can be completely blank in which case it just
@@ -26,12 +26,13 @@
     <p>Two types of plugins can be created:<br>
     </p>
     <ul>
-      <li>If the __init__.py file implements classFactory(mainWindow)
-        the plugin will be considered a widget, which will be added in
-        the GUI as a seperate tab. Implement getName() in __init__.py to
-        control the name of the tab. The object returned from
-        classFactory should be a <a
+      <li>If the __init__.py file implements getWidget(mainWindow) the
+        plugin will be considered a widget, which will be added in the
+        GUI as a seperate tab. Implement getName() in __init__.py to
+        control the name of the tab. The object returned from getWidget
+        should be a <a
           href="http://pyqt.sourceforge.net/Docs/PyQt4/qwidget.html">PyQt4.QtGui.QWidget</a>&nbsp;&nbsp;&nbsp;
+
         Example:</li>
       <ul>
         <li>Contents of __init__.py:&nbsp; <br>
@@ -39,25 +40,28 @@
       </ul>
     </ul>
     <blockquote>
-      <blockquote>def classFactory(mainWindow):&nbsp; #should return a
-        QWidget <br>
-        &nbsp;&nbsp;&nbsp; from my_widget import
-        my_cool_widget&nbsp;&nbsp;&nbsp; #Gui part set up in this class
-        - functionality can be implemented there, as well as in other
-        scripts in the package.<br>
-        &nbsp;&nbsp;&nbsp; return my_cool_widget(mainWindow)<br>
-        <br>
-        def getName():<br>
-        &nbsp;&nbsp;&nbsp; return "A really cool plugin"<br>
+      <blockquote><font face="Courier New">def
+          getWidget(mainWindow):&nbsp; #should return a QWidget <br>
+          &nbsp;&nbsp;&nbsp; from my_widget import
+          my_cool_widget&nbsp;&nbsp;&nbsp; <br>
+          &nbsp;&nbsp;&nbsp; #Gui part set up in this class -
+          functionality can be implemented there, <br>
+          &nbsp;&nbsp;&nbsp; #as well as in other scripts in the
+          package.<br>
+          &nbsp;&nbsp;&nbsp; return my_cool_widget(mainWindow)<br>
+          <br>
+          def getName():<br>
+          &nbsp;&nbsp;&nbsp; return "A really cool plugin"</font><br>
         <br>
         <img alt="" src="images/Designer.png" height="300" width="500">&nbsp;
+
         QtDesigner can be used to set up the UI part of a plugin.<br>
         <br>
       </blockquote>
     </blockquote>
     <ul>
-      <li>If classFactory is not implemented, the package is imported
-        into the namespace of the python console to extend the scripting
+      <li>If getWidget is not implemented, the package is imported into
+        the namespace of the python console to extend the scripting
         functionality here.<br>
       </li>
     </ul>

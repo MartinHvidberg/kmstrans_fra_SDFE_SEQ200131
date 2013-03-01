@@ -1462,14 +1462,14 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			if not PLUGIN_PATH in sys.path:
 				sys.path.insert(0,PLUGIN_PATH)
 			for plugin in plugins:
-				self.log_pythonStdOut("Loading plugin: %s" %plugin,color="brown")
+				self.log_python("Loading plugin: %s" %plugin,color="brown")
 				try:
 					_plugin=importlib.import_module(plugin)
 				except Exception,msg:
 					print repr(msg)
 				else:
 					#Test if this is a widget type plugin!
-					if hasattr(_plugin,"classFactory"):
+					if hasattr(_plugin,"getWidget"):
 						self.addPluginWidget(_plugin)
 					self.python_console.python_locals[plugin]=_plugin
 		else:
@@ -1482,7 +1482,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			name=plugin.getName()
 		else:
 			name="some_plugin"
-		widget=plugin.classFactory(self)
+		self.log_python("Widget type plugin - added as tab: %s" %name,color="brown")
+		widget=plugin.getWidget(self)
 		self.tab_gsttrans.addTab(widget,name)
 	#ON CLOSE - SAVE SETTINGS#
 	def closeEvent(self, event):
