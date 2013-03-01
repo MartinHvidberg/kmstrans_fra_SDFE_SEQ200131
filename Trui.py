@@ -438,15 +438,17 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.close()
 		ok=False
 		self.loadSettings()
-		if self.geoids is not None:
-			ok=TrLib.InitLibrary(self.geoids,None,None)
-		elif "TR_TABDIR" in os.environ:
+		if self.geoids is None and "TR_TABDIR" in os.environ:
 			self.geoids=os.environ["TR_TABDIR"]
-			ok=TrLib.InitLibrary(self.geoids,None,None)
-		while not ok:
-			self.message("Geoid dir is not set - please select a valid geoid directory.")
-			self.geoids=self.selectTabDir()
-			ok=TrLib.InitLibrary(self.geoids,None,None)
+		while (not ok) or (self.geoids is None):
+			if self.geoids is not None:
+				try:
+					ok=TrLib.InitLibrary(self.geoids,None,None)
+				except Exception, e_value:
+					self.message("Failed to initialise TrLib:\n%s" %(str(e_value)))
+			if not ok:
+				self.message("Geoid dir is not set - please select a valid geoid directory.")
+				self.geoids=self.selectTabDir()
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
 		#Will initialise some attributes which must be present in other methods#

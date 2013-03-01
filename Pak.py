@@ -8,11 +8,10 @@ sys.argv.append("py2exe")
 extra_files=["icon.png","LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
-DOC=glob.glob(".\\doc\\*")
 excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx"]
 setup(   options = {'py2exe': {'excludes': excludes, 'includes':['encodings','sip']}},
 windows=[{"script" : "Trui.py"}],
-data_files=[("",extra_files),("bin",BIN),("coast",COAST),("doc",DOC),])
+data_files=[("",extra_files),("bin",BIN),("coast",COAST),])
 MSVCP=glob.glob(".\\dist\\msvcp*.dll")
 try:
 	shutil.copytree("gdal","dist\\gdal")
@@ -22,6 +21,10 @@ try:
         os.remove(MSVCP[0])
 except:
         pass
+try:
+	shutil.copytree("doc","dist\\doc")
+except:
+	print("Could not copy documentation")
 try:
 	os.rename("dist","TRUI")
 except:

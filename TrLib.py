@@ -174,7 +174,7 @@ def InitLibrary(geoid_dir="",lib=STD_LIB,lib_dir=STD_DIRNAME):
 		ok,msg=LoadLibrary(lib,lib_dir)
 	if not ok or tr_lib is None:
 		return False
-	if len(geoid_dir)==0:
+	if geoid_dir is None or len(geoid_dir)==0:
 		if os.environ.has_key(TABDIR_ENV):
 			geoid_dir=os.environ[TABDIR_ENV]
 		else:
@@ -184,9 +184,7 @@ def InitLibrary(geoid_dir="",lib=STD_LIB,lib_dir=STD_DIRNAME):
 		sdir=geoid_dir
 	for fname in REQUIRED_FILES:
 		if not os.path.exists(os.path.join(geoid_dir,fname)):
-			print("Tabdir: %s" %sdir)
-			print("Required file %s not found, failed to initialize library!" %fname)
-			return False
+			raise Exception("Tabdir: %s, required file %s not found, failed to initialize library!" %(sdir,fname))
 	if len(sdir)>0 and sdir[-1] not in ["\\","/"]:
 		sdir+="/"
 	GEOIDS=geoid_dir
@@ -355,7 +353,7 @@ def DescribeDatum(mlb_dtm):
 		if (mlb_dtm=="E"):
 			return "Ellipsoidal heights"
 		if (mlb_dtm=="N"):
-			mlb_dtm="Normal heights"
+			return "Normal heights"
 		descr=ctypes.create_string_buffer(512)
 		rc=tr_lib.doc_dtm(mlb_dtm,descr,0)
 		if (rc==TR_OK):
