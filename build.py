@@ -117,6 +117,8 @@ if not "-notrlib" in args:
 	sys.stdout=sys.__stdout__
 	sys.stderr=sys.__stderr__
 	print("Build was ok: %s" %(ok==0))
+	if (ok!=0):
+		sys.exit(1)
 	
 BUILD_DIR=os.path.realpath(os.path.join(curdir,"BUILD_PY","trogr"))
 try:

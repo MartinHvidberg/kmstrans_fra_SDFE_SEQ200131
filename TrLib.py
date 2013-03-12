@@ -252,6 +252,7 @@ def SetLordVerbosity(verb_debug=1, verb_info=1, verb_warning=1):
 
 def SetDebugMode():
 	global DEBUG
+	DEBUG=True
 	SetLordModes(True,True,True)
 	SetLordVerbosity(3,3,3)
 	

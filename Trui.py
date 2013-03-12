@@ -27,6 +27,7 @@ else:
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
 from Main_gui import Ui_GSTtrans
+from BesselHelmert import BshlmWidget
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 import Minilabel
@@ -36,6 +37,7 @@ import threading, subprocess
 import File2File
 import sys,os,time
 import EmbedPython
+import WidgetUtils
 try:
 	import importlib
 except ImportError:
@@ -103,11 +105,7 @@ elif "HOMEPATH" in os.environ:
 else:
 	DEFAULT_DIR="/"
 
-#DEFAULT FIELD LABELING MECHANISM#
-GEO_LABELS=["Longitude:","Latitude:","H:"]
-PROJ_LABELS=["Easting:","Northing:","H:"]
-CRT_LABELS=["X:","Y:","Z:"]
-SYSTEM_LABELS={Minilabel.CRT_CODE:CRT_LABELS,Minilabel.PROJ_CODE:PROJ_LABELS,Minilabel.GEO_CODE:GEO_LABELS}
+
 
 
 
@@ -349,13 +347,20 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def __init__(self,parent=None):
 		QtGui.QMainWindow.__init__(self,parent) 
 		self.setupUi(self)
+		self.save_settings=False #flag which signals whether to save settings - only do it if initialisation succeded!
 		#APPEARANCE#
 		self.setWindowTitle(VERSION)
+		#Set log methods#
+		self.tab_interactive.handleStdOut=self.log_interactive
+		self.tab_interactive.handleStdErr=self.log_interactive
+		self.tab_interactive.handleCallBack=self.log_interactive
+		self.tab_ogr.handleStdOut=self.log_f2f
+		self.tab_ogr.handleStdErr=self.log_f2f
+		self.tab_ogr.handleCallBack=self.log_f2f
 		#Set up event handlers#
 		#some event handlers defined directly by special method names#
 		self.cb_input_system.currentIndexChanged.connect(self.onSystemInChanged)
 		self.cb_output_system.currentIndexChanged.connect(self.onSystemOutChanged)
-		self.cb_bshlm_system.currentIndexChanged.connect(self.onBshlmSystemChanged)
 		self.cb_f2f_input_system.currentIndexChanged.connect(self.onF2FSystemInChanged)
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
@@ -387,12 +392,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.input_labels=[self.lbl_x_in,self.lbl_y_in,self.lbl_z_in]
 		self.output=[self.txt_x_out,self.txt_y_out,self.txt_z_out]
 		self.output_labels=[self.lbl_x_out,self.lbl_y_out,self.lbl_z_out]
-		self.input_bshlm=[self.txt_bshlm_x1,self.txt_bshlm_y1,self.txt_bshlm_x2,self.txt_bshlm_y2]
-		self.output_bshlm_geo=[self.txt_bshlm_lon1,self.txt_bshlm_lat1,self.txt_bshlm_lon2,self.txt_bshlm_lat2]
-		self.output_bshlm_azimuth=[self.txt_bshlm_distance,self.txt_bshlm_azimuth1,self.txt_bshlm_azimuth2]
-		self.input_bshlm_azimuth=self.output_bshlm_azimuth[:2]
-		self.input_labels_bshlm=[self.lbl_bshlm_x,self.lbl_bshlm_y]
-		self.derived_angular_output=[self.txt_meridian_convergence]+self.output_bshlm_azimuth[1:]
+		
+		self.derived_angular_output=[self.txt_meridian_convergence] #+self.output_bshlm_azimuth[1:]
 		self.action_angular_units={ANGULAR_UNIT_DEGREES:self.actionDegrees,ANGULAR_UNIT_RADIANS:self.actionRadians,
 		ANGULAR_UNIT_SX:self.actionSx,ANGULAR_UNIT_NT:self.actionNt}
 		self.action_angular_units_derived={ANGULAR_UNIT_DEGREES:self.actionDegrees_derived,ANGULAR_UNIT_RADIANS:self.actionRadians_derived,
@@ -401,9 +402,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		for field in self.input:
 			field.returnPressed.connect(self.transform_input)
 		#END SETUP INPUT EVENT HANDLERS#
-		#SETUP BSHLM EVENT HANDLERS#
-		for field in self.input_bshlm+self.input_bshlm_azimuth:
-			field.returnPressed.connect(self.doBesselHelmert)
+		
 		#Create Whatsthis in help menu#
 		self.menuHelp.addSeparator()
 		self.menuHelp.addAction(QWhatsThis.createAction(self))
@@ -429,13 +428,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		else:
 			self.log_interactive("Running thorugh py2exe")
 		#redirect python output#
-		sys.stdout=RedirectOutput(self.log_pythonStdOut)
+		sys.stdout=RedirectOutput(self.handleStdOut)
 		#init TrLib and load settings#
 		ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
-		TrLib.SetMessageHandler(LordCallback)
 		if not ok:
-			self.message("Failed to load transformation library: %s" %msg)
+			if not os.path.exists(BIN_PREFIX):
+				msg+="\nDid you build binaries?"
+			self.message("Failed to load transformation library:\n%s" %msg)
 			self.close()
+			sys.exit(1)
+		TrLib.SetMessageHandler(LordCallback)
 		ok=False
 		self.loadSettings()
 		if self.geoids is None and "TR_TABDIR" in os.environ:
@@ -451,13 +453,19 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				self.geoids=self.selectTabDir()
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
+		#Setup BSHLM tab#
+		self.tab_bshlm=BshlmWidget(self)
+		self.main_tab_host.addTab(self.tab_bshlm,"Bessel Helmert")
 		#Will initialise some attributes which must be present in other methods#
 		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
 		self.initF2FTab()
 		self.drawMap()
-		self.initRegion()
+		
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
 		#Setup for interactive python session. TODO: add some stuff to namespace#
+		self.tab_python.handleStdOut=self.log_pythonStdOut
+		self.tab_python.handleStdErr=self.log_pythonStdErr
+		self.tab_python.handleCallBack=self.log_python
 		self.log_pythonStdOut("Python version:\n"+sys.version)
 		namespace={"loadPlugins":self.loadPlugins,"mainWindow":self}
 		self.log_pythonStdOut("Handle to main window %s stored in name: mainWindow" %repr(self.__class__),color="brown")
@@ -479,17 +487,20 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.txt_python_in.setWhatsThis("Enter/edit input python code here") 
 		#move to interactive tab
 		try:
-			self.tab_gsttrans.setCurrentIndex(0)
+			self.main_tab_host.setCurrentIndex(0)
 		except:
 			pass
 		#Setup tab indices dynamically - easier to maintain. Useful for displaying call back messages the right place#
-		self.tabs=[self.tab_interactive,self.tab_ogr,self.tab_utilities,self.tab_python]
-		self.tab_indices=[self.tab_gsttrans.indexOf(tab) for tab in self.tabs]
-		self.log_methods=[self.log_interactive,self.log_f2f,self.log_bshlm,self.log_python]
-		self.log_method_map=dict(zip(self.tab_indices,self.log_methods))
+		#Also important that this is done AFTER plugins are loaded as these may modify tab order!#
+		#self.tabs=[self.tab_interactive,self.tab_ogr,self.tab_utilities,self.tab_python]
+		#self.tab_indices=[self.main_tab_host.indexOf(tab) for tab in self.tabs]
+		#self.log_methods=[self.log_interactive,self.log_f2f,self.log_bshlm,self.log_python]
+		#self.log_method_map=dict(zip(self.tab_indices,self.log_methods))
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
-		sys.stderr=RedirectOutput(self.log_pythonStdErr)
-		
+		self.initRegion()
+		sys.stderr=RedirectOutput(self.handleStdErr)
+		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
+		self.show()
 	def onExit(self):
 		self.close()
 	def onActionWhatsThis(self):
@@ -585,13 +596,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.cb_output_system.clear()
 		self.cb_f2f_input_system.clear()
 		self.cb_f2f_output_system.clear()
-		self.cb_bshlm_system.clear()
 		self.cb_f2f_input_system.addItems(systems)
 		self.cb_f2f_output_system.addItems(systems)
 		self.cb_input_system.addItems(systems)
 		self.cb_output_system.addItems(systems)
-		planar_systems=Minilabel.GetPlanarSystems(systems)
-		self.cb_bshlm_system.addItems(planar_systems)
 		self.setInteractiveInput(init_coords)
 		self.cb_input_system.setCurrentIndex(0) #TODO: dont emit signal!
 		self.cb_output_system.setCurrentIndex(0)
@@ -599,6 +607,9 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.setSystemInfo(True,True)
 		self.transform_input() #this should trigger the redraw of the point
 		self.zoomMap()
+		for widget in self.getAdditionalWidgets():
+			if hasattr(widget,"handleRegionChange"):
+				widget.handleRegionChange(self.region)
 		
 	def onSystemInChanged(self):
 		if not self._handle_system_change:
@@ -619,19 +630,19 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def setSystemInfo(self,do_input=True,do_output=False):
 		if do_input:
 			mlb_in=str(self.cb_input_system.currentText())
-			text=self.GetDescription(mlb_in)
+			text=TrLib.DescribeLabel(mlb_in)
 			self.lbl_input_info.setText("Input system info: %s" %text)
-			sys_code_in=Minilabel.GetSysCode(mlb_in)
+			sys_code_in=GetSysCode(mlb_in)
 			if sys_code_in in SYSTEM_LABELS:
 				labels=SYSTEM_LABELS[sys_code_in]
 				for i in range(3):
 					self.input_labels[i].setText(labels[i])
 		if do_output:
 			mlb_out=str(self.cb_output_system.currentText())
-			text=self.GetDescription(mlb_out)
+			text=TrLib.DescribeLabel(mlb_out)
 			self.lbl_output_info.setText("Output system info: %s" %text)
 			
-			sys_code_out=Minilabel.GetSysCode(mlb_out)
+			sys_code_out=GetSysCode(mlb_out)
 			
 			if sys_code_out in SYSTEM_LABELS:
 				labels=SYSTEM_LABELS[sys_code_out]
@@ -640,8 +651,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		
 		
 		
-	def GetDescription(self,mlb):
-		return TrLib.DescribeLabel(mlb)
+	#def GetDescription(self,mlb):
+	#	return TrLib.DescribeLabel(mlb)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_in_clicked(self):
 		mlb_in=str(self.cb_input_system.currentText())
@@ -763,33 +774,26 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			
 	def translateGeoUnits(self):
 		if self.output_cache.is_valid and TrLib.IsGeographic(self.output_cache.mlb) :
-			self.setOutput(self.output_cache.coords,self.output[:2],self.output_cache.mlb)
+			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],self.output_cache.mlb,geo_unit=self.geo_unit)
 		if TrLib.IsGeographic(str(self.cb_input_system.currentText())):
 			for field in self.input[:2]:
-				self.translateAngularField(field,self.geo_unit)
-		if TrLib.IsGeographic(str(self.cb_bshlm_system.currentText())):
-			for field in self.input_bshlm:
-				self.translateAngularField(dield,self.geo_unit)
-		for field in self.output_bshlm_geo:
-			self.translateAngularField(field,self.geo_unit)
+				WidgetUtils.translateAngularField(field,self.geo_unit)
+		for widget in self.getAdditionalWidgets():
+			if hasattr(widget,"handleGeoUnitChange"):
+				widget.handleGeoUnitChange(self.geo_unit)
 		for key in self.action_angular_units.keys():
 			self.action_angular_units[key].setChecked(self.geo_unit==key)
 		
 	def translateDerivedGeoUnits(self):
 		for field in self.derived_angular_output:
-			self.translateAngularField(field,self.geo_unit_derived)
+			WidgetUtils.translateAngularField(field,self.geo_unit_derived)
+		for widget in self.getAdditionalWidgets():
+			if hasattr(widget,"handleAngularUnitChange"):
+				widget.handleAngularUnitChange(self.geo_unit_derived)
 		for key in self.action_angular_units_derived.keys():
 			self.action_angular_units_derived[key].setChecked(self.geo_unit_derived==key)	
 	
-	def translateAngularField(self,field,geo_unit):
-		try:
-			ang=TranslateToDegrees(str(field.text()),geo_unit)
-		except Exception,msg:
-			if DEBUG:
-				self.log_interactive(repr(msg))
-			return
-		
-		field.setText("%s" %TranslateFromDegrees(ang,geo_unit))
+	
 	
 	def onShowScale(self):
 		if (self.chb_show_scale.isChecked() and self.output_cache.is_valid):
@@ -803,45 +807,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	
 
 
-	#a generel output field setter#
-	def setOutput(self,coords,fields,mlb,z_fields=[2]):
-		if len(coords)==0:
-			for field in fields:
-				field.clear()
-			return
-		is_geo=TrLib.IsGeographic(mlb)
-		for i in range(len(fields)):
-			if is_geo and (not i in z_fields):
-				fields[i].setText("%s" %(TranslateFromDegrees(coords[i],self.geo_unit)))
-			else:
-				#TODO: global precision here
-				fields[i].setText("%.4f m" %coords[i])
+	
 				
-	#a general input converter#		
-	def getInput(self,fields,mlb_in,z_fields=[2]):
-		coords=[]
-		is_geo=TrLib.IsGeographic(mlb_in)
-		for i in range(len(fields)):
-			field=fields[i]
-			inp=str(field.text()).replace(" ","")
-			try:
-				if is_geo and (not i in z_fields):
-					inp=TranslateToDegrees(inp,self.geo_unit)
-				else:
-					inp=inp.replace("m","")
-				inp=float(inp)
-			except Exception,msg:
-				if DEBUG:
-					self.log_interactive(repr(msg))
-				return coords
-			else:
-				coords.append(inp)
-		return coords
+	
 	
 	def getInteractiveInput(self,mlb_in=None):
 		if mlb_in is None:
 			mlb_in=str(self.cb_input_system.currentText())
-		coords=self.getInput(self.input,mlb_in)
+		coords,msg=WidgetUtils.getInput(self.input,mlb_in,geo_unit=self.geo_unit)
+		if len(msg)>0:
+			self.log_interactive(msg)
 		return coords
 	
 	def setInteractiveOutput(self,coords,mlb_out=None):
@@ -849,14 +824,14 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if mlb_out is None:
 			mlb_out=str(self.cb_output_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
-		self.setOutput(coords,self.output,mlb_out,z_fields=[2])
+		WidgetUtils.setOutput(coords,self.output,mlb_out,z_fields=[2],geo_unit=self.geo_unit)
 		
 		
 		
 	def setInteractiveInput(self,coords,mlb_in=None):
 		if mlb_in is None:
 			mlb_in=str(self.cb_input_system.currentText())
-		self.setOutput(coords,self.input,mlb_in,z_fields=[2])
+		WidgetUtils.setOutput(coords,self.input,mlb_in,z_fields=[2],geo_unit=self.geo_unit)
 		
 		
 	def transform_input(self):
@@ -1044,11 +1019,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.log_f2f(text,"blue")
 	def onF2FSystemInChanged(self):
 		mlb_in=str(self.cb_f2f_input_system.currentText())
-		text=self.GetDescription(mlb_in)
+		text=TrLib.DescribeLabel(mlb_in)
 		self.lbl_f2f_input_info.setText("Input system info: %s" %text)
 	def onF2FSystemOutChanged(self):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
-		text=self.GetDescription(mlb_out)
+		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)		
 	def transformFile2File(self):
 		file_in=str(self.txt_f2f_input_file.text())
@@ -1139,150 +1114,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.bt_f2f_view_output.setEnabled(True)
 		self.bt_f2f_view_log.setEnabled(True)
 		self.bt_f2f_kill.setEnabled(False)
-	#TAB BESSEL HELMERT#
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_chb_bshlm_custom_ellipsoid_clicked(self):
-		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
-		if is_custom:
-			self.cb_bshlm_system.setEnabled(False)
-			self.txt_bshlm_ellipsoid.setText("custom")
-			self.txt_bshlm_axis.setEnabled(True)
-			self.txt_bshlm_flattening.setEnabled(True)
-			labels=SYSTEM_LABELS[Minilabel.GEO_CODE]
-			self.lbl_bshlm_description.setText("Custom ellipsoid - geographical coordinates")
-			for i in range(2):
-				self.input_labels_bshlm[i].setText(labels[i])
-		else:
-			self.cb_bshlm_system.setEnabled(True)
-			self.txt_bshlm_axis.setEnabled(False)
-			self.txt_bshlm_flattening.setEnabled(False)
-			self.onBshlmSystemChanged()
-	def onBshlmSystemChanged(self):
-		mlb=str(self.cb_bshlm_system.currentText())
-		if len(mlb)==0:
-			return
-		text=self.GetDescription(mlb)
-		self.lbl_bshlm_description.setText("%s" %text)
-		sys_code=Minilabel.GetSysCode(mlb)
-		if sys_code in SYSTEM_LABELS:
-			labels=SYSTEM_LABELS[sys_code]
-			for i in range(2):
-				self.input_labels_bshlm[i].setText(labels[i])
-		region,proj,dtm,h_datum,htype=TrLib.SplitMLB(mlb)
-		if len(dtm)==0: #if implicit datum...
-			descr,dtm=TrLib.DescribeProjection(proj)
-		name,a,f=TrLib.GetEllipsoidParametersFromDatum(dtm)
-		if name is not None:
-			self.txt_bshlm_ellipsoid.setText(name)
-			self.txt_bshlm_axis.setText("%.4f m" %a)
-			if 0<f<1:
-				sf=1/f
-			else:
-				sf=f
-			self.txt_bshlm_flattening.setText("%.8f" %sf)
-		else:
-			self.message("Could not find ellipsoid! %s %s" %(geo_mlb,mlb))
-	def doBesselHelmert(self):
-		#TODO: Improve
-		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
-		if not is_custom:
-			mlb=str(self.cb_bshlm_system.currentText())
-			if len(mlb)==0:
-				#perhaps emit a warning?
-				return
-			geo_mlb=TrLib.Convert2Geo(mlb)
-		else:
-			mlb="geo"
-			geo_mlb="geo"
-		
-		is_mode1=self.rdobt_bshlm_mode1.isChecked()
-		#Get needed input
-		if is_mode1:
-			coords=self.getInput(self.input_bshlm,mlb,z_fields=[])
-			if len(coords)!=4:
-				self.log_bshlm("Input coordinate %d not OK" %(len(coords)+1))
-				self.input_bshlm[len(coords)].setFocus()
-				return
-			x1,y1,x2,y2=coords
-			
-		else:
-			coords=self.getInput(self.input_bshlm[0:2],mlb,z_fields=[])
-			if len(coords)!=2:
-				self.log_bshlm("Station1 coordinates not OK")
-				self.input_bshlm[len(coords)].setFocus()
-				return
-			input_data=self.getInput(self.input_bshlm_azimuth,geo_mlb,z_fields=[0])
-			if len(input_data)!=2:
-				self.log_bshlm("Input distance and azimuth not OK")
-				self.input_bshlm_azimuth[len(input_data)].setFocus()
-				if (DEBUG):
-					self.log_interactive(repr(input_data))
-				return
-			x1,y1=coords
-			
-			dist,a1=input_data
-		ell_data=self.getInput([self.txt_bshlm_axis,self.txt_bshlm_flattening],"",z_fields=[0,1])
-		if len(ell_data)==2:
-			a,f=ell_data
-		else:
-			self.message("Error in ellipsoid data!")
-			return
-		#end get needed input#
-		#transform to geo coords if needed#
-		if not is_custom:
-			try:
-				ct=TrLib.CoordinateTransformation(mlb,geo_mlb)
-			except:
-				self.message("Input labels not OK!")
-				return
-			try:
-				x1,y1,z=ct.Transform(x1,y1)
-			except:
-				self.message("Error in transformation of coords for station1")
-				ct.Close()
-				return
-		#display output of first transformation, x1,y1 should now alwyas be in geo-coords#
-		self.setOutput([x1,y1],self.output_bshlm_geo[:2],geo_mlb,z_fields=[])
-		
-		#Now get the other output from bshlm and transformations....
-		if is_mode1:
-			if not is_custom:
-				try: #transform to geographic
-					x2,y2,z=ct.Transform(x2,y2)
-				except:
-					self.message("Error in transformation of coords for station2")
-					ct.Close()
-					return
-			
-			data=TrLib.BesselHelmert(a,f,x1,y1,x2,y2)
-			if data[0] is not None:
-				a1,a2=data[1:]
-				self.setOutput(data,self.output_bshlm_azimuth,geo_mlb,z_fields=[0])
-			else:
-				self.message("Error: could not calculate azimuth!")
-		else:
-			data=TrLib.InverseBesselHelmert(a,f,x1,y1,a1,dist)
-			if data[0] is not None:
-				x2,y2,a2=data
-				if not is_custom:
-					try:
-						x2_out,y2_out,z2=ct.InverseTransform(x2,y2)
-					except:
-						self.message("Error in transformation of coords for station2")
-				else:
-					x2_out=x2
-					y2_out=y2
-				#display result...
-				self.setOutput([x2_out,y2_out],self.input_bshlm[2:],mlb,z_fields=[])
-				
-				self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(a2,self.geo_unit))
-			else:
-				self.message("Error: could not do inverse Bessel Helmert calculation")
-		#always display ouput in geo field - even if not transformed
-		self.setOutput([x2,y2],self.output_bshlm_geo[2:],geo_mlb,z_fields=[])
-		self.log_bshlm("Successful calculation....",clear=True)
-		if not is_custom:
-			ct.Close()
+	
 	
 	#TAB PYTHON#
 	@pyqtSignature('') #prevents actions being handled twice
@@ -1349,10 +1181,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				self.onPythonCommand()
 				return
 		type(self.txt_python_in).keyPressEvent(self.txt_python_in,event)
-		#if HAS_QSCI:
-		#	Qsci.Qscintilla.keyPressEvent(self.txt_python_in,event)
-		#else:
-		#	QTextEdit.keyPressEvent(self.txt_python_in,event)
+		
 	def pythonExample(self):
 		stars="*"*50
 		self.log_pythonStdOut(stars,"blue")
@@ -1380,13 +1209,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.txt_f2f_log.append(text)
 		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
-	def log_bshlm(self,text,color="black",clear=False):
-		self.txt_bshlm_log.setTextColor(QColor(color))
-		if (not clear):
-			self.txt_bshlm_log.append(text)
-		else:
-			self.txt_bshlm_log.setText(text)
-		self.txt_bshlm_log.ensureCursorVisible()
+	
 	def log_python(self,text,color="green"):
 		self.txt_python_out.setTextColor(QColor(color))
 		self.txt_python_out.append(text)
@@ -1398,13 +1221,24 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def log_pythonStdErr(self,text,color="red"):
 		self.log_python(text,color)
 	def displayCallbackMessage(self,text):
-		i=self.tab_gsttrans.currentIndex()
-		if i in self.log_method_map:
-			self.log_method_map[i](text,"blue")
+		#check if current widget handles call_back
+		widget=self.main_tab_host.currentWidget()
+		if hasattr(widget,"handleCallBack"):
+			widget.handleCallBack(text)
 		else:
 			self.message(text)
+	def handleStdOut(self,text):
+		widget=self.main_tab_host.currentWidget()
+		if hasattr(widget,"handleStdOut"):
+			widget.handleStdOut(text)
+	def handleStdErr(self,text):
+		widget=self.main_tab_host.currentWidget()
+		if hasattr(widget,"handleStdErr"):
+			widget.handleStdErr(text)
 	#SETTINGS#
 	def saveSettings(self):
+		if not self.save_settings:
+			return
 		settings = QSettings(COMPANY_NAME,PROG_NAME)
 		settings.beginGroup('MainWindow')
 		settings.setValue('size', self.size())
@@ -1484,7 +1318,13 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			name="some_plugin"
 		self.log_python("Widget type plugin - added as tab: %s" %name,color="brown")
 		widget=plugin.getWidget(self)
-		self.tab_gsttrans.addTab(widget,name)
+		self.main_tab_host.addTab(widget,name)
+	def getAdditionalWidgets(self):
+		count=self.main_tab_host.count()
+		if count>2:
+			widgets=[self.main_tab_host.widget(i) for i in range(2,count)]
+			return widgets
+		return []
 	#ON CLOSE - SAVE SETTINGS#
 	def closeEvent(self, event):
 		self.saveSettings()
@@ -1496,7 +1336,6 @@ if __name__=="__main__":
 	 global MainWindow
 	 app = QtGui.QApplication(sys.argv)
 	 MainWindow = GSTtrans()
-	 MainWindow.show()
 	 sys.exit(app.exec_())
 	
 	

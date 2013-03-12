@@ -69,6 +69,25 @@ ERRORS={
 -2:"Tolerance exceeded",
 -3:"Boundary exceeded",
 }
+#DEFAULT FIELD LABELING MECHANISM#
+GEO_LABELS=["Longitude:","Latitude:","H:"]
+PROJ_LABELS=["Easting:","Northing:","H:"]
+CRT_LABELS=["X:","Y:","Z:"]
+
+GEO_CODE=2
+CRT_CODE=1
+PROJ_CODE=0
+SYSTEM_LABELS={CRT_CODE:CRT_LABELS,PROJ_CODE:PROJ_LABELS,GEO_CODE:GEO_LABELS}
+def GetSysCode(mlb): #TODO - improve this to NO hardcoding!
+	try:
+		region,proj,datum,hdatum,htype=SplitMLB(mlb)
+	except:
+		return -1
+	if "geo" in proj:
+		return GEO_CODE
+	if "crt" in proj:
+		return CRT_CODE
+	return PROJ_CODE
 #ANGULAR UNITS
 ANGULAR_UNIT_DEGREES="dg"
 ANGULAR_UNIT_RADIANS="rad"
