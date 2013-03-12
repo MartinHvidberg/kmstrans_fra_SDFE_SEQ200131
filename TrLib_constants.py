@@ -76,19 +76,27 @@ ANGULAR_UNIT_NT="nt"
 ANGULAR_UNIT_SX="sx"
 ANGULAR_UNITS=[ANGULAR_UNIT_DEGREES,ANGULAR_UNIT_RADIANS,ANGULAR_UNIT_NT,ANGULAR_UNIT_SX]
 #Translate from dg to other geo units
-#TODO: add proper number of zeroes
+#DONE: avoid round up to 60 seconds/minutes
 def TranslateFromDegrees(x,geo_unit):
 	if geo_unit==ANGULAR_UNIT_RADIANS:
 		return "{0:.9f} {1}".format(x*pi/180.0,ANGULAR_UNIT_RADIANS)
 	if geo_unit==ANGULAR_UNIT_NT:
 		dg=floor(x)
-		m=(x-dg)*60 #between 0 and 1 - thus output below 60
-		return "{0:d} {1:07.4f} {2}".format(int(dg),m,ANGULAR_UNIT_NT)
+		m=(x-dg)*60.0 #between 0 and 1 - thus output below 60
+		if (60.0-m)<1e-6:
+			m=0.0
+			dg=round(x)
+		return "{0:d} {1:09.6f} {2}".format(int(dg),m,ANGULAR_UNIT_NT)
 	if geo_unit==ANGULAR_UNIT_SX:
 		dg=floor(x)
-		m=(x-dg)*60
-		s=(m-floor(m))*60 #between 0 and 1 - thus output below 60
-		return "{0:d} {1:02d} {2:07.4f} {3}".format(int(dg),int(m),s,ANGULAR_UNIT_SX)
+		m=(x-dg)*60.0
+		if (60.0-m)<1e-5/60.0:
+			m=0.0
+			s=0.0
+			dg=round(x)
+		else:	
+			s=(m-floor(m))*60 #between 0 and 1 - thus output below 60
+		return "{0:d} {1:02d} {2:08.5f} {3}".format(int(dg),int(m),s,ANGULAR_UNIT_SX)
 	return "{0:.8f} dg".format(x)
 
 def TranslateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...
@@ -97,21 +105,35 @@ def TranslateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not s
 			geo_unit=unit
 			break
 	x=x.replace(geo_unit,"").replace(" ","")
+	x=x.replace(",",".")
+	index_dot=x.find(".")
+	if index_dot==-1:
+		index_dot=len(x)
 	if geo_unit==ANGULAR_UNIT_RADIANS:
 		return float(x)*180.0/pi
 	if geo_unit==ANGULAR_UNIT_NT:
-		m=float(x[-7:])
+		index_m=max(0,index_dot-2)
+		m=float(x[index_m:])
 		if (m>60):
 			raise ValueError("Minutes must be between 0 and 60")
-		dg=int(x[:-7])
+		if index_m>0:
+			dg=int(x[:index_m])
+		else:
+			dg=0
 		return dg+m/60.0
 	if geo_unit==ANGULAR_UNIT_SX:
-		s=float(x[-7:])
+		index_s=max(0,index_dot-2)
+		s=float(x[index_s:])
+		m=0
+		dg=0
 		if (s>60):
 			raise ValueError("Seconds must be between 0 and 60")
-		m=int(x[-9:-7])
-		if (m>60):
-			raise ValueError("Minutes must be between 0 and 60")
-		dg=int(x[:-9])
+		if index_s>0:
+			index_m=max(0,index_s-2)
+			m=int(x[index_m:index_s])
+			if (m>60):
+				raise ValueError("Minutes must be between 0 and 60")
+			if index_m>0:
+				dg=int(x[:index_m])
 		return dg+m/60.0+s/3600.0
 	return float(x)
