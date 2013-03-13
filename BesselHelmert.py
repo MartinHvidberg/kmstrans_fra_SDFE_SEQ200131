@@ -1,3 +1,21 @@
+###################
+## A "plugin like" implementation of the Bessel Helmert tab for trui
+## simlk, March 2013
+###################
+# Copyright (c) 2013, National Geodata Agency, Denmark
+# (Geodatastyrelsen), gst@gst.dk
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+#purpose with or without fee is hereby granted, provided that the above
+#copyright notice and this permission notice appear in all copies.
+#  
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN 
+#ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
@@ -88,13 +106,14 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				return
 			geo_mlb=TrLib.Convert2Geo(mlb)
 		else:
-			mlb="geo"
-			geo_mlb="geo"
+			mlb="geo_none"
+			geo_mlb="geo_none"
 		
 		is_mode1=self.rdobt_bshlm_mode1.isChecked()
 		#Get needed input
+		is_geo_in=TrLib.IsGeographic(mlb)
 		if is_mode1:
-			coords,msg=WidgetUtils.getInput(self.input_bshlm,mlb,z_fields=[],geo_unit=self.geo_unit)
+			coords,msg=WidgetUtils.getInput(self.input_bshlm,is_geo_in,z_fields=[],angular_unit=self.geo_unit)
 			if len(coords)!=4:
 				self.log_bshlm("Input coordinate %d not OK.\n%s" %(len(coords)+1,msg))
 				self.input_bshlm[len(coords)].setFocus()
@@ -102,12 +121,12 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			x1,y1,x2,y2=coords
 			
 		else:
-			coords,msg=WidgetUtils.getInput(self.input_bshlm[0:2],mlb,z_fields=[],geo_unit=self.geo_unit)
+			coords,msg=WidgetUtils.getInput(self.input_bshlm[0:2],is_geo_in,z_fields=[],angular_unit=self.geo_unit)
 			if len(coords)!=2:
 				self.log_bshlm("Station1 coordinates not OK.\n%s" %msg)
 				self.input_bshlm[len(coords)].setFocus()
 				return
-			input_data,msg=WidgetUtils.getInput(self.input_bshlm_azimuth,geo_mlb,z_fields=[0],geo_unit=self.geo_unit_derived)
+			input_data,msg=WidgetUtils.getInput(self.input_bshlm_azimuth,True,z_fields=[0],angular_unit=self.geo_unit_derived)
 			if len(input_data)!=2:
 				self.log_bshlm("Input distance and azimuth not OK.\n%s" %msg)
 				self.input_bshlm_azimuth[len(input_data)].setFocus()
@@ -115,7 +134,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			x1,y1=coords
 			
 			dist,a1=input_data
-		ell_data,msg=WidgetUtils.getInput([self.txt_bshlm_axis,self.txt_bshlm_flattening],"",z_fields=[0,1])
+		ell_data,msg=WidgetUtils.getInput([self.txt_bshlm_axis,self.txt_bshlm_flattening],False,z_fields=[0,1])
 		if len(ell_data)==2:
 			a,f=ell_data
 		else:
@@ -136,7 +155,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				ct.Close()
 				return
 		#display output of first transformation, x1,y1 should now alwyas be in geo-coords#
-		WidgetUtils.setOutput([x1,y1],self.output_bshlm_geo[:2],geo_mlb,z_fields=[],geo_unit=self.geo_unit)
+		WidgetUtils.setOutput([x1,y1],self.output_bshlm_geo[:2],True,z_fields=[],angular_unit=self.geo_unit)
 		
 		#Now get the other output from bshlm and transformations....
 		if is_mode1:
@@ -151,7 +170,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			data=TrLib.BesselHelmert(a,f,x1,y1,x2,y2)
 			if data[0] is not None:
 				a1,a2=data[1:]
-				WidgetUtils.setOutput(data,self.output_bshlm_azimuth,geo_mlb,z_fields=[0],geo_unit=self.geo_unit_derived)
+				WidgetUtils.setOutput(data,self.output_bshlm_azimuth,True,z_fields=[0],angular_unit=self.geo_unit_derived)
 			else:
 				self.message("Error: could not calculate azimuth!")
 		else:
@@ -167,13 +186,13 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					x2_out=x2
 					y2_out=y2
 				#display result...
-				WidgetUtils.setOutput([x2_out,y2_out],self.input_bshlm[2:],mlb,z_fields=[],geo_unit=self.geo_unit)
+				WidgetUtils.setOutput([x2_out,y2_out],self.input_bshlm[2:],is_geo_in,z_fields=[],angular_unit=self.geo_unit)
 				
 				self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(a2,self.geo_unit_derived))
 			else:
 				self.message("Error: could not do inverse Bessel Helmert calculation")
 		#always display ouput in geo field - even if not transformed
-		WidgetUtils.setOutput([x2,y2],self.output_bshlm_geo[2:],geo_mlb,z_fields=[],geo_unit=self.geo_unit)
+		WidgetUtils.setOutput([x2,y2],self.output_bshlm_geo[2:],True,z_fields=[],angular_unit=self.geo_unit)
 		self.log_bshlm("Successful calculation....",clear=True)
 		if not is_custom:
 			ct.Close()

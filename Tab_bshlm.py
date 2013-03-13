@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_bshlm.ui'
 #
-# Created: Tue Mar 12 13:16:49 2013
+# Created: Wed Mar 13 10:24:52 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -251,14 +251,4 @@ class Ui_tab_bshlm(object):
         self.rdobt_bshlm_mode1.setText(QtGui.QApplication.translate("tab_bshlm", "Find distance and azimuth from positions of station1 and  station2.", None, QtGui.QApplication.UnicodeUTF8))
         self.rdobt_bshlm_mode2.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "In this mode the position of the second point is calculated based on input distance and azimuth.", None, QtGui.QApplication.UnicodeUTF8))
         self.rdobt_bshlm_mode2.setText(QtGui.QApplication.translate("tab_bshlm", "Find position of station2 based on distance and azimuth from station1. ", None, QtGui.QApplication.UnicodeUTF8))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    tab_bshlm = QtGui.QWidget()
-    ui = Ui_tab_bshlm()
-    ui.setupUi(tab_bshlm)
-    tab_bshlm.show()
-    sys.exit(app.exec_())
 

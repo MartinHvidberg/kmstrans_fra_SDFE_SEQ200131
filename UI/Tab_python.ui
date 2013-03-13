@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>tab_python</class>
+ <widget class="QWidget" name="tab_python">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>652</width>
+    <height>391</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>15</number>
+   </property>
+   <property name="rightMargin">
+    <number>15</number>
+   </property>
+   <property name="bottomMargin">
+    <number>10</number>
+   </property>
+   <item>
+    <widget class="QTextEdit" name="txt_python_out">
+     <property name="whatsThis">
+      <string>Python output from interactive sessions will be displayed in this field.</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QPushButton" name="bt_python_run">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Compile/run input code</string>
+       </property>
+       <property name="whatsThis">
+        <string>Compile input code. Used to enter definitions/code which span several lines (uncheck the REPL mode checkbox). </string>
+       </property>
+       <property name="text">
+        <string>compile</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="bt_python_load">
+       <property name="whatsThis">
+        <string>Load a script for editing.</string>
+       </property>
+       <property name="text">
+        <string>load script</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chb_python_process_enter">
+       <property name="toolTip">
+        <string>REPL mode on/off</string>
+       </property>
+       <property name="whatsThis">
+        <string>Check this box if you want to run in an interactive mode with instant response to each command. </string>
+       </property>
+       <property name="text">
+        <string>Run command on enter (REPL mode)</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chb_python_clear">
+       <property name="whatsThis">
+        <string>Clear input code if it did not result in a error. Useful in interactive (REPL) mode. A command history is maintained and available by using up/down arrows.</string>
+       </property>
+       <property name="text">
+        <string>Clear input code on succes</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

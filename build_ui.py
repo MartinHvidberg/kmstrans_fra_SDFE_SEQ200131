@@ -14,7 +14,11 @@ cmd="pyuic4 -o Dialog_layer_selector.py -x %s" %(os.path.join("UI","Dialog_layer
 print cmd
 rc=os.system(cmd)
 print("Return code: %d" %rc)
-cmd="pyuic4 -o Tab_bshlm.py -x %s" %(os.path.join("UI","Tab_bshlm.ui"))
+cmd="pyuic4 -o Tab_bshlm.py %s" %(os.path.join("UI","Tab_bshlm.ui"))
+print cmd
+rc=os.system(cmd)
+print("Return code: %d" %rc)
+cmd="pyuic4 -o Tab_python.py %s" %(os.path.join("UI","Tab_python.ui"))
 print cmd
 rc=os.system(cmd)
 print("Return code: %d" %rc)

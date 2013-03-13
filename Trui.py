@@ -18,16 +18,11 @@
  */
  """
 from PyQt4 import QtCore, QtGui
-try:
-	from PyQt4 import Qsci
-except:
-	HAS_QSCI=False
-else:
-	HAS_QSCI=True
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
 from Main_gui import Ui_GSTtrans
 from BesselHelmert import BshlmWidget
+from PythonConsole import PythonWidget
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 import Minilabel
@@ -36,7 +31,6 @@ from TrLib_constants import *
 import threading, subprocess
 import File2File
 import sys,os,time
-import EmbedPython
 import WidgetUtils
 try:
 	import importlib
@@ -350,13 +344,13 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.save_settings=False #flag which signals whether to save settings - only do it if initialisation succeded!
 		#APPEARANCE#
 		self.setWindowTitle(VERSION)
-		#Set log methods#
-		self.tab_interactive.handleStdOut=self.log_interactive
-		self.tab_interactive.handleStdErr=self.log_interactive
-		self.tab_interactive.handleCallBack=self.log_interactive
-		self.tab_ogr.handleStdOut=self.log_f2f
-		self.tab_ogr.handleStdErr=self.log_f2f
-		self.tab_ogr.handleCallBack=self.log_f2f
+		#Set log methods - tabs work as general plugins do#
+		self.tab_interactive.handleStdOut=self.log_interactive_StdOut
+		self.tab_interactive.handleStdErr=self.log_interactive_StdErr
+		self.tab_interactive.handleCallBack=self.log_interactive_CallBack
+		self.tab_ogr.handleStdOut=self.log_f2f_StdOut
+		self.tab_ogr.handleStdErr=self.log_f2f_StdErr
+		self.tab_ogr.handleCallBack=self.log_f2f_CallBack
 		#Set up event handlers#
 		#some event handlers defined directly by special method names#
 		self.cb_input_system.currentIndexChanged.connect(self.onSystemInChanged)
@@ -364,7 +358,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.cb_f2f_input_system.currentIndexChanged.connect(self.onF2FSystemInChanged)
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
-		self.bt_python_run.clicked.connect(self.onPythonCommand)
+		
 		self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
@@ -453,53 +447,28 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				self.geoids=self.selectTabDir()
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
-		#Setup BSHLM tab#
-		self.tab_bshlm=BshlmWidget(self)
-		self.main_tab_host.addTab(self.tab_bshlm,"Bessel Helmert")
 		#Will initialise some attributes which must be present in other methods#
 		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
 		self.initF2FTab()
 		self.drawMap()
-		
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
-		#Setup for interactive python session. TODO: add some stuff to namespace#
-		self.tab_python.handleStdOut=self.log_pythonStdOut
-		self.tab_python.handleStdErr=self.log_pythonStdErr
-		self.tab_python.handleCallBack=self.log_python
-		self.log_pythonStdOut("Python version:\n"+sys.version)
-		namespace={"loadPlugins":self.loadPlugins,"mainWindow":self}
-		self.log_pythonStdOut("Handle to main window %s stored in name: mainWindow" %repr(self.__class__),color="brown")
-		self.python_console=EmbedPython.PythonConsole(namespace)
-		self.python_console.ExecuteCode("from TrLib import *")
+		#Setup BSHLM tab#
+		self.tab_bshlm=BshlmWidget(self)
+		self.main_tab_host.addTab(self.tab_bshlm,"Bessel Helmert")
+		#Setup Python Console tab#
+		self.tab_python=PythonWidget(self)
+		self.main_tab_host.addTab(self.tab_python,"Python console")
+		#Load plugins#
 		self.loadPlugins()
-		if HAS_QSCI:
-			self.txt_python_in=Qsci.QsciScintilla(self.tab_python)
-			self.txt_python_in.setLexer(Qsci.QsciLexerPython())
-			self.txt_python_in.setAutoIndent(True)
-		else:
-			self.txt_python_in=QTextEdit(self.tab_python)
-		self.tab_python.layout().addWidget(self.txt_python_in)
-		self.txt_python_in.keyPressEvent=self.onPythonKey
-		self.pythonExample()
-		if not HAS_QSCI:
-			self.log_pythonStdOut("Qscintilla not installed. Python input lexer will not work...")
-		self.python_console.ClearCache()
-		self.txt_python_in.setWhatsThis("Enter/edit input python code here") 
+		#Only now - redirect python stderr - to be able to see errors in the initialisation#
+		self.initRegion()
+		sys.stderr=RedirectOutput(self.handleStdErr)
+		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
 		#move to interactive tab
 		try:
 			self.main_tab_host.setCurrentIndex(0)
 		except:
 			pass
-		#Setup tab indices dynamically - easier to maintain. Useful for displaying call back messages the right place#
-		#Also important that this is done AFTER plugins are loaded as these may modify tab order!#
-		#self.tabs=[self.tab_interactive,self.tab_ogr,self.tab_utilities,self.tab_python]
-		#self.tab_indices=[self.main_tab_host.indexOf(tab) for tab in self.tabs]
-		#self.log_methods=[self.log_interactive,self.log_f2f,self.log_bshlm,self.log_python]
-		#self.log_method_map=dict(zip(self.tab_indices,self.log_methods))
-		#Only now - redirect python stderr - to be able to see errors in the initialisation#
-		self.initRegion()
-		sys.stderr=RedirectOutput(self.handleStdErr)
-		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
 		self.show()
 	def onExit(self):
 		self.close()
@@ -774,7 +743,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			
 	def translateGeoUnits(self):
 		if self.output_cache.is_valid and TrLib.IsGeographic(self.output_cache.mlb) :
-			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],self.output_cache.mlb,geo_unit=self.geo_unit)
+			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],True,angular_unit=self.geo_unit)
 		if TrLib.IsGeographic(str(self.cb_input_system.currentText())):
 			for field in self.input[:2]:
 				WidgetUtils.translateAngularField(field,self.geo_unit)
@@ -793,8 +762,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		for key in self.action_angular_units_derived.keys():
 			self.action_angular_units_derived[key].setChecked(self.geo_unit_derived==key)	
 	
-	
-	
 	def onShowScale(self):
 		if (self.chb_show_scale.isChecked() and self.output_cache.is_valid):
 			self.txt_scale.setText("%.8f" %self.output_cache.scale)
@@ -805,16 +772,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.txt_scale.setText("")
 			self.txt_meridian_convergence.setText("")
 	
-
-
-	
-				
-	
-	
 	def getInteractiveInput(self,mlb_in=None):
 		if mlb_in is None:
 			mlb_in=str(self.cb_input_system.currentText())
-		coords,msg=WidgetUtils.getInput(self.input,mlb_in,geo_unit=self.geo_unit)
+		is_angle=TrLib.IsGeographic(mlb_in)
+		coords,msg=WidgetUtils.getInput(self.input,is_angle,angular_unit=self.geo_unit)
 		if len(msg)>0:
 			self.log_interactive(msg)
 		return coords
@@ -824,14 +786,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if mlb_out is None:
 			mlb_out=str(self.cb_output_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
-		WidgetUtils.setOutput(coords,self.output,mlb_out,z_fields=[2],geo_unit=self.geo_unit)
+		is_angle=TrLib.IsGeographic(mlb_out)
+		WidgetUtils.setOutput(coords,self.output,is_angle,z_fields=[2],angular_unit=self.geo_unit)
 		
 		
 		
 	def setInteractiveInput(self,coords,mlb_in=None):
 		if mlb_in is None:
 			mlb_in=str(self.cb_input_system.currentText())
-		WidgetUtils.setOutput(coords,self.input,mlb_in,z_fields=[2],geo_unit=self.geo_unit)
+		is_angle=TrLib.IsGeographic(mlb_in)
+		WidgetUtils.setOutput(coords,self.input,is_angle,z_fields=[2],angular_unit=self.geo_unit)
 		
 		
 	def transform_input(self):
@@ -885,7 +849,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 					self.HeightTransformation.Close()
 				self.HeightTransformation=ct
 		x,y,z=self.transform(self.HeightTransformation,x,y,0)
-		#self.log("%s %.2f" %(h_mlb,z))
+		
 		if x is not None:
 			self.txt_geoid_height.setText("%.4f m" %z)
 		geoid_name=self.CoordinateTransformation.GetGeoidName()
@@ -1116,83 +1080,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.bt_f2f_kill.setEnabled(False)
 	
 	
-	#TAB PYTHON#
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_bt_python_load_clicked(self):
-		if self.script_dir is None:
-			dir=self.dir
-		else:
-			dir=self.script_dir
-		my_file = str(QFileDialog.getOpenFileName(self, "Select a python script file",dir,"*.py"))
-		if len(my_file)>0:
-			self.script_dir=os.path.dirname(my_file)
-			try:
-				f=open(my_file)
-			except:
-				self.message("Unable to open file!")
-			else:
-				txt=f.read()
-				self.txt_python_in.setText(txt)
-				f.close()
-				self.chb_python_process_enter.setChecked(False)
-	def onPythonCommand(self):
-		if HAS_QSCI:
-			cmd=str(self.txt_python_in.text()).strip()
-		else:
-			cmd=str(self.txt_python_in.toPlainText()).strip()
-		if len(cmd)==0:
-			return
-		if cmd.lower()=="clear":
-			self.txt_python_out.clear()
-			
-		elif cmd.lower()=="help":
-			self.onHelp_local()
-			
-		elif cmd.lower().replace(" ","")=="help()":
-			self.log_pythonStdOut("Interactive python help is not available in this mode...")
-		elif cmd.lower()=="example":
-			self.pythonExample()
-			return
-		else:	
-			ok=self.python_console.ExecuteCode(cmd)
-			if self.chb_python_clear.isChecked() and ok:
-				self.clearPythonIn()
-			return
-		self.clearPythonIn()
-	def clearPythonIn(self):
-		self.txt_python_in.clear()
-		if HAS_QSCI:
-			self.txt_python_in.setCursorPosition(0,0)
-	#really subclassing the TextEdit/Qscintilla object - however this is more convenient when using designer...	
-	def onPythonKey(self,event):
-		if (not event.isAutoRepeat()):
-			if event.key()==Qt.Key_Up and self.chb_python_process_enter.isChecked() and len(self.python_console.cmd_buffer)>0:
-				event.accept()
-				text=self.python_console.SpoolUp()
-				self.txt_python_in.setText(text)
-				return
-			if event.key()==Qt.Key_Down and self.chb_python_process_enter.isChecked() and len(self.python_console.cmd_buffer)>0:
-				event.accept()
-				text=self.python_console.SpoolDown()
-				self.txt_python_in.setText(text)
-				return
-			if event.key()==Qt.Key_Return and self.chb_python_process_enter.isChecked():
-				event.accept()
-				self.onPythonCommand()
-				return
-		type(self.txt_python_in).keyPressEvent(self.txt_python_in,event)
-		
-	def pythonExample(self):
-		stars="*"*50
-		self.log_pythonStdOut(stars,"blue")
-		self.log_pythonStdOut("Running example code:","blue")
-		code=["GetVersion()","Transform('geoEed50','utm32Hwgs84_h_dvr90',11.75,54.10,100)",
-		"wkt=GetEsriText('utm32_etrs89')","print wkt",
-		"ImportLabel(wkt)","ImportLabel('EPSG:25832')"]
-		for cmd in code:
-			self.log_pythonStdOut(cmd,"blue")
-			self.python_console.ExecuteCode(cmd)
-		self.log_pythonStdOut(stars,"blue")
+	
 	#MESSAGE AND LOG METHODS#
 	def log_interactive(self,text,color="black",clear=False):
 		self.txt_log.setTextColor(QColor(color))
@@ -1201,6 +1089,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		else:
 			self.txt_log.append(text)
 		self.txt_log.ensureCursorVisible()
+	def log_interactive_StdOut(self,text):
+		self.log_interactive(text,"green")
+	def log_interactive_StdErr(self,text):
+		self.log_interactive(text,"red")
+	def log_interactive_CallBack(self,text):
+		self.log_interactive(text,"blue")
 	def log_f2f(self,text,color="black",insert=False):
 		self.txt_f2f_log.setTextColor(QColor(color))
 		if insert:
@@ -1210,16 +1104,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
 	
-	def log_python(self,text,color="green"):
-		self.txt_python_out.setTextColor(QColor(color))
-		self.txt_python_out.append(text)
-		self.txt_python_out.ensureCursorVisible()
+	def log_f2f_StdOut(self,text):
+		self.log_f2f(text,"green")
+	def log_f2f_StdErr(self,text):
+		self.log_f2f(text,"red")
+	def log_f2f_CallBack(self,text):
+		self.log_f2f(text,"blue")
+	
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)
-	def log_pythonStdOut(self,text,color="green"):
-		self.log_python(text,color)
-	def log_pythonStdErr(self,text,color="red"):
-		self.log_python(text,color)
+	
 	def displayCallbackMessage(self,text):
 		#check if current widget handles call_back
 		widget=self.main_tab_host.currentWidget()
@@ -1291,12 +1185,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		plugins=GetPlugins(PLUGIN_PATH)
 		if len(plugins)>0:
 			if not HAS_IMPORTLIB:
-				self.log_pythonStdOut("Plugin loader needs importlib (python version>=2.7)",color="red")
+				self.log_interactive("Plugin loader needs importlib (python version>=2.7)",color="red")
 				return
 			if not PLUGIN_PATH in sys.path:
 				sys.path.insert(0,PLUGIN_PATH)
 			for plugin in plugins:
-				self.log_python("Loading plugin: %s" %plugin,color="brown")
+				self.log_interactive("Loading plugin: %s" %plugin,color="brown")
 				try:
 					_plugin=importlib.import_module(plugin)
 				except Exception,msg:
@@ -1305,9 +1199,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 					#Test if this is a widget type plugin!
 					if hasattr(_plugin,"getWidget"):
 						self.addPluginWidget(_plugin)
-					self.python_console.python_locals[plugin]=_plugin
+					if hasattr(self,"tab_python") and hasattr(self.tab_python,"addModule"):
+						self.tab_python.addModule(_plugin,plugin)
 		else:
-			self.log_pythonStdOut("No python plugins in "+PLUGIN_PATH)
+			self.log_interactive("No python plugins in "+PLUGIN_PATH)
 	#Add TAB - for widget type plugins#
 	def addPluginWidget(self,plugin):
 		#TODO: implement a manager, which allows enabling/disabling plugins - which means that we should store info 
@@ -1316,7 +1211,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			name=plugin.getName()
 		else:
 			name="some_plugin"
-		self.log_python("Widget type plugin - added as tab: %s" %name,color="brown")
+		self.log_interactive("Widget type plugin - added as tab: %s" %name,color="brown")
 		widget=plugin.getWidget(self)
 		self.main_tab_host.addTab(widget,name)
 	def getAdditionalWidgets(self):
