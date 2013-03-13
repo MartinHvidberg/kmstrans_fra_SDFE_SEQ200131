@@ -17,6 +17,9 @@
    <property name="leftMargin">
     <number>15</number>
    </property>
+   <property name="topMargin">
+    <number>15</number>
+   </property>
    <property name="rightMargin">
     <number>15</number>
    </property>

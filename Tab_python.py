@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_python.ui'
 #
-# Created: Wed Mar 13 10:24:52 2013
+# Created: Wed Mar 13 10:50:03 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,7 +19,7 @@ class Ui_tab_python(object):
         tab_python.setObjectName(_fromUtf8("tab_python"))
         tab_python.resize(652, 391)
         self.verticalLayout = QtGui.QVBoxLayout(tab_python)
-        self.verticalLayout.setContentsMargins(15, -1, 15, 10)
+        self.verticalLayout.setContentsMargins(15, 15, 15, 10)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.txt_python_out = QtGui.QTextEdit(tab_python)
         self.txt_python_out.setReadOnly(True)

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Wed Mar 13 10:24:49 2013
+# Created: Wed Mar 13 10:50:01 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!

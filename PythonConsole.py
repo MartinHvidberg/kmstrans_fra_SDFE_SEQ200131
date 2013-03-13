@@ -33,6 +33,7 @@ import TrLib
 class PythonWidget(WidgetBase,Ui_tab_python):
 	def __init__(self,parent):
 		WidgetBase.__init__(self,parent)
+		self.parent=parent
 		self.setupUi(self)
 		#Event handlers#
 		self.bt_python_run.clicked.connect(self.onPythonCommand)
@@ -65,13 +66,14 @@ class PythonWidget(WidgetBase,Ui_tab_python):
 	#TAB PYTHON#
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_python_load_clicked(self):
-		if self.script_dir is None:
-			dir=self.dir
+		#Hmmm - some logic to consider here - path attributtes shared between this widget and the main window?
+		if self.parent.script_dir is None:
+			dir=self.parent.dir
 		else:
-			dir=self.script_dir
+			dir=self.parent.script_dir
 		my_file = str(QFileDialog.getOpenFileName(self, "Select a python script file",dir,"*.py"))
 		if len(my_file)>0:
-			self.script_dir=os.path.dirname(my_file)
+			self.parent.script_dir=os.path.dirname(my_file)
 			try:
 				f=open(my_file)
 			except:
