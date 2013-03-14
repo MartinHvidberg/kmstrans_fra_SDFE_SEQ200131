@@ -421,6 +421,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			pass
 		else:
 			self.log_interactive("Running thorugh py2exe")
+		#move to interactive tab - messages will appear there afterwards,,,,#
+		try:
+			self.main_tab_host.setCurrentIndex(0)
+		except:
+			pass
 		#redirect python output#
 		sys.stdout=RedirectOutput(self.handleStdOut)
 		#init TrLib and load settings#
@@ -464,11 +469,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.initRegion()
 		sys.stderr=RedirectOutput(self.handleStdErr)
 		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
-		#move to interactive tab
-		try:
-			self.main_tab_host.setCurrentIndex(0)
-		except:
-			pass
+		
 		self.show()
 	def onExit(self):
 		self.close()
@@ -1201,6 +1202,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 						self.addPluginWidget(_plugin)
 					if hasattr(self,"tab_python") and hasattr(self.tab_python,"addModule"):
 						self.tab_python.addModule(_plugin,plugin)
+					if hasattr(_plugin,"startPlugin"):
+						_plugin.startPlugin(self)
 		else:
 			self.log_interactive("No python plugins in "+PLUGIN_PATH)
 	#Add TAB - for widget type plugins#
