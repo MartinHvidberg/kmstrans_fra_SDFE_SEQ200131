@@ -676,72 +676,42 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if self.geo_unit!=ANGULAR_UNIT_DEGREES:
 			self.geo_unit=ANGULAR_UNIT_DEGREES
 			self.translateGeoUnits()
+		self.action_angular_units[ANGULAR_UNIT_DEGREES].setChecked(True)
 	def setAngularUnitsRadians(self):
 		if self.geo_unit!=ANGULAR_UNIT_RADIANS:
 			self.geo_unit=ANGULAR_UNIT_RADIANS
 			self.translateGeoUnits()
+		self.action_angular_units[ANGULAR_UNIT_RADIANS].setChecked(True)
 	def setAngularUnitsNt(self):
 		if self.geo_unit!=ANGULAR_UNIT_NT:
 			self.geo_unit=ANGULAR_UNIT_NT
 			self.translateGeoUnits()
+		self.action_angular_units[ANGULAR_UNIT_NT].setChecked(True)
 	def setAngularUnitsSx(self):
 		if self.geo_unit!=ANGULAR_UNIT_SX:
 			self.geo_unit=ANGULAR_UNIT_SX
 			self.translateGeoUnits()
+		self.action_angular_units[ANGULAR_UNIT_SX].setChecked(True)
 	def setDerivedAngularUnitsDegrees(self):
 		if self.geo_unit_derived!=ANGULAR_UNIT_DEGREES:
 			self.geo_unit_derived=ANGULAR_UNIT_DEGREES
 			self.translateDerivedGeoUnits()
+		self.action_angular_units_derived[ANGULAR_UNIT_DEGREES].setChecked(True)
 	def setDerivedAngularUnitsRadians(self):
 		if self.geo_unit_derived!=ANGULAR_UNIT_RADIANS:
 			self.geo_unit_derived=ANGULAR_UNIT_RADIANS
 			self.translateDerivedGeoUnits()
+		self.action_angular_units_derived[ANGULAR_UNIT_RADIANS].setChecked(True)
 	def setDerivedAngularUnitsNt(self):
 		if self.geo_unit_derived!=ANGULAR_UNIT_NT:
 			self.geo_unit_derived=ANGULAR_UNIT_NT
 			self.translateDerivedGeoUnits()
+		self.action_angular_units_derived[ANGULAR_UNIT_NT].setChecked(True)
 	def setDerivedAngularUnitsSx(self):
 		if self.geo_unit_derived!=ANGULAR_UNIT_SX:
 			self.geo_unit_derived=ANGULAR_UNIT_SX
 			self.translateDerivedGeoUnits()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_dk_clicked(self):
-		self.setRegionDK()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_faroe_clicked(self):
-		self.setRegionFO()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_greenland_clicked(self):
-		self.setRegionGR()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_world_clicked(self):
-		self.setRegionWorld()
-	#SETTINGS for Geo units - should be global??
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_settings_dg_clicked(self):
-		old_unit=self.geo_unit
-		self.geo_unit="dg"
-		if old_unit!=self.geo_unit:
-			self.translateGeoUnits()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_settings_nt_clicked(self):
-		old_unit=self.geo_unit
-		self.geo_unit="nt"
-		if old_unit!=self.geo_unit:
-			self.translateGeoUnits()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_settings_sx_clicked(self):
-		old_unit=self.geo_unit
-		self.geo_unit="sx"
-		if old_unit!=self.geo_unit:
-			self.translateGeoUnits()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_rdobt_settings_radians_clicked(self):
-		old_unit=self.geo_unit
-		self.geo_unit="radians"
-		if old_unit!=self.geo_unit:
-			self.translateGeoUnits()
-			
+		self.action_angular_units_derived[ANGULAR_UNIT_SX].setChecked(True)
 	def translateGeoUnits(self):
 		if self.output_cache.is_valid and TrLib.IsGeographic(self.output_cache.mlb) :
 			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],True,angular_unit=self.geo_unit)
