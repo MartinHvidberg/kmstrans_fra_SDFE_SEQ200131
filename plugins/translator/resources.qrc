@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>harrow.png</file>
+    <file>varrow.png</file>
+  </qresource>
+</RCC>
