@@ -243,7 +243,7 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
 	OGRSFDriverH hDriver_in, hDriver_out;
-	int n_layers=0,is_fgdb_transf=0, i;
+	int n_layers=0,is_fgdb_transf=0, i, is_update=0;
 	OGRLayerH hLayer=NULL;
 	char **extra_lcos=NULL;
 	struct stat buf;
@@ -267,13 +267,15 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 	hDriver_out = OGRGetDriverByName( drv_out);
 	if( hDriver_out == NULL )
        {
+	       Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Driver %s not available!",drv_out);
 	       return TR_ALLOCATION_ERROR;
 	}
 	
-	/* create output ds - fixup logic here for things like databases */
+	/* create output ds - fixup logic here for things like databases - I guess a CreateDatasource should work also for a db layer??*/
 	if (!stat(outname, &buf))
 		{
 			/*err=OGR_Dr_DeleteDataSource(hDriver,outname);*/
+			is_update=1;
 			hDSout=OGR_Dr_Open(hDriver_out,outname,TRUE);
 		}
 	else
@@ -284,6 +286,10 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 		OGR_DS_Destroy( hDSin );
 		if (srs_out!=NULL)
 			OSRRelease(srs_out);
+		if (is_update)
+			Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to open output datasource!");
+		else
+			Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to create output datasource!");
 		return TR_ALLOCATION_ERROR;
 	}
 	

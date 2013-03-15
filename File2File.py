@@ -24,6 +24,7 @@ import glob
 import threading
 import time
 from TrLib_constants import OGRLIB
+from OGR_drivers import *
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
 IS_PY2EXE=False
@@ -36,19 +37,14 @@ if IS_WINDOWS:
 		pass
 	else:
 		IS_PY2EXE=True
-		
-		
-	
-
-
-TROGR=None
-
+#Ctypes
 C_CHAR_P=ctypes.c_char_p
 C_INT=ctypes.c_int
 LP_c_double=ctypes.POINTER(ctypes.c_double)
 LP_c_int=ctypes.POINTER(ctypes.c_int)
-#pointer to ogrlib
+#pointers to ogrlib and the TROGR program
 ogrlib=None
+TROGR=None
 
 class F2F_Settings(object):
 	def __init__(self):
@@ -176,7 +172,10 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-pin',options.mlb_in]
 	if options.driver=="OGR":
 		if options.format_out is not None:
-			args+= ['-f',options.format_out]
+			frmt_out=options.format_out
+			if frmt_out in OGR_LONG_TO_SHORT:
+				frmt_out=OGR_LONG_TO_SHORT[frmt_out]
+			args+= ['-f',frmt_out]
 	elif len(options.input_layers)>0:
 		return False,"Input layers can only be specified for OGR datasources"
 	elif options.driver=="TEXT":
@@ -292,7 +291,10 @@ def GetOGRFormats(is_output=True):
 	drivers=[]
 	drv=ogrlib.GetOGRDrivers(0,1)
 	while drv is not None:
-		drivers.append(drv)
+		if drv in OGR_SHORT_TO_LONG:
+			drivers.append(OGR_SHORT_TO_LONG[drv])
+		else:
+			drivers.append(drv)
 		drv=ogrlib.GetOGRDrivers(0,int(is_output)) #should make a copy into python managed memory.... 1 signals output
 	return drivers
 
