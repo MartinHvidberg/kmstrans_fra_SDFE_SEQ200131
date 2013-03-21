@@ -1306,21 +1306,47 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_10">
            <item>
-            <layout class="QFormLayout" name="formLayout">
-             <item row="0" column="0">
-              <widget class="QLabel" name="lbl_f2f_ogrdriver">
-               <property name="text">
-                <string>Output format will equal input format, except for OGR input driver, where output format can be chosen:</string>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <layout class="QFormLayout" name="formLayout">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                </property>
-              </widget>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lbl_f2f_ogrdriver">
+                 <property name="text">
+                  <string>Output format will equal input format, except for OGR input driver, where output format can be chosen:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="cb_f2f_ogr_driver">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="cb_f2f_ogr_driver">
+             <item>
+              <widget class="QPushButton" name="bt_f2f_creation_options">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Define OGR output driver creation options.</string>
+               </property>
+               <property name="whatsThis">
+                <string>Define OGR output driver creation options here. Refer to the OGR formats page (see help).</string>
+               </property>
+               <property name="text">
+                <string>Creation options</string>
                </property>
               </widget>
              </item>

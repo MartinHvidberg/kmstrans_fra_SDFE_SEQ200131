@@ -25,6 +25,7 @@ from BesselHelmert import BshlmWidget
 from PythonConsole import PythonWidget
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
+from Dialog_creation_options import Ui_Dialog as Ui_Dialog_creation_options
 import Minilabel
 import TrLib
 from TrLib_constants import *
@@ -253,6 +254,51 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		return True
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)
+
+class DialogCreationOptions(QDialog,Ui_Dialog_creation_options):
+	"""Class for specifying creation options OGR drivers"""
+	def __init__(self,parent,driver,drivers):
+		QtGui.QDialog.__init__(self,parent)
+		self.driver=driver
+		self.drivers=drivers
+		self.setupUi(self)
+		self.lbl_format.setText(driver)
+		if driver in drivers:
+			short,dco,lco=drivers[driver]
+			self.lbl_format_short.setText(short)
+			self.txt_dco.setText(dco)
+			self.txt_lco.setText(lco)
+		else:
+			self.lbl_format_short.setText("Not defined!")
+	def accept(self):
+		if self.driver in self.drivers:
+			dco=str(self.txt_dco.text())
+			lco=str(self.txt_lco.text())
+			if len(dco)>0:
+				if self.validate(dco):
+					self.drivers[self.driver][1]=dco
+				else:
+					self.txt_dco.setFocus()
+					return
+			if len(lco)>0:
+				if self.validate(lco):
+					self.drivers[self.driver][2]=lco
+				else:
+					self.txt_lco.setFocus()
+					return
+		self.close()
+	def validate(self,text):
+		cops=text.split(",")
+		for item in cops:
+			if len(item.split("="))!=2:
+				self.message("Bad format of creation option %s, should be 'KEY=VALUE'" %item)
+				return False
+		return True
+	def message(self,text,title="Error"):
+		QMessageBox.warning(self,title,text)
+		
+	
+		
 
 class TextViewer(QDialog):
 	"""Class to display text files"""
@@ -948,6 +994,11 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				dlg.show()
 			else:
 				self.message("Failed to open %s" %inname)
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_f2f_creation_options_clicked(self):
+		drv=str(self.cb_f2f_ogr_driver.currentText())
+		dlg=DialogCreationOptions(self,drv,File2File.OGR_LONG_TO_SHORT)
+		dlg.show()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_list_formats_clicked(self):
 		text=File2File.ListFormats()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Wed Mar 13 10:50:01 2013
+# Created: Thu Mar 21 12:38:04 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -511,7 +511,10 @@ class Ui_GSTtrans(object):
         self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
         self.verticalLayout_10 = QtGui.QVBoxLayout(self.groupBox_4)
         self.verticalLayout_10.setObjectName(_fromUtf8("verticalLayout_10"))
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         self.formLayout = QtGui.QFormLayout()
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
         self.lbl_f2f_ogrdriver = QtGui.QLabel(self.groupBox_4)
         self.lbl_f2f_ogrdriver.setObjectName(_fromUtf8("lbl_f2f_ogrdriver"))
@@ -524,7 +527,16 @@ class Ui_GSTtrans(object):
         self.cb_f2f_ogr_driver.setSizePolicy(sizePolicy)
         self.cb_f2f_ogr_driver.setObjectName(_fromUtf8("cb_f2f_ogr_driver"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.cb_f2f_ogr_driver)
-        self.verticalLayout_10.addLayout(self.formLayout)
+        self.horizontalLayout_4.addLayout(self.formLayout)
+        self.bt_f2f_creation_options = QtGui.QPushButton(self.groupBox_4)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bt_f2f_creation_options.sizePolicy().hasHeightForWidth())
+        self.bt_f2f_creation_options.setSizePolicy(sizePolicy)
+        self.bt_f2f_creation_options.setObjectName(_fromUtf8("bt_f2f_creation_options"))
+        self.horizontalLayout_4.addWidget(self.bt_f2f_creation_options)
+        self.verticalLayout_10.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_6 = QtGui.QHBoxLayout()
         self.horizontalLayout_6.setObjectName(_fromUtf8("horizontalLayout_6"))
         self.lbl_f2f_output_file = QtGui.QLabel(self.groupBox_4)
@@ -900,6 +912,9 @@ class Ui_GSTtrans(object):
         self.bt_f2f_input_layers.setText(QtGui.QApplication.translate("GSTtrans", "Select input layers", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("GSTtrans", "Destination", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_f2f_ogrdriver.setText(QtGui.QApplication.translate("GSTtrans", "Output format will equal input format, except for OGR input driver, where output format can be chosen:", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_f2f_creation_options.setToolTip(QtGui.QApplication.translate("GSTtrans", "Define OGR output driver creation options.", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_f2f_creation_options.setWhatsThis(QtGui.QApplication.translate("GSTtrans", "Define OGR output driver creation options here. Refer to the OGR formats page (see help).", None, QtGui.QApplication.UnicodeUTF8))
+        self.bt_f2f_creation_options.setText(QtGui.QApplication.translate("GSTtrans", "Creation options", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_f2f_output_file.setText(QtGui.QApplication.translate("GSTtrans", "Output path or connection string:", None, QtGui.QApplication.UnicodeUTF8))
         self.txt_f2f_output_file.setToolTip(QtGui.QApplication.translate("GSTtrans", "Output datasource or connection string.", None, QtGui.QApplication.UnicodeUTF8))
         self.txt_f2f_output_file.setWhatsThis(QtGui.QApplication.translate("GSTtrans", "Output datasource or connection string. If globbing over several input datasources (with * wildcards), the output datasource should be a directory.", None, QtGui.QApplication.UnicodeUTF8))

@@ -174,8 +174,12 @@ def TransformDatasource(options,log_method,post_method):
 		if options.format_out is not None:
 			frmt_out=options.format_out
 			if frmt_out in OGR_LONG_TO_SHORT:
-				frmt_out=OGR_LONG_TO_SHORT[frmt_out]
+				frmt_out,dco,lco=OGR_LONG_TO_SHORT[frmt_out]
 			args+= ['-f',frmt_out]
+			if len(dco)>0:
+				args+=['-dco',dco]
+			if len(lco)>0:
+				args+=['-lco',lco]
 	elif len(options.input_layers)>0:
 		return False,"Input layers can only be specified for OGR datasources"
 	elif options.driver=="TEXT":
@@ -292,7 +296,7 @@ def GetOGRFormats(is_output=True):
 	drv=ogrlib.GetOGRDrivers(0,1)
 	while drv is not None:
 		if drv in OGR_SHORT_TO_LONG:
-			drivers.append(OGR_SHORT_TO_LONG[drv])
+			drivers.extend(OGR_SHORT_TO_LONG[drv])
 		else:
 			drivers.append(drv)
 		drv=ogrlib.GetOGRDrivers(0,int(is_output)) #should make a copy into python managed memory.... 1 signals output

@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 	    if (lco || dsco) /*these options only available for OGR-input*/
 		    goto usage;
     }
-    else{
+    else{/*TODO: remove debug output from here....*/
 	    if (lco){
 		char **pos;
 		lcos=ParseCreationOptions(lco);
@@ -374,6 +374,8 @@ int main(int argc, char *argv[])
     Report(REP_INFO,0,VERB_LOW,"Using input driver %s and output driver %s.",drv_in,drv_out);
     Report(REP_INFO,0,VERB_LOW,"%-25s: %s","Input datasource",inname);
     Report(REP_INFO,0,VERB_LOW,"%-25s: %s","Output datasource",outname);
+    /*TODO: report lcos and dscos */
+    
     if (fp_log!=NULL)
 	    Report(REP_INFO,0,VERB_LOW,"%-25s: %s","Log file",log_name);
     if (mlb_in)
