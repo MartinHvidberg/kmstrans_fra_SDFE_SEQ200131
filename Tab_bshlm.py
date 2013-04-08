@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_bshlm.ui'
 #
-# Created: Thu Mar 21 12:38:06 2013
+# Created: Mon Apr 08 09:09:20 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -213,6 +213,10 @@ class Ui_tab_bshlm(object):
         self.verticalLayout_27.addWidget(self.gb_bshlm_3)
 
         self.retranslateUi(tab_bshlm)
+        QtCore.QObject.connect(self.rdobt_bshlm_mode1, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_bshlm_x2.setEnabled)
+        QtCore.QObject.connect(self.rdobt_bshlm_mode1, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_bshlm_y2.setEnabled)
+        QtCore.QObject.connect(self.rdobt_bshlm_mode2, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_bshlm_azimuth1.setEnabled)
+        QtCore.QObject.connect(self.rdobt_bshlm_mode2, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_bshlm_distance.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(tab_bshlm)
 
     def retranslateUi(self, tab_bshlm):

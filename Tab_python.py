@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_python.ui'
 #
-# Created: Thu Mar 21 12:38:06 2013
+# Created: Mon Apr 08 09:09:21 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -51,6 +51,7 @@ class Ui_tab_python(object):
         self.verticalLayout.addLayout(self.horizontalLayout_7)
 
         self.retranslateUi(tab_python)
+        QtCore.QObject.connect(self.chb_python_process_enter, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_python_clear.setChecked)
         QtCore.QMetaObject.connectSlotsByName(tab_python)
 
     def retranslateUi(self, tab_python):

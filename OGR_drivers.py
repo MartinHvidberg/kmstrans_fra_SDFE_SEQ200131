@@ -79,6 +79,7 @@ OGR_LONG_TO_SHORT={
 "MS Excel format":["XLS","",""],
 "MS Open XML spreadsheet":["XLSX","",""],
 "X-Plane/Flightgear data":["XPLANE","",""]}
+#Define or pickle this to speed up start up time
 OGR_SHORT_TO_LONG=dict()  #A one to many mapping
 for key,val in OGR_LONG_TO_SHORT.items():
 	if val[0] in OGR_SHORT_TO_LONG:

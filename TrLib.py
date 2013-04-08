@@ -137,17 +137,29 @@ def LoadLibrary(lib=STD_LIB,lib_dir=STD_DIRNAME):
 		tr_lib.TR_AllowUnsafeTransformations.restype=None
 		tr_lib.TR_ForbidUnsafeTransformations.argtypes=None
 		tr_lib.TR_ForbidUnsafeTransformations.restype=None
-		#Some extra functions which might get exposed in the API#
-		tr_lib.TR_OpenProjection.argtypes=[ctypes.c_char_p]
-		tr_lib.TR_OpenProjection.restype=ctypes.c_void_p
-		tr_lib.TR_CloseProjection.argtypes=[ctypes.c_void_p]
-		tr_lib.TR_CloseProjection.restype=None
 		tr_lib.TR_ImportLabel.argtypes=[ctypes.c_char_p,ctypes.c_char_p]
 		tr_lib.TR_ImportLabel.restype=ctypes.c_int
 		tr_lib.TR_ExportLabel.argtypes=[ctypes.c_char_p,ctypes.c_char_p,ctypes.c_int,ctypes.c_int]
 		tr_lib.TR_ExportLabel.restype=ctypes.c_int
 		tr_lib.TR_SetGeoidDir.argtypes=[ctypes.c_char_p]
 		tr_lib.TR_SetGeoidDir.restype=ctypes.c_int
+		#LORD module functions
+		tr_lib.TR_SetLordMaxMessages.argtypes=[ctypes.c_int]
+		tr_lib.TR_SetLordMaxMessages.restype=None
+		tr_lib.TR_SetLordFile.argtypes=[ctypes.c_char_p]
+		tr_lib.TR_SetLordFile.restype=None
+		tr_lib.TR_SetLordCallBack.argtypes=[MESSAGE_HANDLER]
+		tr_lib.TR_SetLordCallBack.restype=None
+		tr_lib.TR_SetLordModes.argtypes=[ctypes.c_int]*5
+		tr_lib.TR_SetLordModes.restype=None
+		tr_lib.TR_SetLordVerbosityLevels.argtypes=[ctypes.c_int]*3 #get rid of last two params....
+		tr_lib.TR_SetLordVerbosityLevels.restype=None
+		#Functions defined in the 'internal' API
+		tr_lib.TR_OpenProjection.argtypes=[ctypes.c_char_p]
+		tr_lib.TR_OpenProjection.restype=ctypes.c_void_p
+		tr_lib.TR_CloseProjection.argtypes=[ctypes.c_void_p]
+		tr_lib.TR_CloseProjection.restype=None
+		#Some extra functions which might get exposed in the API#
 		tr_lib.set_grs.argtypes=[ctypes.c_int,ctypes.c_char_p,LP_c_double]
 		tr_lib.bshlm1.restype=ctypes.c_int
 		tr_lib.bshlm1.argtypes=[ctypes.c_double]*3+[LP_c_double,ctypes.c_double]*3
@@ -163,16 +175,11 @@ def LoadLibrary(lib=STD_LIB,lib_dir=STD_DIRNAME):
 		tr_lib.proj4_to_mlb.restype=ctypes.c_int
 		tr_lib.export_to_epsg.argtypes=[ctypes.c_char_p,LP_c_int,LP_c_int]
 		tr_lib.export_to_epsg.restype=ctypes.c_int
-		tr_lib.set_lord_file.argtypes=[ctypes.c_char_p]
-		tr_lib.set_lord_file.restype=None
-		tr_lib.set_lord_callback.argtypes=[MESSAGE_HANDLER]
-		tr_lib.set_lord_callback.restype=None
-		tr_lib.set_lord_modes.argtypes=[ctypes.c_int]*5
-		tr_lib.set_lord_modes.restype=None
-		tr_lib.set_lord_verbosity_levels.argtypes=[ctypes.c_int]*5 #get rid of last two params....
-		tr_lib.set_lord_verbosity_levels.restype=None
+		
 	except Exception, msg:
+		print msg
 		return False, "Unable to load library %s in directory %s: %s" %(lib,lib_dir,repr(msg))
+		
 	return True,""
 
 
@@ -242,13 +249,16 @@ def SetThreadMode(on=True):
 def SetMessageHandler(fct):
 	global CALL_BACK #keep this reference ....
 	CALL_BACK=MESSAGE_HANDLER(fct)
-	tr_lib.set_lord_callback(CALL_BACK)
+	tr_lib.TR_SetLordCallBack(CALL_BACK)
+
+def SetMaxMessages(max_msg):
+	tr_lib.TR_SetLordMaxMessages(int(max_msg))
 
 def SetLordModes(use_debug=False, use_info=False, use_warning=True, use_error=True, use_critical=True):
-	tr_lib.set_lord_modes(int(use_debug),int(use_info),int(use_warning),int(use_error),int(use_critical))
+	tr_lib.TR_SetLordModes(int(use_debug),int(use_info),int(use_warning),int(use_error),int(use_critical))
 
 def SetLordVerbosity(verb_debug=1, verb_info=1, verb_warning=1):
-	tr_lib.set_lord_verbosity_levels(verb_debug,verb_info,verb_warning,3,3) #should get rid of the last two params...
+	tr_lib.TR_SetLordVerbosityLevels(verb_debug,verb_info,verb_warning) #should get rid of the last two params...
 
 def SetDebugMode():
 	global DEBUG

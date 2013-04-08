@@ -483,6 +483,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.close()
 			sys.exit(1)
 		TrLib.SetMessageHandler(LordCallback)
+		TrLib.SetMaxMessages(-1)
 		ok=False
 		self.loadSettings()
 		if self.geoids is None and "TR_TABDIR" in os.environ:
@@ -880,7 +881,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		try:	
 			x,y,z=transformation.Transform(x,y,z)
 		except:
-			self.log_interactive("%.2f %.2f %.2f" %(x,y,z))
 			err=TrLib.GetLastError()
 			self.log_interactive("Error in transformation: %d" %err)
 			if err in ERRORS:

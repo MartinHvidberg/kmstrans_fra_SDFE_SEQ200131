@@ -521,5 +521,70 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>rdobt_bshlm_mode1</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_bshlm_x2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>441</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>190</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_bshlm_mode1</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_bshlm_y2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>441</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>379</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_bshlm_mode2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_bshlm_azimuth1</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>441</x>
+     <y>509</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_bshlm_mode2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txt_bshlm_distance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>441</x>
+     <y>509</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

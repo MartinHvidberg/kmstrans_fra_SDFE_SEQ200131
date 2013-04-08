@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_creation_options.ui'
 #
-# Created: Thu Mar 21 12:38:07 2013
+# Created: Mon Apr 08 09:09:21 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,7 +66,7 @@ class Ui_Dialog(object):
         self.label_5.setText(QtGui.QApplication.translate("Dialog", "Enter creation options as a , (comma)  separated list of KEY=VALUE pairs (refer to the OGR formats documentation).", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Dataset creation option(s):", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Layer creation options(s):", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "OGR-format:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Dialog", "OGR format:", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_format.setText(QtGui.QApplication.translate("Dialog", "frmt", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("Dialog", "Short OGR code:", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_format_short.setText(QtGui.QApplication.translate("Dialog", "frmt", None, QtGui.QApplication.UnicodeUTF8))

@@ -114,5 +114,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>chb_python_process_enter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>chb_python_clear</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>276</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>457</x>
+     <y>368</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
