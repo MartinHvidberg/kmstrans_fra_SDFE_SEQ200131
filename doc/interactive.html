@@ -21,14 +21,27 @@
     <h2>Units <br>
     </h2>
     You can specify units at the end of coordinates, if you like.
-    Generally units are in meters (m), except for geographical systems
-    where coordinates can be in degrees (dg), nautical units (nt),
-    sexagesimal (sx) or radians (rad).<br>
+    Generally units are in meters (m), except for geographic systems
+    where angular input/output can be:<br>
+    <ul>
+      <li>&nbsp;degrees (dg).</li>
+      <li>&nbsp;radians (rad).</li>
+      <li>&nbsp;nautical units (nt), ddd mm.mmmm <br>
+      </li>
+      <li>&nbsp;sexagesimal format (sx),&nbsp; ddd&nbsp; mm ss.ssss <br>
+      </li>
+    </ul>
+    You can specify the units to use for geographic coordinate systems
+    and derived angular output (like meridian convergence) in the
+    'Settings' menu item.<br>
     <br>
     <h2>Triggering a transformation</h2>
     <p>To trigger a new transformation, hit enter in either an input
       coordinate field, input or output system fields or simply by
-      changing input or output system from the drop down list.<br>
+      changing input or output system from the drop down list.</p>
+    <p>Changing the input system will not automatically trigger a
+      transformation of the coordinates in the input field (as it was
+      the case in the 'old' KMStrans).<br>
     </p>
     <br>
   </body>
