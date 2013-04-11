@@ -221,7 +221,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		self.geo_unit=geo_unit
 		if TrLib.IsGeographic(str(self.cb_bshlm_system.currentText())):
 			for field in self.input_bshlm:
-				self.translateAngularField(field,geo_unit)
+				WidgetUtils.translateAngularField(field,geo_unit)
 		for field in self.output_bshlm_geo:
 			WidgetUtils.translateAngularField(field,geo_unit)
 	def handleAngularUnitChange(self,geo_unit):

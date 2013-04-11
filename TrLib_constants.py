@@ -35,16 +35,17 @@ TROGRNAME="trogr"
 #CONSTANTS RELEVANT TO KMSTRLIB
 #DK
 SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",
-"geoHetrs89_h_dvr90","crt_etrs89","utm32Hed50_h_dvr90","fcsH_h_fcsvr10"]
+"geoHetrs89_h_dvr90","crt_etrs89","dktm1H_h_dvr90","dktm2H_h_dvr90","dktm3H_h_dvr90","dktm4H_h_dvr90",
+"utm32Hed50_h_dvr90","fcsH_h_fcsvr10"]
 H_SYSTEMS_DK=["E","dvr90","dnn"]
 #FO
-SYSTEMS_FO=["fotmH_h_fvr09","fk89H_h_fvr09"]
+SYSTEMS_FO=["fotmH_h_fvr09","utm29Hetrs89_h_fvr09","geoHetrs89_h_fvr09","fkeH_h_fvr09","fk89H_h_fvr09"]
 H_SYSTEMS_FO=["E","fvr09","foldmsl"]
 #GR
-SYSTEMS_GR=["utm22Ngr96","utm24Ngr96","utm26Ngr96","geoNgr96"]
+SYSTEMS_GR=["utm22Ngr96","utm24Ngr96","utm26Ngr96","geoNgr96","crt_gr96","mrc0Ngr96","utm22Nqornoq","geoNqornoq"]
 H_SYSTEMS_GR=["E","N","msl"]
 #WORLD
-SYSTEMS_WORLD=["webmrcE","mrc0Ewgs84","geoEwgs84","crt_wgs84"]
+SYSTEMS_WORLD=["webmrcE","mrc0Ewgs84","geoEwgs84","crt_wgs84","npstgEwgs84"]
 H_SYSTEMS_WORLD=["E","N","msl"]
 #INIT COORDS IN FIRST 'DEFAULT' SYSTEM IN LIST
 INIT_DK=[615923.206,6115220.6360,0]
@@ -68,6 +69,8 @@ ERRORS={
 -1:"Inaccurate transformation",
 -2:"Tolerance exceeded",
 -3:"Boundary exceeded",
+-5:"Illegal transformation",
+-100:"Table boundary exceeded"
 }
 #DEFAULT FIELD LABELING MECHANISM#
 GEO_LABELS=["Longitude:","Latitude:","H:"]

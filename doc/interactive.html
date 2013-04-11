@@ -6,19 +6,32 @@
     <title>interactive</title>
   </head>
   <body>
-    <h1>Interactive <br>
+    <h1>Interactive Tab<br>
     </h1>
     In the interactive tab you can perform transformation of single
     points and view output like scale and meridian convergence of the
     output system.<br>
     Spatial reference systems are specified as so called mini labels,
-    see a description of the syntax <a
-      href="https://bitbucket.org/KMS/trlib/wiki/mini_labels">here.</a><br>
+    see a description of the syntax <a href="mini_labels.html">here.</a><br>
     You can either select predefined systems from the drop down lists or
     type in mini labels yourself in the text fields. Hitting enter in
     the input or output system fields triggers a new transformation.<br>
     <br>
-    <h2>Units <br>
+    <a href="index.html">Back to the main help page</a><br>
+    <br>
+    <hr size="2" width="100%">
+    <h2>Contents</h2>
+    <ul>
+      <li><a href="#Units_">Units</a></li>
+      <li><a href="#Triggering_a_transformation">Triggering a
+          transformation</a></li>
+      <li><a href="#Regions">Regions</a></li>
+      <li><a href="#Message_Box">Message box</a><br>
+      </li>
+    </ul>
+    <br>
+    <hr size="2" width="100%">
+    <h2><a name="Units_"></a>Units<br>
     </h2>
     You can specify units at the end of coordinates, if you like.
     Generally units are in meters (m), except for geographic systems
@@ -33,9 +46,13 @@
     </ul>
     You can specify the units to use for geographic coordinate systems
     and derived angular output (like meridian convergence) in the
-    'Settings' menu item.<br>
+    'Settings' menu item. <br>
     <br>
-    <h2>Triggering a transformation</h2>
+    <img alt="" src="images/Units.png" height="344" width="852"><br>
+    <br>
+    <hr size="2" width="100%">
+    <h2><a name="Triggering_a_transformation"></a>Triggering a
+      transformation</h2>
     <p>To trigger a new transformation, hit enter in either an input
       coordinate field, input or output system fields or simply by
       changing input or output system from the drop down list.</p>
@@ -43,6 +60,23 @@
       transformation of the coordinates in the input field (as it was
       the case in the 'old' KMStrans).<br>
     </p>
-    <br>
+    <hr size="2" width="100%">
+    <h2><a name="Regions"></a>Regions</h2>
+    <p>Changing the region will only have an effect on the predefined
+      systems in the input and output system combo boxes - that is the
+      only effect. You will still be able to use any system you like by
+      typing in the combo box, e.g. a danish projection like dkmt1 when
+      using the 'World' region.<br>
+    </p>
+    <hr size="2" width="100%">
+    <h2><a name="Message_Box"></a>Message Box</h2>
+    <p>Error messages and various extra information will appear in the
+      output box in the lower left corner of the window. For example if
+      a transformation produces an error or warning the output should
+      appear here.</p>
+    <p><img alt="" src="images/Outputbox.png" height="457" width="881"><br>
+    </p>
+    <p><br>
+    </p>
   </body>
 </html>

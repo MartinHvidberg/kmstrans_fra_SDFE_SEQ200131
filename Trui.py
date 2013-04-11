@@ -560,7 +560,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			for path in paths:
 				self.scene.addPath(path)
 			t2=time.clock()
-			self.log_interactive("Render time: %.4f s" %(t2-t1))
+			if DEBUG:
+				self.log_interactive("Render time: %.4f s" %(t2-t1))
 			self.scene.addItem(self.map_point)
 		if int(event.type())==FILE_LOG_EVENT:
 			self.log_f2f(event.msg)
