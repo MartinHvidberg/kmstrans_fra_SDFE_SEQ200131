@@ -1872,15 +1872,6 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <widget class="QMenu" name="menuRegion">
-     <property name="title">
-      <string>Region</string>
-     </property>
-     <addaction name="actionDK"/>
-     <addaction name="actionFO"/>
-     <addaction name="actionGR"/>
-     <addaction name="actionWorld"/>
-    </widget>
     <widget class="QMenu" name="menuAngular_units">
      <property name="title">
       <string>Angular units (coordinates)</string>
@@ -1899,7 +1890,6 @@
      <addaction name="actionSx_derived"/>
      <addaction name="actionNt_derived"/>
     </widget>
-    <addaction name="menuRegion"/>
     <addaction name="menuAngular_units"/>
     <addaction name="menuAngular_units_derived_output"/>
     <addaction name="separator"/>

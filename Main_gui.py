@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Mon Apr 08 09:09:17 2013
+# Created: Thu Apr 11 12:04:21 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -724,8 +724,6 @@ class Ui_GSTtrans(object):
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
         self.menuSettings = QtGui.QMenu(self.menubar)
         self.menuSettings.setObjectName(_fromUtf8("menuSettings"))
-        self.menuRegion = QtGui.QMenu(self.menuSettings)
-        self.menuRegion.setObjectName(_fromUtf8("menuRegion"))
         self.menuAngular_units = QtGui.QMenu(self.menuSettings)
         self.menuAngular_units.setObjectName(_fromUtf8("menuAngular_units"))
         self.menuAngular_units_derived_output = QtGui.QMenu(self.menuSettings)
@@ -797,10 +795,6 @@ class Ui_GSTtrans(object):
         self.menuHelp.addAction(self.actionAbout_KMSTrans)
         self.menuFile.addAction(self.actionNew_KMSTrans)
         self.menuFile.addAction(self.actionExit)
-        self.menuRegion.addAction(self.actionDK)
-        self.menuRegion.addAction(self.actionFO)
-        self.menuRegion.addAction(self.actionGR)
-        self.menuRegion.addAction(self.actionWorld)
         self.menuAngular_units.addAction(self.actionDegrees)
         self.menuAngular_units.addAction(self.actionRadians)
         self.menuAngular_units.addAction(self.actionSx)
@@ -809,7 +803,6 @@ class Ui_GSTtrans(object):
         self.menuAngular_units_derived_output.addAction(self.actionRadians_derived)
         self.menuAngular_units_derived_output.addAction(self.actionSx_derived)
         self.menuAngular_units_derived_output.addAction(self.actionNt_derived)
-        self.menuSettings.addAction(self.menuRegion.menuAction())
         self.menuSettings.addAction(self.menuAngular_units.menuAction())
         self.menuSettings.addAction(self.menuAngular_units_derived_output.menuAction())
         self.menuSettings.addSeparator()
@@ -965,7 +958,6 @@ class Ui_GSTtrans(object):
         self.menuHelp.setTitle(QtGui.QApplication.translate("GSTtrans", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("GSTtrans", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSettings.setTitle(QtGui.QApplication.translate("GSTtrans", "Settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuRegion.setTitle(QtGui.QApplication.translate("GSTtrans", "Region", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAngular_units.setTitle(QtGui.QApplication.translate("GSTtrans", "Angular units (coordinates)", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAngular_units_derived_output.setTitle(QtGui.QApplication.translate("GSTtrans", "Angular units (derived output)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew_KMSTrans.setText(QtGui.QApplication.translate("GSTtrans", "New window", None, QtGui.QApplication.UnicodeUTF8))

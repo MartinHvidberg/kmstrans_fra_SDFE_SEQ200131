@@ -21,8 +21,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
 from Main_gui import Ui_GSTtrans
-from BesselHelmert import BshlmWidget
-from PythonConsole import PythonWidget
+#from BesselHelmert import BshlmWidget  -not included in FBtrans
+#from PythonConsole import PythonWidget -not included in FBtrans
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 from Dialog_creation_options import Ui_Dialog as Ui_Dialog_creation_options
@@ -54,7 +54,7 @@ os.chdir(PREFIX)
 #SETUP SOME STANDARD PATHS
 import platform
 COMPANY_NAME="GST"  #Ahh, well, this migh change....
-PROG_NAME="trui"
+PROG_NAME="FBtrans"
 IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
@@ -104,7 +104,7 @@ else:
 
 
 
-VERSION="TRUI b1.0 (UI for TrLib demo)"
+VERSION="FBtrans b1.0 (FBtrans demo)"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -411,10 +411,10 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.actionExit.triggered.connect(self.onExit)
 		self.actionAbout_KMSTrans.triggered.connect(self.onAbout)
 		self.actionHelp_local.triggered.connect(self.onHelp_local)
-		self.actionDK.triggered.connect(self.setRegionDK)
-		self.actionFO.triggered.connect(self.setRegionFO)
-		self.actionGR.triggered.connect(self.setRegionGR)
-		self.actionWorld.triggered.connect(self.setRegionWorld)
+		#removeAction(self.menuRegion)#self.actionDK.triggered.connect(self.setRegionDK)
+		#self.actionFO.triggered.connect(self.setRegionFO)
+		#self.actionGR.triggered.connect(self.setRegionGR)
+		#self.actionWorld.triggered.connect(self.setRegionWorld)
 		self.actionDegrees.triggered.connect(self.setAngularUnitsDegrees)
 		self.actionRadians.triggered.connect(self.setAngularUnitsRadians)
 		self.actionNt.triggered.connect(self.setAngularUnitsNt)
@@ -504,12 +504,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.initF2FTab()
 		self.drawMap()
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
-		#Setup BSHLM tab#
-		self.tab_bshlm=BshlmWidget(self)
-		self.main_tab_host.addTab(self.tab_bshlm,"Bessel Helmert")
+		#Setup BSHLM tab# -removed in FBtrans
+		#self.tab_bshlm=BshlmWidget(self)
+		#self.main_tab_host.addTab(self.tab_bshlm,"Bessel Helmert")
 		#Setup Python Console tab#
-		self.tab_python=PythonWidget(self)
-		self.main_tab_host.addTab(self.tab_python,"Python console")
+		#self.tab_python=PythonWidget(self)
+		#self.main_tab_host.addTab(self.tab_python,"Python console")
 		#Load plugins#
 		self.loadPlugins()
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
