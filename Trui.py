@@ -674,7 +674,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_in_clicked(self):
 		mlb_in=str(self.cb_input_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region])
+		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
 			self.onSystemInChanged()
@@ -682,7 +682,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_out_clicked(self):
 		mlb_out=str(self.cb_output_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region])
+		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_out:
 			self.cb_output_system.setEditText(mlb)
 			self.transform_input()
@@ -942,14 +942,14 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_in_clicked(self):
 		mlb_in=str(self.cb_f2f_input_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region])
+		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS))
 		if mlb!=mlb_in:
 			self.cb_f2f_input_system.setEditText(mlb)
 			self.onF2FSystemInChanged()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_out_clicked(self):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region])
+		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS))
 		if mlb!=mlb_out:
 			self.cb_f2f_output_system.setEditText(mlb)
 			self.onF2FSystemOutChanged()

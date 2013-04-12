@@ -34,7 +34,7 @@ TROGRNAME="trogr"
 
 #CONSTANTS RELEVANT TO KMSTRLIB
 #A MAPPING FROM SPECIAL DATUMS TO ALLOWED H_SYSTEMS, THE REGION MAP SHOULD BE CONSIDERED AS A DEFAULT,
-DATUMS_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10"],"detrs89":["E","dhhn92"]}
+DATUM_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10"],"detrs89":["E","dhhn92"]}
 #DK - only these are relevant in FBtrans (this branch)
 SYSTEMS_DK=["fcsH_h_fcsvr10","geoHfeh10_h_fcsvr10","crt_feh10","utm32Hdetrs89_h_dhhn92","geoHdetrs89_h_dhhn92","crt_detrs89",
 "DK_utm32Hetrs89_h_dvr90","DK_utm33Hetrs89_h_dvr90","DK_geoHetrs89_h_dvr90","DK_crt_etrs89"]
