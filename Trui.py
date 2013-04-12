@@ -104,7 +104,7 @@ else:
 
 
 
-VERSION="TRUI b1.0 (UI for TrLib demo)"
+VERSION="TRUI b1.1 (UI for TrLib demo)"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
