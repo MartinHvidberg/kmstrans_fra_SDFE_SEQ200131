@@ -38,7 +38,7 @@ DATUM_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10"],"detrs89":["E","dhhn92"]}
 #DK - only these are relevant in FBtrans (this branch)
 SYSTEMS_DK=["fcsH_h_fcsvr10","geoHfeh10_h_fcsvr10","crt_feh10","utm32Hdetrs89_h_dhhn92","geoHdetrs89_h_dhhn92","crt_detrs89",
 "DK_utm32Hetrs89_h_dvr90","DK_utm33Hetrs89_h_dvr90","DK_geoHetrs89_h_dvr90","DK_crt_etrs89"]
-H_SYSTEMS_DK=["E","dvr90","fcsvr10"]
+H_SYSTEMS_DK=["E","dvr90","dnn"]
 #FO
 SYSTEMS_FO=["fotmH_h_fvr09","utm29Hetrs89_h_fvr09","geoHetrs89_h_fvr09","fkeH_h_fvr09","fk89H_h_fvr09"]
 H_SYSTEMS_FO=["E","fvr09","foldmsl"]
