@@ -33,11 +33,10 @@ else:
 TROGRNAME="trogr"
 
 #CONSTANTS RELEVANT TO KMSTRLIB
-#DK
-SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",
-"geoHetrs89_h_dvr90","crt_etrs89","dktm1H_h_dvr90","dktm2H_h_dvr90","dktm3H_h_dvr90","dktm4H_h_dvr90",
-"utm32Hed50_h_dvr90","fcsH_h_fcsvr10"]
-H_SYSTEMS_DK=["E","dvr90","dnn"]
+#DK - only these are relevant in FBtrans (this branch)
+SYSTEMS_DK=["fcsH_h_fcsvr10","geoHfeh10_h_fcsvr10","crt_feh10","utm32Hdetrs89_h_dhhn92","geoHdetrs89_h_dhhn92","crt_detrs89",
+"DK_utm32Hetrs89_h_dvr90","DK_utm33Hetrs89_h_dvr90","DK_geoHetrs89_h_dvr90","DK_crt_etrs89"]
+H_SYSTEMS_DK=["E","dvr90","fcsvr10"]
 #FO
 SYSTEMS_FO=["fotmH_h_fvr09","utm29Hetrs89_h_fvr09","geoHetrs89_h_fvr09","fkeH_h_fvr09","fk89H_h_fvr09"]
 H_SYSTEMS_FO=["E","fvr09","foldmsl"]
