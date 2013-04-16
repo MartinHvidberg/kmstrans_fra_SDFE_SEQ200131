@@ -22,6 +22,7 @@ from PyQt4.QtGui import *
 from WidgetBase import WidgetBase
 from Tab_bshlm import  Ui_tab_bshlm
 import TrLib
+import Minilabel
 from TrLib_constants import *
 import WidgetUtils
 #Default systems pr. region:
@@ -77,9 +78,8 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			return
 		text=TrLib.DescribeLabel(mlb)
 		self.lbl_bshlm_description.setText("%s" %text)
-		sys_code=GetSysCode(mlb)
-		if sys_code in SYSTEM_LABELS:
-			labels=SYSTEM_LABELS[sys_code]
+		labels=Minilabel.GetSystemLabels(mlb)
+		if labels is not None:
 			for i in range(2):
 				self.input_labels_bshlm[i].setText(labels[i])
 		region,proj,dtm,h_datum,htype=TrLib.SplitMLB(mlb)
