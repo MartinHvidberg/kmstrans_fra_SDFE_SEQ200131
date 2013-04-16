@@ -650,27 +650,19 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			mlb_in=str(self.cb_input_system.currentText())
 			text=TrLib.DescribeLabel(mlb_in)
 			self.lbl_input_info.setText("Input system info: %s" %text)
-			sys_code_in=GetSysCode(mlb_in)
-			if sys_code_in in SYSTEM_LABELS:
-				labels=SYSTEM_LABELS[sys_code_in]
+			labels=Minilabel.GetSystemLabels(mlb_in)
+			if labels is not None:
 				for i in range(3):
 					self.input_labels[i].setText(labels[i])
 		if do_output:
 			mlb_out=str(self.cb_output_system.currentText())
 			text=TrLib.DescribeLabel(mlb_out)
 			self.lbl_output_info.setText("Output system info: %s" %text)
-			
-			sys_code_out=GetSysCode(mlb_out)
-			
-			if sys_code_out in SYSTEM_LABELS:
-				labels=SYSTEM_LABELS[sys_code_out]
+			labels=Minilabel.GetSystemLabels(mlb_out)
+			if labels is not None:
 				for i in range(3):
 					self.output_labels[i].setText(labels[i])
 		
-		
-		
-	#def GetDescription(self,mlb):
-	#	return TrLib.DescribeLabel(mlb)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_in_clicked(self):
 		mlb_in=str(self.cb_input_system.currentText())
