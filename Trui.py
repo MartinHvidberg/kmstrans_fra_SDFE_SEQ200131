@@ -182,20 +182,12 @@ def GetPlugins(path):
 class PointData(object):
 	def __init__(self):
 		self.is_valid=False
+		self.has_scale=False
 		self.coords=None
 		self.mlb=None
 		self.meridian_convergence=None
 		self.scale=None
 	
-class BesselHelmertCache(object):
-	def __init__(self):
-		self.mlb=None
-		self.input_coords=[]
-		self.geo_coords=[]
-		self.azimuths=[]
-		self.distance=None
-
-
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 	"""Class for specifying options to TEXT and KMS drivers"""
 	def __init__(self,parent,settings):
@@ -777,9 +769,15 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				widget.handleAngularUnitChange(self.geo_unit_derived)
 		for key in self.action_angular_units_derived.keys():
 			self.action_angular_units_derived[key].setChecked(self.geo_unit_derived==key)	
-	
+	#will be called both from event handler and programtically to set/clear fields on success/error#
 	def onShowScale(self):
 		if (self.chb_show_scale.isChecked() and self.output_cache.is_valid):
+			if not self.output_cache.has_scale:
+				#cache scale and convergence....
+				sc,m=self.coordinate_transformation.GetLocalGeometry(self.output_cache.coords[0],self.output_cache.coords[1])
+				self.output_cache.scale=sc
+				self.output_cache.meridian_convergence=m
+				self.output_cache.has_scale=True
 			self.txt_scale.setText("%.8f" %self.output_cache.scale)
 			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived))
 			if DEBUG:
@@ -817,6 +815,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def transform_input(self):
 		self.log_interactive("",clear=True)
 		self.output_cache.is_valid=False
+		self.output_cache.has_scale=False
 		mlb_in=str(self.cb_input_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
 		coords=self.getInteractiveInput(mlb_in)
@@ -838,7 +837,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 					if mlb_out!=self.coordinate_transformation.mlb_out:
 						self.coordinate_transformation.Insert(mlb_out,False)
 			except Exception,msg:
-				self.output_cache.is_valid=False
 				self.setInteractiveOutput([])
 				self.log_interactive("Mini labels not OK!\n%s" %repr(msg),color="red")
 				return 
@@ -846,7 +844,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		try:
 			x,y,z,h=self.coordinate_transformation.TransformGH(x_in,y_in,z_in)
 		except Exception,msg:
-			self.output_cache.is_valid=False
 			self.setInteractiveOutput([])
 			err=TrLib.GetLastError()
 			if err in ERRORS:
@@ -859,10 +856,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.output_cache.is_valid=True
 		self.output_cache.mlb=mlb_out
 		self.output_cache.coords=[x,y,z]
-		#Always cache scale and convergence on succes....
-		sc,m=self.coordinate_transformation.GetLocalGeometry(x,y)
-		self.output_cache.scale=sc
-		self.output_cache.meridian_convergence=m
 		self.setInteractiveOutput([x,y,z]) #here we cache scale ond convergence also!
 		self.onShowScale()
 		self.txt_geoid_height.setText("%.4f m" %h)
