@@ -602,7 +602,14 @@ class CoordinateTransformation(object):
 		rc=tr_lib.TR_Insert(self.tr,mlb,index)
 		if (rc!=TR_OK):
 			raise LabelException("Failed to insert %s" %mlb)
-			
+		else:
+			is_geo=IsGeographic(mlb) #convert2radians?
+			if is_in:
+				self.mlb_in=mlb
+				self.is_geo_in=is_geo
+			else:
+				self.mlb_out=mlb
+				self.is_geo_out=is_geo
 	def Transform(self,*args,**kwargs):
 		#thus inverse 'switch' must be given as a keyword!#
 		if "inverse" in kwargs and kwargs["inverse"]:

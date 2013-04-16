@@ -457,8 +457,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.action_angular_units_derived[self.geo_unit_derived].setChecked(True)
 		self.region=REGION_DK
 		self._handle_system_change=True
-		self.CoordinateTransformation=None
-		self.HeightTransformation=None
+		self.coordinate_transformation=None
 		self.point_center=[0,0]
 		self.map_zoom=0
 		try:
@@ -499,6 +498,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				self.geoids=self.selectTabDir()
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
+		#Initialse the map transformation#
+		self.map_transformation=TrLib.CoordinateTransformation("geo_wgs84","geo_wgs84")
 		#Will initialise some attributes which must be present in other methods#
 		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
 		self.initF2FTab()
@@ -516,7 +517,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.initRegion()
 		sys.stderr=RedirectOutput(self.handleStdErr)
 		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
-		
 		self.show()
 	def onExit(self):
 		self.close()
@@ -569,14 +569,19 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.onF2FReturnCode(event.rc)
 			
 
-	def drawPoint(self,x,y,mlb_in):
-		self.map_transform=TrLib.CoordinateTransformation(mlb_in,"geo_wgs84")
-		x,y,z=self.map_transform.Transform(x,y)
-		r=2**(-self.map_zoom)*10
-		self.map_point.setPos(x-r*0.5,-y-r*0.5)
-		self.map_coords=(x,y)
-		self.scene.update()
-		self.map_transform.Close()
+	def drawPoint(self,x,y,z,mlb_in):
+		if self.map_transformation.mlb_in!=mlb_in:
+			self.map_transformation.Insert(mlb_in)
+		try:
+			x,y,z=self.map_transformation.TransformPoint(x,y,z)
+		except:
+			self.log_interactive("Error in map transformation - failed to move point")
+		else:
+			r=2**(-self.map_zoom)*10
+			self.map_point.setPos(x-r*0.5,-y-r*0.5)
+			self.map_coords=(x,y)
+			self.scene.update()
+		
 		#TODO: consider enabling this redraw of map-canvas on transformation....
 		#if (self.chb_zoom_to_point.isChecked() and self.map_zoom>0):
 		#	self.gv_map.centerOn(self.map_point)
@@ -822,18 +827,24 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.input[len(coords)].setFocus()
 			return
 		x_in,y_in,z_in=coords
-		if self.CoordinateTransformation is None or mlb_in!=self.CoordinateTransformation.mlb_in or mlb_out!=self.CoordinateTransformation.mlb_out:
+		if self.coordinate_transformation is None or mlb_in!=self.coordinate_transformation.mlb_in or mlb_out!=self.coordinate_transformation.mlb_out:
 			try:
-				ct=TrLib.CoordinateTransformation(mlb_in,mlb_out)
-			except:
-				self.log_interactive("Input labels not OK!")
-				return None,None,None
-			else:
-				if self.CoordinateTransformation is not None:
-					self.CoordinateTransformation.Close()
-				self.CoordinateTransformation=ct
+				if self.coordinate_transformation is None:
+					self.coordinate_transformation=TrLib.CoordinateTransformation(mlb_in,mlb_out)
+				else: 
+					#both can happen at the same time!
+					if mlb_in!=self.coordinate_transformation.mlb_in:
+						self.coordinate_transformation.Insert(mlb_in)
+					if mlb_out!=self.coordinate_transformation.mlb_out:
+						self.coordinate_transformation.Insert(mlb_out,False)
+			except Exception,msg:
+				self.output_cache.is_valid=False
+				self.setInteractiveOutput([])
+				self.log_interactive("Mini labels not OK!\n%s" %repr(msg),color="red")
+				return 
+			
 		try:
-			x,y,z,h=self.CoordinateTransformation.TransformGH(x_in,y_in,z_in)
+			x,y,z,h=self.coordinate_transformation.TransformGH(x_in,y_in,z_in)
 		except Exception,msg:
 			self.output_cache.is_valid=False
 			self.setInteractiveOutput([])
@@ -849,17 +860,17 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.output_cache.mlb=mlb_out
 		self.output_cache.coords=[x,y,z]
 		#Always cache scale and convergence on succes....
-		sc,m=self.CoordinateTransformation.GetLocalGeometry(x,y)
+		sc,m=self.coordinate_transformation.GetLocalGeometry(x,y)
 		self.output_cache.scale=sc
 		self.output_cache.meridian_convergence=m
 		self.setInteractiveOutput([x,y,z]) #here we cache scale ond convergence also!
 		self.onShowScale()
 		self.txt_geoid_height.setText("%.4f m" %h)
-		geoid_name=self.CoordinateTransformation.GetGeoidName()
+		geoid_name=self.coordinate_transformation.GetGeoidName()
 		if DEBUG:
 			self.log_interactive("Geoid: %s" %geoid_name)
 		self.txt_geoid_name.setText(geoid_name)
-		self.drawPoint(x_in,y_in,mlb_in)
+		self.drawPoint(x_in,y_in,z_in,mlb_in)
 	#TAB  File2File#
 	def initF2FTab(self):
 		#Auto completion - dont do it for now as input might not be a *file*
