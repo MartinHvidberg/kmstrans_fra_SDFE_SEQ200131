@@ -159,6 +159,8 @@ def LoadLibrary(lib=STD_LIB,lib_dir=STD_DIRNAME):
 		tr_lib.TR_OpenProjection.restype=ctypes.c_void_p
 		tr_lib.TR_CloseProjection.argtypes=[ctypes.c_void_p]
 		tr_lib.TR_CloseProjection.restype=None
+		tr_lib.TR_TransformGH.argtypes=[ctypes.c_void_p]+[LP_c_double]*4+[ctypes.c_int]
+		tr_lib.TR_TransformGH.restype=ctypes.c_int
 		#Some extra functions which might get exposed in the API#
 		tr_lib.set_grs.argtypes=[ctypes.c_int,ctypes.c_char_p,LP_c_double]
 		tr_lib.bshlm1.restype=ctypes.c_int
@@ -653,6 +655,26 @@ class CoordinateTransformation(object):
 			x*=R2D
 			y*=R2D
 		return x,y,z
+	def TransformGH(self,x,y,z=0.0):
+		#A tranformation method which also returns geoid height
+		if self.tr is None:
+			raise Exception("This transformation has been invalidated")
+		if (self.is_geo_in):
+			x*=D2R
+			y*=D2R
+		x,y,z,gh=map(ctypes.c_double,[x,y,z,0])
+		res=tr_lib.TR_TransformGH(self.tr,ctypes.byref(x),ctypes.byref(y),ctypes.byref(z),ctypes.byref(gh),1)
+		x=x.value
+		y=y.value
+		z=z.value
+		gh=gh.value
+		self.rc=res
+		if res!=TR_OK:
+			raise TransformationException("Error in transformation.")
+		if (self.is_geo_out):
+			x*=R2D
+			y*=R2D
+		return x,y,z,gh
 	#Some copying required here - but overhead *small* compared to transformation
 	def TransformArray(self,xyz_in,inverse=False):
 		if not HAS_NUMPY:

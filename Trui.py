@@ -840,9 +840,16 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 				if self.CoordinateTransformation is not None:
 					self.CoordinateTransformation.Close()
 				self.CoordinateTransformation=ct
-		x,y,z=self.transform(self.CoordinateTransformation,x_in,y_in,z_in)
-		if x is None:
+		try:
+			x,y,z,h=self.CoordinateTransformation.TransformGH(x_in,y_in,z_in)
+		except Exception,msg:
+			self.output_cache.is_valid=False
 			self.setInteractiveOutput([])
+			err=TrLib.GetLastError()
+			if err in ERRORS:
+				self.log_interactive("%s" %ERRORS[err],color="red")
+			else:
+				self.log_interactive("Error in transformation",color="red")
 			self.onShowScale()
 			return
 		#Cache output after succesfull transformation#
@@ -855,39 +862,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.output_cache.meridian_convergence=m
 		self.setInteractiveOutput([x,y,z]) #here we cache scale ond convergence also!
 		self.onShowScale()
-		h_mlb1=Minilabel.ChangeHeightSystem(mlb_out,["N"])
-		h_mlb2=Minilabel.ChangeHeightSystem(mlb_out,["E"])
-		if self.HeightTransformation is None or h_mlb1!=self.HeightTransformation.mlb_in or h_mlb2!=self.HeightTransformation.mlb_out:
-			try:
-				ct=TrLib.CoordinateTransformation(h_mlb1,h_mlb2)
-			except:
-				self.log_interactive("Input labels not OK!")
-				return None,None,None
-			else:
-				if self.HeightTransformation is not None:
-					self.HeightTransformation.Close()
-				self.HeightTransformation=ct
-		x,y,z=self.transform(self.HeightTransformation,x,y,0)
-		
-		if x is not None:
-			self.txt_geoid_height.setText("%.4f m" %z)
+		self.txt_geoid_height.setText("%.4f m" %h)
 		geoid_name=self.CoordinateTransformation.GetGeoidName()
 		if DEBUG:
 			self.log_interactive("Geoid: %s" %geoid_name)
 		self.txt_geoid_name.setText(geoid_name)
 		self.drawPoint(x_in,y_in,mlb_in)
-	
-		
-	def transform(self,transformation,x,y,z):
-		try:	
-			x,y,z=transformation.Transform(x,y,z)
-		except:
-			err=TrLib.GetLastError()
-			self.log_interactive("Error in transformation: %d" %err)
-			if err in ERRORS:
-				self.log_interactive("%s" %ERRORS[err])
-			return None,None,None
-		return x,y,z
 	#TAB  File2File#
 	def initF2FTab(self):
 		#Auto completion - dont do it for now as input might not be a *file*
