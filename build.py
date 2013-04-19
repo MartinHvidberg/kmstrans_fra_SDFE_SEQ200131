@@ -49,7 +49,7 @@ SRC_LIBREPORT=[os.path.join(SRC_DIR,"Report.c")]
 SRC_LIBOGR=[os.path.join(SRC_DIR,"ogrTRogr.c")]
 DEF_LIBREPORT=os.path.join(SRC_DIR,"libreport.def")
 DEF_LIBOGR=os.path.join(SRC_DIR,"libtrogr.def")
-SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","TransformText.c","TransformDSFL.c","my_get_opt.c"]]
+SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","TransformText.c","TransformDSFL.c","tr_DSFL.c","my_get_opt.c"]]
 INC_TRLIB=[os.path.join(trlib,"TR_INC")]
 #Import build system
 sys.path.insert(0,os.path.join(trlib,"TR_BUILD"))
