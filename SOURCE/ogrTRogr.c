@@ -100,7 +100,7 @@ OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
      return srs_out;
 }
 
-int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
+int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 	 char *p;
 	 char buf[128];
 	 int ok=TR_ERROR;
@@ -113,7 +113,7 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
 		 p=(char*) OSRGetAuthorityCode(srs,NULL);
 		 if (p!=NULL){
 			sprintf(buf,"EPSG:%s",p);
-			ok=TR_ImportLabel(buf,mlb);
+			ok=TR_ImportLabel(buf,mlb,buf_len);
 			if (ok==TR_OK){
 				/*Report(REP_INFO,0,VERB_LOW,"EPSG");*/
 				return TR_OK;
@@ -123,7 +123,7 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
 	 err=OSRExportToProj4(srs,&p);
 	 if (err==OGRERR_NONE){
 		 Report(REP_INFO,0,VERB_LOW,p);
-		 ok=TR_ImportLabel(p,mlb);
+		 ok=TR_ImportLabel(p,mlb,buf_len);
 		 if (ok==TR_OK){
 			 /*Report(REP_INFO,0,VERB_LOW,"Proj4");*/
 			 return TR_OK;
@@ -132,7 +132,7 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb){
 	 OSRMorphToESRI(srs);
 	 err=OSRExportToWkt(srs,&p);
 	 if (err==OGRERR_NONE){
-		 ok=TR_ImportLabel(p,mlb);
+		 ok=TR_ImportLabel(p,mlb,buf_len);
 		 if (ok==TR_OK){
 			 /*Report(REP_INFO,0,VERB_LOW,"WKT");*/
 			 return TR_OK;
@@ -518,7 +518,7 @@ int TransformOGRDatasource(
 		layer_has_geometry=(OGR_FD_GetGeomType(hFDefn)!=wkbNone);
 		field_count=OGR_FD_GetFieldCount(hFDefn);
 		if (layer_has_geometry && look_for_srs){
-			int ok=TranslateSrs(OGR_L_GetSpatialRef(hLayer),mlb_in);
+			int ok=TranslateSrs(OGR_L_GetSpatialRef(hLayer),mlb_in,128);
 			if (ok==TR_OK){
 				Report(REP_INFO,0,VERB_LOW,"Translating input srs to mlb: %s",mlb_in);
 				ok=TR_Insert(trf,mlb_in,0);
@@ -596,3 +596,4 @@ if (ntrans_bad>0)
 	Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Transformation errors",ntrans_bad);
 return ERR;
 }
+

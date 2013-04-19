@@ -22,7 +22,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 int TransformOGRDatasource(TR *trf, OGRDataSourceH hDSin, OGRDataSourceH hDSout, OGRSpatialReferenceH srs_out, char **layer_names, char **lcos, char **extra_lcos);
 int TransformOGR(char *inname,  char *outname, TR *trf, char *drv_out, char **layer_names, int set_projection, char **dscos, char **lcos);
 OGRSpatialReferenceH TranslateMiniLabel(char *mlb);
-int TranslateSrs( OGRSpatialReferenceH srs, char *mlb);
+int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len);
 int FlattenMLB(char *mlb_in, char *mlb_flat);
 const char *GetOGRDrivers(int reset, int is_output);
 OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num);
@@ -34,9 +34,3 @@ OGRDataSourceH Open(char *inname);
 void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np);
 void RedirectOGRErrors();
 const char* GetGDALVersion();
-
-
-
-
-
-
