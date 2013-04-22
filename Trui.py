@@ -434,7 +434,12 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		for field in self.input:
 			field.returnPressed.connect(self.transform_input)
 		#END SETUP INPUT EVENT HANDLERS#
-		
+		#Set background colors to distniguish read only fields#
+		inactive_fields=self.output+[self.txt_geoid_height,self.txt_geoid_name,self.txt_scale,self.txt_meridian_convergence]
+		palette =self.palette();
+		palette.setColor(QPalette.Base, QColor(235, 250, 255));
+		for field in inactive_fields:
+			field.setPalette(palette)
 		#Create Whatsthis in help menu#
 		self.menuHelp.addSeparator()
 		self.menuHelp.addAction(QWhatsThis.createAction(self))
