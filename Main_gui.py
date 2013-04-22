@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Thu Apr 11 12:04:21 2013
+# Created: Mon Apr 22 13:04:06 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -857,7 +857,7 @@ class Ui_GSTtrans(object):
         self.lbl_geoid_dir_value.setText(_translate("GSTtrans", "Geoid dir", None))
         self.lbl_region.setText(_translate("GSTtrans", "Region:", None))
         self.lbl_region_value.setText(_translate("GSTtrans", "Region", None))
-        self.lbl_geo_coords.setText(_translate("GSTtrans", "Geographic coords:", None))
+        self.lbl_geo_coords.setText(_translate("GSTtrans", "Geographic coordinates:", None))
         self.lbl_geo_coords_value.setText(_translate("GSTtrans", "dg", None))
         self.lbl_input_info.setToolTip(_translate("GSTtrans", "Input system description", None))
         self.lbl_input_info.setWhatsThis(_translate("GSTtrans", "Detailed description of input srs.", None))
@@ -978,11 +978,11 @@ class Ui_GSTtrans(object):
         self.bt_f2f_kill.setWhatsThis(_translate("GSTtrans", "Kill the batch process if it seems to be stalled.", None))
         self.bt_f2f_kill.setText(_translate("GSTtrans", "Kill process", None))
         self.bt_f2f_list_formats.setWhatsThis(_translate("GSTtrans", "List available input and output formats for the batch transformation program.", None))
+        self.bt_f2f_list_formats.setText(_translate("GSTtrans", "list formats", None))
         self.main_tab_host.setTabText(self.main_tab_host.indexOf(self.tab_ogr), _translate("GSTtrans", "Batch", None))
         self.menuHelp.setTitle(_translate("GSTtrans", "Help", None))
         self.menuFile.setTitle(_translate("GSTtrans", "File", None))
         self.menuSettings.setTitle(_translate("GSTtrans", "Settings", None))
-        self.menuRegion.setTitle(_translate("GSTtrans", "Region", None))
         self.menuAngular_units.setTitle(_translate("GSTtrans", "Angular units (coordinates)", None))
         self.menuAngular_units_derived_output.setTitle(_translate("GSTtrans", "Angular units (derived output)", None))
         self.actionNew_KMSTrans.setText(_translate("GSTtrans", "New window", None))
