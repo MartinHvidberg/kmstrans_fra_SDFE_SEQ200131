@@ -870,6 +870,12 @@
                 <height>180</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Map Window</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Map window - geographic coordinates. Will show current location.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1110,6 +1116,9 @@
            <widget class="QTextEdit" name="txt_log">
             <property name="whatsThis">
              <string>Text field for reporting things like error/log messages.</string>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
