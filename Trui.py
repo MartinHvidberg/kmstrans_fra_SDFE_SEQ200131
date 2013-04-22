@@ -443,6 +443,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.f2f_settings=File2File.F2F_Settings()
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
 		self.output_cache=PointData()
+		self.mlb_in=None #New attribute - used to test whether we should upodate system info....
 		self.geo_unit=ANGULAR_UNIT_DEGREES
 		self.setAngularUnitsDegrees()
 		self.geo_unit_derived=ANGULAR_UNIT_DEGREES
@@ -619,7 +620,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.cb_input_system.setCurrentIndex(0) #TODO: dont emit signal!
 		self.cb_output_system.setCurrentIndex(0)
 		self._handle_system_change=True
-		self.setSystemInfo(True,True)
 		self.transform_input() #this should trigger the redraw of the point
 		self.zoomMap()
 		for widget in self.getAdditionalWidgets():
@@ -629,7 +629,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def onSystemInChanged(self):
 		if not self._handle_system_change:
 			return
-		self.setSystemInfo(True,False)
 		#Trigger a transformation#
 		self.transform_input()
 		
@@ -637,7 +636,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 	def onSystemOutChanged(self):
 		if not self._handle_system_change:
 			return
-		self.setSystemInfo(False,True)
 		#Trigger a transformation#
 		self.transform_input()
 		
@@ -666,7 +664,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
-			self.onSystemInChanged()
+			self.transform_input()
 		
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_out_clicked(self):
@@ -688,11 +686,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.cb_input_system.setEditText(mlb_out)
 			self.cb_output_system.setEditText(mlb_in)
 			self._handle_system_change=True
-			self.setSystemInfo(True,True)
 			self.transform_input()
 			
-			
-		
 	def setRegionDK(self):
 		if self.region!=REGION_DK:
 			self.region=REGION_DK
@@ -822,6 +817,13 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.output_cache.has_scale=False
 		mlb_in=str(self.cb_input_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
+		#Check if we should update system info
+		update_in=(mlb_in!=self.mlb_in)
+		update_out=(mlb_out!=self.output_cache.mlb)
+		if ( update_in or update_out):
+			self.setSystemInfo(update_in,update_out)
+			self.mlb_in=mlb_in
+			self.output_cache.mlb=mlb_out
 		coords=self.getInteractiveInput(mlb_in)
 		if len(coords)!=3:
 			self.log_interactive("Input coordinate in field %d not OK!" %(len(coords)+1))
@@ -858,7 +860,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			return
 		#Cache output after succesfull transformation#
 		self.output_cache.is_valid=True
-		self.output_cache.mlb=mlb_out
 		self.output_cache.coords=[x,y,z]
 		self.setInteractiveOutput([x,y,z]) #here we cache scale ond convergence also!
 		self.onShowScale()

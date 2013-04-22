@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Mon Apr 22 12:44:25 2013
+# Created: Mon Apr 22 13:44:38 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -211,6 +211,7 @@ class Ui_GSTtrans(object):
         self.tab_interactive = QtGui.QWidget()
         self.tab_interactive.setObjectName(_fromUtf8("tab_interactive"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.tab_interactive)
+        self.verticalLayout_3.setContentsMargins(-1, 13, -1, -1)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
@@ -864,7 +865,7 @@ class Ui_GSTtrans(object):
         self.lbl_geoid_dir_value.setText(_translate("GSTtrans", "Geoid dir", None))
         self.lbl_region.setText(_translate("GSTtrans", "Region:", None))
         self.lbl_region_value.setText(_translate("GSTtrans", "Region", None))
-        self.lbl_geo_coords.setText(_translate("GSTtrans", "Geographic coords:", None))
+        self.lbl_geo_coords.setText(_translate("GSTtrans", "Geographic coordinates:", None))
         self.lbl_geo_coords_value.setText(_translate("GSTtrans", "dg", None))
         self.lbl_input_info.setToolTip(_translate("GSTtrans", "Input system description", None))
         self.lbl_input_info.setWhatsThis(_translate("GSTtrans", "Detailed description of input srs.", None))
