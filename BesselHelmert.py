@@ -63,7 +63,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			self.txt_bshlm_ellipsoid.setText("custom")
 			self.txt_bshlm_axis.setEnabled(True)
 			self.txt_bshlm_flattening.setEnabled(True)
-			labels=SYSTEM_LABELS[GEO_CODE]
+			labels=Minilabel.GetSystemLabels("geo_wgs84") # a dummy label
 			self.lbl_bshlm_description.setText("Custom ellipsoid - geographical coordinates")
 			for i in range(2):
 				self.input_labels_bshlm[i].setText(labels[i])
