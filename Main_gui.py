@@ -211,6 +211,7 @@ class Ui_GSTtrans(object):
         self.tab_interactive = QtGui.QWidget()
         self.tab_interactive.setObjectName(_fromUtf8("tab_interactive"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.tab_interactive)
+        self.verticalLayout_3.setContentsMargins(-1, 13, -1, -1)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
