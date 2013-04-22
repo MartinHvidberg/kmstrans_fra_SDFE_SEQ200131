@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Mon Apr 08 09:09:18 2013
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Mon Apr 22 12:44:26 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -162,24 +171,24 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "File2File settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "TextDriver", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Format for text driver:  field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Dialog", "Column separators:", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_semicolon.setText(QtGui.QApplication.translate("Dialog", "; Semicolon ", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_tab.setText(QtGui.QApplication.translate("Dialog", "Tab", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_pattern.setText(QtGui.QApplication.translate("Dialog", "Specify sep chars", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_whitespace.setWhatsThis(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Default: Use all whitespace as field separator.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_whitespace.setText(QtGui.QApplication.translate("Dialog", "All whitespace", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_space.setText(QtGui.QApplication.translate("Dialog", "Space", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_comma.setText(QtGui.QApplication.translate("Dialog", ", Comma", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("Dialog", "Geometry columns:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("Dialog", "Y column", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_has_z.setText(QtGui.QApplication.translate("Dialog", "Has z", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog", "X column", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog", "Z column", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_apply.setToolTip(QtGui.QApplication.translate("Dialog", "Click to apply changes", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_apply.setText(QtGui.QApplication.translate("Dialog", "Apply", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_close.setToolTip(QtGui.QApplication.translate("Dialog", "Press to apply changes and close", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_close.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
+        self.groupBox.setTitle(_translate("Dialog", "TextDriver", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format for text driver:  field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
+        self.label_2.setText(_translate("Dialog", "Column separators:", None))
+        self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
+        self.chb_tab.setText(_translate("Dialog", "Tab", None))
+        self.chb_pattern.setText(_translate("Dialog", "Specify sep chars", None))
+        self.chb_whitespace.setWhatsThis(_translate("Dialog", "<html><head/><body><p>Default: Use all whitespace as field separator.</p></body></html>", None))
+        self.chb_whitespace.setText(_translate("Dialog", "All whitespace", None))
+        self.chb_space.setText(_translate("Dialog", "Space", None))
+        self.chb_comma.setText(_translate("Dialog", ", Comma", None))
+        self.label_6.setText(_translate("Dialog", "Geometry columns:", None))
+        self.label_5.setText(_translate("Dialog", "Y column", None))
+        self.chb_has_z.setText(_translate("Dialog", "Has z", None))
+        self.label_3.setText(_translate("Dialog", "X column", None))
+        self.label_4.setText(_translate("Dialog", "Z column", None))
+        self.bt_apply.setToolTip(_translate("Dialog", "Click to apply changes", None))
+        self.bt_apply.setText(_translate("Dialog", "Apply", None))
+        self.bt_close.setToolTip(_translate("Dialog", "Press to apply changes and close", None))
+        self.bt_close.setText(_translate("Dialog", "Close", None))
 

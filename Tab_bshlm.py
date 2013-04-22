@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_bshlm.ui'
 #
-# Created: Mon Apr 08 09:09:20 2013
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Mon Apr 22 12:44:26 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_tab_bshlm(object):
     def setupUi(self, tab_bshlm):
@@ -220,39 +229,39 @@ class Ui_tab_bshlm(object):
         QtCore.QMetaObject.connectSlotsByName(tab_bshlm)
 
     def retranslateUi(self, tab_bshlm):
-        tab_bshlm.setWindowTitle(QtGui.QApplication.translate("tab_bshlm", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.gb_bshlm_3.setTitle(QtGui.QApplication.translate("tab_bshlm", "Bessel Helmert", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_21.setText(QtGui.QApplication.translate("tab_bshlm", "Description:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_description.setText(QtGui.QApplication.translate("tab_bshlm", "system info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_22.setText(QtGui.QApplication.translate("tab_bshlm", "Coordinate system:", None, QtGui.QApplication.UnicodeUTF8))
-        self.cb_bshlm_system.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Minilabel describing the input srs (2D only).", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_bshlm_custom_ellipsoid.setToolTip(QtGui.QApplication.translate("tab_bshlm", "Check this to use a custom ellipsoid.", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_bshlm_custom_ellipsoid.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Check this to use a custom ellipsoid and define parameters (axis, flattening) yourself.", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_bshlm_custom_ellipsoid.setText(QtGui.QApplication.translate("tab_bshlm", "Custom Ellipsoid", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_ellipsoid_3.setText(QtGui.QApplication.translate("tab_bshlm", "Ellipsoid:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_23.setText(QtGui.QApplication.translate("tab_bshlm", "Inverse flattening:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_24.setText(QtGui.QApplication.translate("tab_bshlm", "Major axis:", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_flattening.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Inverse flattening of used ellipsoid.", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_axis.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Major axis of used ellipsoid.", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_x1.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Input coordinate for first station/point.", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_y1.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Input coordinate for first station/point.", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_x.setText(QtGui.QApplication.translate("tab_bshlm", "Easting:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_y.setText(QtGui.QApplication.translate("tab_bshlm", "Northing:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_station1_3.setText(QtGui.QApplication.translate("tab_bshlm", "Station 1 ", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_station2_3.setText(QtGui.QApplication.translate("tab_bshlm", "Station 2", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_x2.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Input coordinate for second station/point.", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_y2.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Input coordinate for second station/point.", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_lon.setText(QtGui.QApplication.translate("tab_bshlm", "Longitude:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lbl_bshlm_lat.setText(QtGui.QApplication.translate("tab_bshlm", "Latitude:", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_distance.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Calculated distance between points.", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_azimuth1.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Calculated azimuth (distance to geometrical north).", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_26.setText(QtGui.QApplication.translate("tab_bshlm", "Distance:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("tab_bshlm", "Forward Azimuth:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("tab_bshlm", "Backwards Azimuth:", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_bshlm_log.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "Text field for logging error messages.", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_12.setTitle(QtGui.QApplication.translate("tab_bshlm", "Calculation mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.rdobt_bshlm_mode1.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "In this mode distance and azimuths are calculated based on locations of two input points.", None, QtGui.QApplication.UnicodeUTF8))
-        self.rdobt_bshlm_mode1.setText(QtGui.QApplication.translate("tab_bshlm", "Find distance and azimuth from positions of station1 and  station2.", None, QtGui.QApplication.UnicodeUTF8))
-        self.rdobt_bshlm_mode2.setWhatsThis(QtGui.QApplication.translate("tab_bshlm", "In this mode the position of the second point is calculated based on input distance and azimuth.", None, QtGui.QApplication.UnicodeUTF8))
-        self.rdobt_bshlm_mode2.setText(QtGui.QApplication.translate("tab_bshlm", "Find position of station2 based on distance and azimuth from station1. ", None, QtGui.QApplication.UnicodeUTF8))
+        tab_bshlm.setWindowTitle(_translate("tab_bshlm", "Form", None))
+        self.gb_bshlm_3.setTitle(_translate("tab_bshlm", "Bessel Helmert", None))
+        self.label_21.setText(_translate("tab_bshlm", "Description:", None))
+        self.lbl_bshlm_description.setText(_translate("tab_bshlm", "system info", None))
+        self.label_22.setText(_translate("tab_bshlm", "Coordinate system:", None))
+        self.cb_bshlm_system.setWhatsThis(_translate("tab_bshlm", "Minilabel describing the input srs (2D only).", None))
+        self.chb_bshlm_custom_ellipsoid.setToolTip(_translate("tab_bshlm", "Check this to use a custom ellipsoid.", None))
+        self.chb_bshlm_custom_ellipsoid.setWhatsThis(_translate("tab_bshlm", "Check this to use a custom ellipsoid and define parameters (axis, flattening) yourself.", None))
+        self.chb_bshlm_custom_ellipsoid.setText(_translate("tab_bshlm", "Custom Ellipsoid", None))
+        self.lbl_bshlm_ellipsoid_3.setText(_translate("tab_bshlm", "Ellipsoid:", None))
+        self.label_23.setText(_translate("tab_bshlm", "Inverse flattening:", None))
+        self.label_24.setText(_translate("tab_bshlm", "Major axis:", None))
+        self.txt_bshlm_flattening.setWhatsThis(_translate("tab_bshlm", "Inverse flattening of used ellipsoid.", None))
+        self.txt_bshlm_axis.setWhatsThis(_translate("tab_bshlm", "Major axis of used ellipsoid.", None))
+        self.txt_bshlm_x1.setWhatsThis(_translate("tab_bshlm", "Input coordinate for first station/point.", None))
+        self.txt_bshlm_y1.setWhatsThis(_translate("tab_bshlm", "Input coordinate for first station/point.", None))
+        self.lbl_bshlm_x.setText(_translate("tab_bshlm", "Easting:", None))
+        self.lbl_bshlm_y.setText(_translate("tab_bshlm", "Northing:", None))
+        self.lbl_bshlm_station1_3.setText(_translate("tab_bshlm", "Station 1 ", None))
+        self.lbl_bshlm_station2_3.setText(_translate("tab_bshlm", "Station 2", None))
+        self.txt_bshlm_x2.setWhatsThis(_translate("tab_bshlm", "Input coordinate for second station/point.", None))
+        self.txt_bshlm_y2.setWhatsThis(_translate("tab_bshlm", "Input coordinate for second station/point.", None))
+        self.lbl_bshlm_lon.setText(_translate("tab_bshlm", "Longitude:", None))
+        self.lbl_bshlm_lat.setText(_translate("tab_bshlm", "Latitude:", None))
+        self.txt_bshlm_distance.setWhatsThis(_translate("tab_bshlm", "Calculated distance between points.", None))
+        self.txt_bshlm_azimuth1.setWhatsThis(_translate("tab_bshlm", "Calculated azimuth (distance to geometrical north).", None))
+        self.label_26.setText(_translate("tab_bshlm", "Distance:", None))
+        self.label_27.setText(_translate("tab_bshlm", "Forward Azimuth:", None))
+        self.label_28.setText(_translate("tab_bshlm", "Backwards Azimuth:", None))
+        self.txt_bshlm_log.setWhatsThis(_translate("tab_bshlm", "Text field for logging error messages.", None))
+        self.groupBox_12.setTitle(_translate("tab_bshlm", "Calculation mode", None))
+        self.rdobt_bshlm_mode1.setWhatsThis(_translate("tab_bshlm", "In this mode distance and azimuths are calculated based on locations of two input points.", None))
+        self.rdobt_bshlm_mode1.setText(_translate("tab_bshlm", "Find distance and azimuth from positions of station1 and  station2.", None))
+        self.rdobt_bshlm_mode2.setWhatsThis(_translate("tab_bshlm", "In this mode the position of the second point is calculated based on input distance and azimuth.", None))
+        self.rdobt_bshlm_mode2.setText(_translate("tab_bshlm", "Find position of station2 based on distance and azimuth from station1. ", None))
 
