@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1013</width>
-    <height>714</height>
+    <height>721</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -458,21 +458,21 @@
    <layout class="QGridLayout" name="gridLayout_5">
     <item row="1" column="0">
      <layout class="QGridLayout" name="gridLayout_20">
-      <item row="0" column="3">
+      <item row="0" column="6">
        <widget class="QLabel" name="lbl_current_geoid_directory">
         <property name="text">
          <string>Current geoid directory:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
+      <item row="0" column="7">
        <widget class="QLabel" name="lbl_geoid_dir_value">
         <property name="text">
          <string>Geoid dir</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="0" column="10">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -492,7 +492,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="5">
        <spacer name="horizontalSpacer_14">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -512,12 +512,39 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="lbl_geo_coords">
+        <property name="text">
+         <string>Geographic coordinates:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="lbl_geo_coords_value">
+        <property name="text">
+         <string>dg</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="main_tab_host">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
@@ -793,6 +820,19 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="bt_interactive_transform">
+            <property name="toolTip">
+             <string>Trigger a transformation</string>
+            </property>
+            <property name="whatsThis">
+             <string>Trigger a transformation.</string>
+            </property>
+            <property name="text">
+             <string>Transform</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1851,7 +1891,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">

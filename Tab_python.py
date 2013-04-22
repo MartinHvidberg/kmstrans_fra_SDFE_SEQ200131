@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'UI\Tab_python.ui'
 #
 # Created: Thu Apr 11 12:04:24 2013
-#      by: PyQt4 UI code generator 4.9.4
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_tab_python(object):
     def setupUi(self, tab_python):
@@ -55,16 +64,16 @@ class Ui_tab_python(object):
         QtCore.QMetaObject.connectSlotsByName(tab_python)
 
     def retranslateUi(self, tab_python):
-        tab_python.setWindowTitle(QtGui.QApplication.translate("tab_python", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.txt_python_out.setWhatsThis(QtGui.QApplication.translate("tab_python", "Python output from interactive sessions will be displayed in this field.", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_python_run.setToolTip(QtGui.QApplication.translate("tab_python", "Compile/run input code", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_python_run.setWhatsThis(QtGui.QApplication.translate("tab_python", "Compile input code. Used to enter definitions/code which span several lines (uncheck the REPL mode checkbox). ", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_python_run.setText(QtGui.QApplication.translate("tab_python", "compile", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_python_load.setWhatsThis(QtGui.QApplication.translate("tab_python", "Load a script for editing.", None, QtGui.QApplication.UnicodeUTF8))
-        self.bt_python_load.setText(QtGui.QApplication.translate("tab_python", "load script", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_python_process_enter.setToolTip(QtGui.QApplication.translate("tab_python", "REPL mode on/off", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_python_process_enter.setWhatsThis(QtGui.QApplication.translate("tab_python", "Check this box if you want to run in an interactive mode with instant response to each command. ", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_python_process_enter.setText(QtGui.QApplication.translate("tab_python", "Run command on enter (REPL mode)", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_python_clear.setWhatsThis(QtGui.QApplication.translate("tab_python", "Clear input code if it did not result in a error. Useful in interactive (REPL) mode. A command history is maintained and available by using up/down arrows.", None, QtGui.QApplication.UnicodeUTF8))
-        self.chb_python_clear.setText(QtGui.QApplication.translate("tab_python", "Clear input code on succes", None, QtGui.QApplication.UnicodeUTF8))
+        tab_python.setWindowTitle(_translate("tab_python", "Form", None))
+        self.txt_python_out.setWhatsThis(_translate("tab_python", "Python output from interactive sessions will be displayed in this field.", None))
+        self.bt_python_run.setToolTip(_translate("tab_python", "Compile/run input code", None))
+        self.bt_python_run.setWhatsThis(_translate("tab_python", "Compile input code. Used to enter definitions/code which span several lines (uncheck the REPL mode checkbox). ", None))
+        self.bt_python_run.setText(_translate("tab_python", "compile", None))
+        self.bt_python_load.setWhatsThis(_translate("tab_python", "Load a script for editing.", None))
+        self.bt_python_load.setText(_translate("tab_python", "load script", None))
+        self.chb_python_process_enter.setToolTip(_translate("tab_python", "REPL mode on/off", None))
+        self.chb_python_process_enter.setWhatsThis(_translate("tab_python", "Check this box if you want to run in an interactive mode with instant response to each command. ", None))
+        self.chb_python_process_enter.setText(_translate("tab_python", "Run command on enter (REPL mode)", None))
+        self.chb_python_clear.setWhatsThis(_translate("tab_python", "Clear input code if it did not result in a error. Useful in interactive (REPL) mode. A command history is maintained and available by using up/down arrows.", None))
+        self.chb_python_clear.setText(_translate("tab_python", "Clear input code on succes", None))
 

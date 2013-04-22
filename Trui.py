@@ -396,7 +396,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.cb_f2f_input_system.currentIndexChanged.connect(self.onF2FSystemInChanged)
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
-		
+		self.bt_interactive_transform.clicked.connect(self.transform_input)
 		self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
@@ -444,9 +444,9 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
 		self.output_cache=PointData()
 		self.geo_unit=ANGULAR_UNIT_DEGREES
+		self.setAngularUnitsDegrees()
 		self.geo_unit_derived=ANGULAR_UNIT_DEGREES
-		self.action_angular_units[self.geo_unit].setChecked(True)
-		self.action_angular_units_derived[self.geo_unit_derived].setChecked(True)
+		self.setDerivedAngularUnitsDegrees()
 		self.region=REGION_DK
 		self._handle_system_change=True
 		self.coordinate_transformation=None
@@ -714,21 +714,25 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.geo_unit=ANGULAR_UNIT_DEGREES
 			self.translateGeoUnits()
 		self.action_angular_units[ANGULAR_UNIT_DEGREES].setChecked(True)
+		self.lbl_geo_coords_value.setText("%3s" %ANGULAR_UNIT_DEGREES)
 	def setAngularUnitsRadians(self):
 		if self.geo_unit!=ANGULAR_UNIT_RADIANS:
 			self.geo_unit=ANGULAR_UNIT_RADIANS
 			self.translateGeoUnits()
 		self.action_angular_units[ANGULAR_UNIT_RADIANS].setChecked(True)
+		self.lbl_geo_coords_value.setText("%3s" %ANGULAR_UNIT_RADIANS)
 	def setAngularUnitsNt(self):
 		if self.geo_unit!=ANGULAR_UNIT_NT:
 			self.geo_unit=ANGULAR_UNIT_NT
 			self.translateGeoUnits()
 		self.action_angular_units[ANGULAR_UNIT_NT].setChecked(True)
+		self.lbl_geo_coords_value.setText("%3s" %ANGULAR_UNIT_NT)
 	def setAngularUnitsSx(self):
 		if self.geo_unit!=ANGULAR_UNIT_SX:
 			self.geo_unit=ANGULAR_UNIT_SX
 			self.translateGeoUnits()
 		self.action_angular_units[ANGULAR_UNIT_SX].setChecked(True)
+		self.lbl_geo_coords_value.setText("%3s" %ANGULAR_UNIT_SX)
 	def setDerivedAngularUnitsDegrees(self):
 		if self.geo_unit_derived!=ANGULAR_UNIT_DEGREES:
 			self.geo_unit_derived=ANGULAR_UNIT_DEGREES
