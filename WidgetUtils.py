@@ -35,7 +35,7 @@ def setOutput(coords,fields,is_angle=False,z_fields=[2],angular_unit="dg"):
 			fields[i].setText("%s" %(TranslateFromDegrees(coords[i],angular_unit)))
 		else:
 			#TODO: global precision here
-			fields[i].setText("%.4f m" %coords[i])
+			fields[i].setText("%.3f m" %coords[i])
 
 def translateAngularField(field,geo_unit):
 	try:
