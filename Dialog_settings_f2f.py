@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Mon Apr 22 13:44:39 2013
+# Created: Tue Apr 23 15:46:20 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
