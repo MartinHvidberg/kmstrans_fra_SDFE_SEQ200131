@@ -460,6 +460,12 @@
      <layout class="QGridLayout" name="gridLayout_20">
       <item row="0" column="6">
        <widget class="QLabel" name="lbl_current_geoid_directory">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Current geoid directory:</string>
         </property>
@@ -487,6 +493,12 @@
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_region">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Region:</string>
         </property>
@@ -527,6 +539,12 @@
       </item>
       <item row="0" column="3">
        <widget class="QLabel" name="lbl_geo_coords">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Geographic coordinates:</string>
         </property>
@@ -554,6 +572,19 @@
         <property name="topMargin">
          <number>13</number>
         </property>
+        <item>
+         <spacer name="verticalSpacer_9">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
