@@ -100,10 +100,12 @@ class PythonWidget(WidgetBase,Ui_tab_python):
 			self.pythonExample()
 		else:	
 			ok=self.python_console.ExecuteCode(cmd)
-			if self.chb_python_clear.isChecked() and ok:
-				self.clearPythonIn()
-			return
-		self.clearPythonIn()
+			if ok:
+				if self.chb_python_clear.isChecked():
+					self.clearPythonIn()
+				else:
+					self.log_python("** Python code successfully executed **")
+		
 	def clearPythonIn(self):
 		self.txt_python_in.clear()
 		if HAS_QSCI:

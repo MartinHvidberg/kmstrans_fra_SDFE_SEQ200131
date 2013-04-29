@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Tab_bshlm.ui'
 #
-# Created: Tue Apr 23 15:57:39 2013
+# Created: Tue Apr 23 16:04:43 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -328,7 +328,7 @@ class Ui_tab_bshlm(object):
         self.chb_bshlm_custom_ellipsoid.setText(_translate("tab_bshlm", "Custom Ellipsoid", None))
         self.lbl_bshlm_ellipsoid_3.setText(_translate("tab_bshlm", "Ellipsoid:", None))
         self.label_23.setText(_translate("tab_bshlm", "Inverse flattening:", None))
-        self.label_24.setText(_translate("tab_bshlm", "Major axis:", None))
+        self.label_24.setText(_translate("tab_bshlm", "Semi-major axis:", None))
         self.txt_bshlm_flattening.setWhatsThis(_translate("tab_bshlm", "Inverse flattening of used ellipsoid.", None))
         self.txt_bshlm_axis.setWhatsThis(_translate("tab_bshlm", "Major axis of used ellipsoid.", None))
         self.txt_bshlm_x1.setWhatsThis(_translate("tab_bshlm", "Input coordinate for first station/point.", None))
