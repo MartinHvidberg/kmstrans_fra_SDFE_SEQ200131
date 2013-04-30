@@ -54,7 +54,7 @@ os.chdir(PREFIX)
 #SETUP SOME STANDARD PATHS
 import platform
 COMPANY_NAME="GST"  #Ahh, well, this migh change....
-PROG_NAME="trui"
+PROG_NAME="kmstrans2" #To not clash with earlier kmstrans??
 IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
@@ -104,7 +104,7 @@ else:
 
 
 
-VERSION="TRUI b1.1 (UI for TrLib demo)"
+VERSION="KMSTRANS v2.0"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -993,6 +993,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)		
 	def transformFile2File(self):
+		#clear the log#
+		self.txt_f2f_log.clear()
 		file_in=str(self.txt_f2f_input_file.text())
 		file_out=str(self.txt_f2f_output_file.text())
 		self.f2f_settings.is_started=False
@@ -1013,6 +1015,9 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			file_out=file_out[:-1]
 		mlb_in=str(self.cb_f2f_input_system.currentText())
 		mlb_out=str(self.cb_f2f_output_system.currentText())
+		#Just do this - in case it hasn't been done already!
+		self.onF2FSystemInChanged()
+		self.onF2FSystemOutChanged()
 		if len(mlb_out)==0:
 			self.message("Output system label must be specified!")
 			return
@@ -1104,7 +1109,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.txt_f2f_log.insertPlainText(text)
 		else:
 			self.txt_f2f_log.append(text)
-		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
 	
 	def log_f2f_StdOut(self,text):

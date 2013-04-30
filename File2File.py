@@ -258,20 +258,18 @@ class WorkerThread(threading.Thread):
 				self.post_method(1)
 				return
 			last_log=time.clock()
+			lastline=0 #hack to not send a lot of empty lines.... dont know where they come from... possibly a 'bug' in Report.c
 			while (not self.kill_flag.isSet()) and self.prc.poll() is None: #short circuit when kill flag isSet -> prc=None
-				#read input - consider using prc.communicate as this might deadlock due to other os processes
-				#but then again - its the only callback mechanism for reporting progress thats really available in this setup...
-				#time.sleep(0.1)
-				#now=time.clock()
-				#if (now-last_log)>2:
-				#	self.log_method(".") this will actually deadlock due to buffer overflow - perhaps flush???
-				#	last_log=now
+				
 				try:
 					line=self.prc.stdout.readline().rstrip()
 				except:
 					pass
 				else:
-					self.log_method(line)
+					nchars=len(line)
+					if nchars>0 or lastline>0:
+						self.log_method(line)
+						lastline=nchars
 			#process was killed
 			if (self.kill_flag.isSet()):
 				self.post_method(PROCESS_TERMINATED) #a special termination signal...
