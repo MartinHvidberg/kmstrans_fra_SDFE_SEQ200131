@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\GSTtrans.ui'
 #
-# Created: Tue Apr 30 11:35:39 2013
+# Created: Tue Apr 30 17:44:28 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -916,7 +916,7 @@ class Ui_GSTtrans(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(GSTtrans)
-        self.main_tab_host.setCurrentIndex(0)
+        self.main_tab_host.setCurrentIndex(1)
         QtCore.QObject.connect(self.actionStation_names_in_input, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.actionStation_names_in_output.setChecked)
         QtCore.QObject.connect(self.actionStation_names_in_input, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.actionStation_names_in_output.setEnabled)
         QtCore.QObject.connect(self.rdobt_f2f_ogr, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cb_f2f_ogr_driver.setEnabled)
@@ -994,7 +994,7 @@ class Ui_GSTtrans(object):
         self.tab_ogr.setWhatsThis(_translate("GSTtrans", "<html><head/><body><p>Perform transformations between various datasources here.</p></body></html>", None))
         self.groupBox_5.setToolTip(_translate("GSTtrans", "Select input \'driver\' here", None))
         self.groupBox_5.setWhatsThis(_translate("GSTtrans", "Select input driver here...", None))
-        self.groupBox_5.setTitle(_translate("GSTtrans", "Driver", None))
+        self.groupBox_5.setTitle(_translate("GSTtrans", "Driver / Format", None))
         self.rdobt_f2f_ogr.setText(_translate("GSTtrans", "OGR", None))
         self.rdobt_f2f_simple_text.setText(_translate("GSTtrans", "TEXT", None))
         self.rdobt_f2f_dsfl.setText(_translate("GSTtrans", "DSFL", None))
@@ -1067,7 +1067,7 @@ class Ui_GSTtrans(object):
         self.menuHelp.setTitle(_translate("GSTtrans", "Help", None))
         self.menuFile.setTitle(_translate("GSTtrans", "File", None))
         self.menuSettings.setTitle(_translate("GSTtrans", "Settings", None))
-        self.menuAngular_units.setTitle(_translate("GSTtrans", "Angular units (coordinates)", None))
+        self.menuAngular_units.setTitle(_translate("GSTtrans", "Units - geographic coordinates", None))
         self.menuAngular_units_derived_output.setTitle(_translate("GSTtrans", "Angular units (derived output)", None))
         self.actionNew_KMSTrans.setText(_translate("GSTtrans", "New window", None))
         self.actionAbout_KMSTrans.setText(_translate("GSTtrans", "About ", None))
@@ -1091,7 +1091,7 @@ class Ui_GSTtrans(object):
         self.actionRadians_derived.setText(_translate("GSTtrans", "radians", None))
         self.actionSx_derived.setText(_translate("GSTtrans", "sx: ddd mm ss.sss", None))
         self.actionNt_derived.setText(_translate("GSTtrans", "nt: ddd mm.mmmm", None))
-        self.actionFile2file_settings.setText(_translate("GSTtrans", "File2file settings", None))
+        self.actionFile2file_settings.setText(_translate("GSTtrans", "TEXT format settings", None))
 
 
 if __name__ == "__main__":
