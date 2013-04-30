@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Tue Apr 23 16:04:42 2013
+# Created: Tue Apr 30 17:45:32 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -172,8 +172,8 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
-        self.groupBox.setTitle(_translate("Dialog", "TextDriver", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format for text driver:  field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
+        self.groupBox.setTitle(_translate("Dialog", "Text Format", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
         self.label_2.setText(_translate("Dialog", "Column separators:", None))
         self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
         self.chb_tab.setText(_translate("Dialog", "Tab", None))
