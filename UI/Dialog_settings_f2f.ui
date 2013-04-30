@@ -17,13 +17,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>TextDriver</string>
+      <string>Text Format</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format for text driver:  field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Remember to click the 'Apply' button to apply changes!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format: field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Remember to click the 'Apply' button to apply changes!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>

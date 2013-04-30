@@ -562,7 +562,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="main_tab_host">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
@@ -1414,7 +1414,7 @@
            <string>Select input driver here...</string>
           </property>
           <property name="title">
-           <string>Driver</string>
+           <string>Driver / Format</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -2179,7 +2179,7 @@
     </property>
     <widget class="QMenu" name="menuAngular_units">
      <property name="title">
-      <string>Angular units (coordinates)</string>
+      <string>Units - geographic coordinates</string>
      </property>
      <addaction name="actionDegrees"/>
      <addaction name="actionRadians"/>
@@ -2363,7 +2363,7 @@
   </action>
   <action name="actionFile2file_settings">
    <property name="text">
-    <string>File2file settings</string>
+    <string>TEXT format settings</string>
    </property>
   </action>
  </widget>
