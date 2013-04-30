@@ -93,7 +93,8 @@ class PythonWidget(WidgetBase,Ui_tab_python):
 		if cmd.lower()=="clear":
 			self.txt_python_out.clear()
 		elif cmd.lower()=="help":
-			self.onHelp_local()
+			self.log_python("Opening help pages...")
+			self.parent.onHelp_local()
 		elif cmd.lower().replace(" ","")=="help()":
 			self.log_python("Interactive python help is not available in this mode...",color="red")
 		elif cmd.lower()=="example":
@@ -105,7 +106,9 @@ class PythonWidget(WidgetBase,Ui_tab_python):
 					self.clearPythonIn()
 				else:
 					self.log_python("** Python code successfully executed **")
-		
+			return
+		#Clear input in all cases - Except possibly the case right abo
+		self.clearPythonIn() 
 	def clearPythonIn(self):
 		self.txt_python_in.clear()
 		if HAS_QSCI:
