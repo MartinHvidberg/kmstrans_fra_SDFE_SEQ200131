@@ -398,7 +398,7 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		self.chb_show_scale.clicked.connect(self.onShowScale)
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
 		self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
-		self.chb_f2f_label_in_file.toggled.connect(self.setF2FinputSystemState)
+		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
 		self.actionExit.triggered.connect(self.onExit)
@@ -986,21 +986,17 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		text=File2File.ListFormats()
 		self.log_f2f(text,"blue")
 	def onF2FSystemInChanged(self):
-		mlb_in=str(self.cb_f2f_input_system.currentText())
-		text=TrLib.DescribeLabel(mlb_in)
-		self.lbl_f2f_input_info.setText("Input system info: %s" %text)
+		if self.chb_f2f_label_in_file.isChecked():
+			self.lbl_f2f_input_info.setText("Input system info: metadata in source")
+		else:
+			mlb_in=str(self.cb_f2f_input_system.currentText())
+			text=TrLib.DescribeLabel(mlb_in)
+			self.lbl_f2f_input_info.setText("Input system info: %s" %text)
 	def onF2FSystemOutChanged(self):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
 		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)
-	def setF2FinputSystemState(self):
-		if self.chb_f2f_label_in_file.isChecked():
-			self.lbl_f2f_input_info.setText("Input system info: metadata in source - see log.")
-		else:
-			self.onF2FSystemInChanged()
 	def transformFile2File(self):
-		#clear the log#
-		self.txt_f2f_log.clear()
 		file_in=str(self.txt_f2f_input_file.text())
 		file_out=str(self.txt_f2f_output_file.text())
 		self.f2f_settings.is_started=False
@@ -1027,6 +1023,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		if len(mlb_out)==0:
 			self.message("Output system label must be specified!")
 			return
+		#clear the log#
+		self.txt_f2f_log.clear()
 		if self.rdobt_f2f_ogr.isChecked():
 			drv=str(self.cb_f2f_ogr_driver.currentText())
 			self.f2f_settings.format_out=drv
