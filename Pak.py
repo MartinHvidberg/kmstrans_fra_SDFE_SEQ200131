@@ -25,9 +25,6 @@ try:
 	shutil.copytree("doc","dist\\doc")
 except:
 	print("Could not copy documentation")
-try:
-	os.rename("dist","TRUI")
-except:
-	pass
-
+os.rename("dist\\Trui.exe","KMSTrans2.exe")
+os.rename("dist","KMSTRANS2")
 sys.exit()
