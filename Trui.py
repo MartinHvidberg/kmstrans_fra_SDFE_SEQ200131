@@ -993,6 +993,8 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)		
 	def transformFile2File(self):
+		#clear the log#
+		self.txt_f2f_log.clear()
 		file_in=str(self.txt_f2f_input_file.text())
 		file_out=str(self.txt_f2f_output_file.text())
 		self.f2f_settings.is_started=False
@@ -1013,6 +1015,9 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			file_out=file_out[:-1]
 		mlb_in=str(self.cb_f2f_input_system.currentText())
 		mlb_out=str(self.cb_f2f_output_system.currentText())
+		#Just do this - in case it hasn't been done already!
+		self.onF2FSystemInChanged()
+		self.onF2FSystemOutChanged()
 		if len(mlb_out)==0:
 			self.message("Output system label must be specified!")
 			return
@@ -1104,7 +1109,6 @@ class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
 			self.txt_f2f_log.insertPlainText(text)
 		else:
 			self.txt_f2f_log.append(text)
-		self.txt_f2f_log.repaint()
 		self.txt_f2f_log.ensureCursorVisible()
 	
 	def log_f2f_StdOut(self,text):

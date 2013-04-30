@@ -44,7 +44,7 @@ OGR_LONG_TO_SHORT={
 "KML":["KML","",""],
 "LIBKML":["LIBKML","",""],
 "Mapinfo File":["MapInfo File","",""], 	 	 	
-"Microstation dgn [v.7)":["DGN","",""],	
+"Microstation dgn (v.7)":["DGN","",""],	
 "Access MDB":["MDB","",""],
 "Memory":["Memory","",""], 	 	 	
 "MySQL":["MySQL","",""], 
