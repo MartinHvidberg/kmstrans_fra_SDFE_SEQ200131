@@ -27,38 +27,32 @@
 #include "ogrTRogr.h"
 #include "Report.h"
 #define MAX_LAYERS (1000)
-
-#ifdef DLL_EXPORT
-#undef DLL_EXPORT
-#ifdef _WIN32
-#define DLL_EXPORT __declspec( dllexport )
-#else
-#define DLL_EXPORT
-#endif
-#else
-#define DLL_EXPORT
+#ifndef S_ISDIR
+# define S_ISDIR(ST_MODE) (((ST_MODE) & _S_IFMT) == _S_IFDIR)
 #endif
 
 static void ParseFileGDBLayerPath(OGRDataSourceH hDS, const char *layer_name, char *path);
 
 void CPL_STDCALL TR_OGR_ErrorHandler(CPLErr err, int err_no, const char *msg){
-	Report( (int) err, err_no, VERB_HIGH, msg);
+	char buf[512]="gdal: ";
+	strncat(buf,msg,504);
+	Report( (int) err, err_no, VERB_HIGH, buf);
 }
 
-DLL_EXPORT void RedirectOGRErrors(){
+ void RedirectOGRErrors(){
 	CPLSetErrorHandler((CPLErrorHandler) TR_OGR_ErrorHandler);
 }
 
 
 
-DLL_EXPORT const char* GetGDALVersion(){
+ const char* GetGDALVersion(){
 	return GDALVersionInfo("RELEASE_NAME");
 }
 
 
 
 /*Call with reset=TRUE first - then call consequentially until NULL is returned*/
-DLL_EXPORT const char *GetOGRDrivers(int reset, int is_output){
+ const char *GetOGRDrivers(int reset, int is_output){
 	static int current_driver=0;
 	static int ndrivers=0;
 	OGRSFDriverH poDriver;
@@ -115,7 +109,7 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 			sprintf(buf,"EPSG:%s",p);
 			ok=TR_ImportLabel(buf,mlb,buf_len);
 			if (ok==TR_OK){
-				/*Report(REP_INFO,0,VERB_LOW,"EPSG");*/
+				Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from EPSG definition");
 				return TR_OK;
 			}
 		}
@@ -125,7 +119,7 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 		 Report(REP_INFO,0,VERB_LOW,p);
 		 ok=TR_ImportLabel(p,mlb,buf_len);
 		 if (ok==TR_OK){
-			 /*Report(REP_INFO,0,VERB_LOW,"Proj4");*/
+			 Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from Proj4 definition (ignore previous errors).");
 			 return TR_OK;
 		 }
 	 }
@@ -134,14 +128,14 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 	 if (err==OGRERR_NONE){
 		 ok=TR_ImportLabel(p,mlb,buf_len);
 		 if (ok==TR_OK){
-			 /*Report(REP_INFO,0,VERB_LOW,"WKT");*/
+			 Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from WKT definition (ignore previous errors).");
 			 return TR_OK;
 		 }
 	 }
 	 return TR_LABEL_ERROR;
  }
 	
- DLL_EXPORT OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num){
+  OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num){
 	 OGRLayerH hLayer=NULL;
 	 if (layer_num<0)
 		 layer_num=0;
@@ -152,24 +146,24 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 }
 
 
- DLL_EXPORT const char *GetLayerName(OGRLayerH hLayer){
+  const char *GetLayerName(OGRLayerH hLayer){
 	return OGR_L_GetName(hLayer);
 }
 
- DLL_EXPORT int GetLayerCount(OGRDataSourceH hDSin){
+  int GetLayerCount(OGRDataSourceH hDSin){
 	return OGR_DS_GetLayerCount(hDSin);
 }
 
 
 
-DLL_EXPORT OGRDataSourceH Open(char *inname){
+ OGRDataSourceH Open(char *inname){
 	 OGRDataSourceH hDSin;
 	 OGRRegisterAll();
 	 hDSin = OGROpen(inname, FALSE, NULL );
 	 return hDSin;
  }
 	 
-DLL_EXPORT void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
+ void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int np){
 	int i;
 	double x,y,z;
 	for (i=0;i<np;i++){
@@ -183,7 +177,7 @@ DLL_EXPORT void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int n
 		
 	
 
- DLL_EXPORT OGRGeometryH GetNextGeometry(OGRLayerH hLayer, int *point_count){
+  OGRGeometryH GetNextGeometry(OGRLayerH hLayer, int *point_count){
 	OGRGeometryH hGeometry;
 	OGRFeatureH hFeature;
 	hFeature = OGR_L_GetNextFeature(hLayer);
@@ -195,7 +189,7 @@ DLL_EXPORT void GetCoords(OGRGeometryH hGeom,double *x_out, double *y_out, int n
 	return hGeometry;
 }
 
-DLL_EXPORT void Close(OGRDataSourceH hDSin){
+ void Close(OGRDataSourceH hDSin){
 	OGR_DS_Destroy( hDSin );
 }
 	
@@ -239,7 +233,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	}
 }
 
-DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection, char **dscos, char **lcos){
+ int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection, char **dscos, char **lcos){
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
 	OGRSFDriverH hDriver_in, hDriver_out;
@@ -272,15 +266,25 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 	}
 	
 	/* create output ds - fixup logic here for things like databases - I guess a CreateDatasource should work also for a db layer??*/
-	if (!stat(outname, &buf))
+	/* The logic is now: if output datasource exists- if is a directory update else delete/overwrite,*/ 
+	if (!stat(outname, &buf)){
+		if (S_ISDIR(buf.st_mode))
 		{
 			/*err=OGR_Dr_DeleteDataSource(hDriver,outname);*/
 			is_update=1;
 			hDSout=OGR_Dr_Open(hDriver_out,outname,TRUE);
 		}
+		else{
+		      err= OGR_Dr_DeleteDataSource(hDriver_out, outname);
+		      hDSout=OGR_Dr_CreateDataSource( hDriver_out, outname, dscos);
+		      if (err!=OGRERR_NONE && hDSout==NULL)
+			      Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to overwrite output datasource!");
+		}
+		
+	}
 	else
 		hDSout = OGR_Dr_CreateDataSource( hDriver_out, outname, dscos);
-	
+        
 	if( hDSout == NULL )
 	{
 		OGR_DS_Destroy( hDSin );
@@ -379,7 +383,7 @@ DLL_EXPORT int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out,
 
 int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad){
 	double x,y,z,xo,yo,zo;
-	int i,np,tr_err,ERR=TR_OK;
+	int i,np,tr_err,ERR=TR_OK,log_geoids=0;
 	char geoid_name[64];
 	/*OGRErr err;*/
 	const double d2r=D2R;
@@ -389,6 +393,8 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 	int ngeom=OGR_G_GetGeometryCount(hGeometry);
 	int is_poly=(g_dim>1 && ngeom>0);
 	OGRGeometryH hGeometry2;
+	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
+	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 	while (--ngeom>=0 || (!is_poly)){
 		if (is_poly)
 			hGeometry2=OGR_G_GetGeometryRef(hGeometry,ngeom);
@@ -413,7 +419,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 		else{
 			(*n_ok)++;
 		}
-		if (HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)){
+		if (log_geoids){
 			TR_GetGeoidName(trf,geoid_name);
 			AppendGeoid(geoid_name);
 		}

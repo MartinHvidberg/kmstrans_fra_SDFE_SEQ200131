@@ -29,7 +29,7 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.01 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.02 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -66,8 +66,9 @@ void Usage(int help){
 		printf("Use %s --help to print extra info.\n",PROG_NAME);
 	else{
 		printf("For the 'TEXT' driver special filenames 'stdin' and 'stdout' are available.\n");
-		printf("For OGR-datasources:\nIf destination datasource <fname_out> exists, the datasource will be opened for update -\n");
+		printf("For OGR-datasources:\nIf destination datasource <fname_out> exists AND is a directory, the datasource will be opened for update -\n");
 		printf("and the program will try to CREATE new layers corresponding to layers in input.\n");
+		printf("In all other cases the default is to overwrite existing output files.\n");
 	}
 	return;
 }
@@ -77,7 +78,7 @@ void ListFormats(void){
 	char stars[]="********************************************";
 	char *drv_in;
 	const char *frmt;
-	int i=0,n_drv;
+	int i=0;
 	fprintf(stdout,"%s\nInput drivers:\n%s\n",stars,stars);
 	while ((drv_in=INPUT_DRIVERS[i++]))
 		fprintf(stdout,"%s\n",drv_in);
@@ -391,7 +392,7 @@ int main(int argc, char *argv[])
     struct stat buf;
     int f_err=stat(outname, &buf);
     if (!f_err && strcmp(outname,"stdout"))
-	    Report(REP_INFO,0,VERB_LOW,"%s exists and will be updated!",outname);
+	    Report(REP_INFO,0,VERB_LOW,"%s exists and will be updated / overwritten!",outname);
     }
     /* disptach according to driver */
     
