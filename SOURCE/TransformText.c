@@ -58,7 +58,7 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
     FILE *f_in, *f_out;
     int ERR = 0,is_geo_in=0,is_geo_out=0;
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
-    int look_for_label;
+    int look_for_label,log_geoids=0;
     int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
     int coord_order[3]={0,1,2};
     enum {BUFSIZE = 4096};
@@ -149,6 +149,9 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 		   col_z=max_col+1;
 		   
 	    }
+	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
+	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
+	
     }
     
     if (!is_stdin)
@@ -214,6 +217,8 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 					printf("in: %d, out: %d\n",IS_3D(trf->proj_in),IS_3D(trf->proj_out));
 					*/
 				} /*end kms-format*/
+				log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
+				log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 				coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
 				 if (IS_3D(trf->proj_in) && col_z<0){
 					Report(REP_WARNING,0,VERB_LOW,"Warning: input projection is 3 dimensional- but z column is not specified.");
@@ -373,7 +378,8 @@ int TransformText(char *inname, char *outname,TR *trf, char *sep_char, int col_x
 	if (err==TR_OK){
 		n_trans_ok++;
 		/*perhaps do this in all cases?*/
-		if (HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)){
+		
+		if (log_geoids){
 			TR_GetGeoidName(trf,geoid_name);
 			AppendGeoid(geoid_name);
 		}

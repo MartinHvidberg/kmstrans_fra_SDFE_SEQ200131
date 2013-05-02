@@ -5,16 +5,7 @@
 #define LEN_GEOID_LIST (1024)
 #define MAX_GEOIDS     (18)
 
-#ifdef DLL_EXPORT
-#undef DLL_EXPORT
-#ifdef _WIN32
-#define DLL_EXPORT __declspec( dllexport )
-#else
-#define DLL_EXPORT
-#endif
-#else
-#define DLL_EXPORT
-#endif
+
 
 static int (*CALL_BACK)(int, int, const char*) =NULL ;
 static  int N_LOGGED=0;
@@ -45,7 +36,7 @@ static unsigned long hash(const char *str)
 This is controlled via the verbosity parameter...
 */
 
-DLL_EXPORT void Report(int class_code, int err_no, int verbosity, const char *frmt, ...){
+ void Report(int class_code, int err_no, int verbosity, const char *frmt, ...){
 	char msg[512];
 	int written_now=0;
 	va_list ap;
@@ -70,11 +61,11 @@ DLL_EXPORT void Report(int class_code, int err_no, int verbosity, const char *fr
 	
 }
 
-DLL_EXPORT void SetCallBack( int (*func)(int, int , const char*) ){
+ void SetCallBack( int (*func)(int, int , const char*) ){
 	CALL_BACK=func;
 }
 
-DLL_EXPORT void InitialiseReport(){
+ void InitialiseReport(){
 	N_GEOIDS=0;
 	GEOID_LIST[0]='\0';
 	N_CHARS_GEOID_LIST=0;
@@ -83,22 +74,22 @@ DLL_EXPORT void InitialiseReport(){
 	N_ERRS=0;
 }
 
-DLL_EXPORT void TerminateReport(){
+ void TerminateReport(){
 	if (log_file!=NULL){
 		fclose(log_file);
 		log_file=NULL;
 	}
 }
 
-DLL_EXPORT void SetLogFile(FILE *fp){
+ void SetLogFile(FILE *fp){
 	log_file=fp;
 }
 
-DLL_EXPORT int  GetErrors(){
+ int  GetErrors(){
 	return N_ERRS;
 }
 
-DLL_EXPORT void AppendGeoid(const char *geoid_name){
+ void AppendGeoid(const char *geoid_name){
 	int i,n;
 	unsigned long h;
 	if (N_GEOIDS==MAX_GEOIDS)
@@ -132,7 +123,7 @@ DLL_EXPORT void AppendGeoid(const char *geoid_name){
 	return;
 }
 
-DLL_EXPORT void LogGeoids(){
+ void LogGeoids(){
 	if (N_GEOIDS>0){
 		Report(REP_INFO,0,VERB_LOW,"\nGeoids used:");
 		Report(REP_INFO,0,VERB_LOW,GEOID_LIST);
