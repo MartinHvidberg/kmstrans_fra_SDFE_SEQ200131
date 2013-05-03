@@ -8,7 +8,7 @@ sys.argv.append("py2exe")
 extra_files=["icon.png","LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
-excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx"]
+excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx","numpy"]
 setup(   options = {'py2exe': {'excludes': excludes, 'includes':['encodings','sip']}},
 windows=[{"script" : "Trui.py"}],
 data_files=[("",extra_files),("bin",BIN),("coast",COAST),])
@@ -25,6 +25,6 @@ try:
 	shutil.copytree("doc","dist\\doc")
 except:
 	print("Could not copy documentation")
-os.rename("dist\\Trui.exe","KMSTrans2.exe")
+os.rename("dist\\Trui.exe","dist\\KMSTrans2.exe")
 os.rename("dist","KMSTRANS2")
 sys.exit()
