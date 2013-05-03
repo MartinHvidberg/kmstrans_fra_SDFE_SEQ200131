@@ -20,7 +20,7 @@
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
-from Main_gui import Ui_GSTtrans
+from Main_gui import Ui_Trui
 from BesselHelmert import BshlmWidget
 from PythonConsole import PythonWidget
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
@@ -375,7 +375,7 @@ class RedirectOutput(object):
 
 	
 
-class GSTtrans(QtGui.QMainWindow,Ui_GSTtrans):
+class TRUI(QtGui.QMainWindow,Ui_Trui):
 	def __init__(self,parent=None):
 		QtGui.QMainWindow.__init__(self,parent) 
 		self.setupUi(self)
@@ -1243,7 +1243,7 @@ if __name__=="__main__":
 	 global app
 	 global MainWindow
 	 app = QtGui.QApplication(sys.argv)
-	 MainWindow = GSTtrans()
+	 MainWindow = TRUI()
 	 sys.exit(app.exec_())
 	
 	

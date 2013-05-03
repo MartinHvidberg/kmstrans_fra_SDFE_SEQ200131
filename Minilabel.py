@@ -10,6 +10,7 @@ from TrLib import SplitMLB,GetParameters,DescribeProjection,LabelException
 #DEFAULT FIELD LABELING MECHANISM - moved from TrLib_constants to correct a regression...#
 GEO_LABELS=["Longitude:","Latitude:","H:"]
 PROJ_LABELS=["Easting:","Northing:","H:"]
+S34_LABELS=["X:","Y:","H:"]
 CRT_LABELS=["X:","Y:","Z:"]
 def GetSystemLabels(mlb): 
 	try:
@@ -20,6 +21,8 @@ def GetSystemLabels(mlb):
 		return GEO_LABELS
 	if proj=="crt":
 		return CRT_LABELS
+	if proj in ["s34j","s34s","s34b"]:
+		return S34_LABELS
 	return PROJ_LABELS
 
 

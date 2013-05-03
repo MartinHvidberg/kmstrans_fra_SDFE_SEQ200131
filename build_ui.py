@@ -1,28 +1,17 @@
 #!/usr/bin/python
 import os,sys
 os.chdir(os.path.dirname(__file__))
+uis={"Trui.ui":"Main_gui.py",
+"Dialog_settings_f2f.ui":"Dialog_settings_f2f.py",
+"Dialog_layer_selector.ui":"Dialog_layer_selector.py",
+"Tab_bshlm.ui":"Tab_bshlm.py",
+"Tab_python.ui":"Tab_python.py",
+"Dialog_creation_options.ui":"Dialog_creation_options.py"}
 print("Building UIs...")
-cmd="pyuic4 -o Main_gui.py -x %s" %(os.path.join("UI","GSTtrans.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
-cmd="pyuic4 -o Dialog_settings_f2f.py %s" %(os.path.join("UI","Dialog_settings_f2f.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
-cmd="pyuic4 -o Dialog_layer_selector.py %s" %(os.path.join("UI","Dialog_layer_selector.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
-cmd="pyuic4 -o Tab_bshlm.py %s" %(os.path.join("UI","Tab_bshlm.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
-cmd="pyuic4 -o Tab_python.py %s" %(os.path.join("UI","Tab_python.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
-cmd="pyuic4 -o Dialog_creation_options.py %s" %(os.path.join("UI","Dialog_creation_options.ui"))
-print cmd
-rc=os.system(cmd)
-print("Return code: %d" %rc)
+for ui in uis:
+	cmd="pyuic4 -o %s %s" %(uis[ui],os.path.join("UI",ui))
+	print cmd
+	rc=os.system(cmd)
+	print("Return code: %d" %rc)
+	
+

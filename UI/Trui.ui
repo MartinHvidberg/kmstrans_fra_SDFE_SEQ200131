@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Simon and Jakob</author>
- <class>GSTtrans</class>
- <widget class="QMainWindow" name="GSTtrans">
+ <class>Trui</class>
+ <widget class="QMainWindow" name="Trui">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -442,7 +442,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>GSTtrans</string>
+   <string>TRUI</string>
   </property>
   <property name="windowIcon">
    <iconset>
