@@ -76,6 +76,9 @@ DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
 #SET UP ENVIRONMENT#
+if IS_WINDOWS: #gdal and binaries built with same compiler - make sure the runtime stuff is findable
+	env=os.environ["PATH"]
+	os.environ["PATH"]=BIN_PREFIX+os.pathsep+env
 #Set up local GDAL env#
 IS_LOCAL_GDAL=False
 if (os.path.exists(GDAL_PREFIX)) and (not OVERRIDE_LOCAL_GDAL) and IS_WINDOWS:
@@ -104,7 +107,7 @@ else:
 
 
 
-VERSION="KMSTRANS v2.0"
+VERSION="KmsTrans2 v2.0"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
