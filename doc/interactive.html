@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-    <meta content="text/html; charset=ISO-8859-1"
+    <meta content="text/html; charset=windows-1252"
       http-equiv="Content-Type">
     <title>interactive</title>
   </head>
@@ -9,13 +9,15 @@
     <h1>Interactive Tab<br>
     </h1>
     In the interactive tab you can perform transformation of single
-    points and view output like scale and meridian convergence of the
-    output system.<br>
+    points and view information like scale and meridian convergence of
+    the output system.<br>
     Spatial reference systems are specified as so called mini labels,
     see a description of the syntax <a href="mini_labels.html">here.</a><br>
     You can either select predefined systems from the drop down lists or
-    type in mini labels yourself in the text fields. Hitting enter in
-    the input or output system fields triggers a new transformation.<br>
+    type in mini labels yourself in the text fields for input and output
+    systems. Hitting enter in the input or output system fields will
+    trigger a new transformation.<br>
+    <br>
     <br>
     <a href="index.html">Back to the main help page</a><br>
     <br>
@@ -33,20 +35,22 @@
     <hr size="2" width="100%">
     <h2><a name="Units_"></a>Units<br>
     </h2>
-    You can specify units at the end of coordinates, if you like.
-    Generally units are in meters (m), except for geographic systems
-    where angular input/output can be:<br>
+    You can specify units at the end of coordinates, if you like, but
+    this is not necessary. Generally units are in meters (m), except for
+    geographic systems where the angular units for coordinates can be:<br>
     <ul>
-      <li>&nbsp;degrees (dg).</li>
-      <li>&nbsp;radians (rad).</li>
-      <li>&nbsp;nautical units (nt), ddd mm.mmmm <br>
+      <li>&nbsp;degrees (dg) ddd.ddddd...<br>
       </li>
-      <li>&nbsp;sexagesimal format (sx),&nbsp; ddd&nbsp; mm ss.ssss <br>
+      <li>&nbsp;radians (rad) r.rrrrrrrrr...<br>
+      </li>
+      <li>&nbsp;nautical units (nt), ddd mm.mmmmmm <br>
+      </li>
+      <li>&nbsp;sexagesimal format (sx),&nbsp; ddd&nbsp; mm ss.sssss<br>
       </li>
     </ul>
-    You can specify the units to use for geographic coordinate systems
-    and derived angular output (like meridian convergence) in the
-    'Settings' menu item. <br>
+    You can specify the units to use for geographic systems and derived
+    angular output (meridian convergence, azimuth) in the 'Settings'
+    menu item. <br>
     <br>
     <img alt="" src="images/Units.png" height="344" width="852"><br>
     <br>
@@ -55,25 +59,34 @@
       transformation</h2>
     <p>To trigger a new transformation, hit enter in either an input
       coordinate field, input or output system fields or simply by
-      changing input or output system from the drop down list.</p>
-    <p>Changing the input system will not automatically trigger a
-      transformation of the coordinates in the input field (as it was
-      the case in the 'old' KMStrans).<br>
+      changing input or output system from the drop down list.<br>
+      A transformation can also be triggered by pressing the 'Transform'
+      button below the output fields.<br>
+      Changing the input system will not automatically alter the
+      coordinates<b> in the input fields</b> (as in the 'old' KMSTrans)
+      - instead this triggers a transformation of what is already in the
+      input fields, as when the output system is changed. If you want to
+      change the input system and also have the input coordinates
+      transformed/updated, use the 'swap input/output' button.<br>
     </p>
+    <br>
     <hr size="2" width="100%">
     <h2><a name="Regions"></a>Regions</h2>
-    <p>Changing the region will only have an effect on the predefined
-      systems in the input and output system combo boxes - that is the
-      only effect. You will still be able to use any system you like by
-      typing in the combo box, e.g. a danish projection like dkmt1 when
-      using the 'World' region.<br>
+    <p>Changing the region will have an effect on the predefined systems
+      in the input and output system drop down lists, where systems
+      relevant for the selected region are listed. You will still,
+      however, be able to use any system you like by typing in the text
+      fields. For example a Danish projection like dkmt1 can be selected
+      by typing the mini label when using the 'World' region.<br>
+      <br>
     </p>
     <hr size="2" width="100%">
     <h2><a name="Message_Box"></a>Message Box</h2>
-    <p>Error messages and various extra information will appear in the
-      output box in the lower left corner of the window. For example if
-      a transformation produces an error or warning the output should
-      appear here.</p>
+    <p>Error messages and various extra information from the
+      transformation will appear in the message box in the lower right
+      corner of the window. For example if a transformation produces an
+      error or warning it will be displayed in the message box.<br>
+    </p>
     <p><img alt="" src="images/Outputbox.png" height="457" width="881"><br>
     </p>
     <p><br>

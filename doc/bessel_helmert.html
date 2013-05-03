@@ -3,58 +3,54 @@
   <head>
     <meta content="text/html; charset=ISO-8859-1"
       http-equiv="Content-Type">
-    <title>Bessel Helmert Tab</title>
+    <title>Bessel Helmert tab</title>
   </head>
   <body>
-    <h1>Bessel Helmert Tab<br>
-    </h1>
-    The Bessel-Helmert formulas are used to calculate distances and
-    directions on the ellipsoid. <br>
-    <br>
+    <h1>Bessel Helmert Tab</h1>
+    In the Bessel-Helmert Tab you can calculate distances and directions
+    on the ellipsoid. <br>
     <h2>Geodesics and Azimuths</h2>
     Ellipsoidal geometry is used. In this geometry "straight lines" are
     the geodetic lines/geodesics, i.e. the shortest line from one point
     to another on the ellipsoid. Thus, 'angle' refers to angles between
     crossing geodesics and 'direction' to the directions of geodesics
     (see below).<br>
-    From each point (except the north pole) on the ellipsoid the
+    <br>
+    From each point&nbsp; on the ellipsoid (except the north pole), the
     geodesic to the north pole is used as reference for other geodesics
     passing through that point: The direction of a geodesic in a point
-    is called an <b>azimuth</b> and is measured as the angle between
-    the reference direction (towards north) and the geodesic. <br>
+    is called an azimuth and is measured as the angle between the
+    reference direction (towards north) and the geodesic. <br>
     <br>
     When two points (Stn1 and Stn2) on the ellipsoid are connected by a
     geodesic, the azimuths of the geodesic connecting the points are
     called the "Forward" and the "Backward" azimuth respectively. The
     forward azimuth is measured in Stn1 as the azimuth towards Stn2. The
-    backward azimuth is the azimuth of the geodesic towards Stn1.<br>
-    <br>
-    <h2>Modes</h2>
+    backward azimuth is the azimuth of the geodesic from Stn 2 towards
+    Stn1.<br>
+    Calculation Mode<br>
     For a setup of two points connected by a geodesic, you can use this
-    widget to calculate unknown elements from given (elements).<br>
-    The dialogue has two modes, each corresponding to the calculation
-    type:<br>
+    widget to calculate unknown elements from given elements.<br>
+    The Bessel Helmert calculation has two modes, each corresponding to
+    the calculation type:<br>
     <ol>
-      <li>Based on coordinates to two points, calculate the ellipsoidal
-        distance between the points and the forward and backward
-        azimuths.</li>
-      <li>From distance and direction (forward azimuth) from one
-        coordinated point, calculate the coordinates of the other point.
-        <br>
+      <li>Based on coordinates for two points, calculate the ellipsoidal
+        distance (the length of the geodesic) between the points and
+        calculate the forward and backward azimuths.</li>
+      <li>From distance and forward azimuth from one coordinated point,
+        calculate the coordinates of the other point. <br>
       </li>
     </ol>
-    Radio buttons in the lower left corner are used to toggle the mode
+    Buttons in the lower left corner are used to toggle the mode
     selection.<br>
-    <br>
     <h2>Coordinate systems</h2>
-    In both modes, you have to select the input system which the
-    coordinates of the two stations refer to - ellipsoid parameters are
-    taken from this system. The geometric calculations (distance and
-    azimuth) will be performed on the corresponding ellipsoid. <br>
-    It is also possible to define a custom ellipsoid by specifying major
-    axis and flattening. The coordinate system will always be geographic
-    in this case.<br>
-    <br>
+    In both modes, you must select the input system for the coordinates
+    of the two stations - ellipsoid parameters are taken from this
+    system. The geometric calculations (distance and azimuth) will be
+    performed on the corresponding ellipsoid. <br>
+    It is also possible to define a custom ellipsoid by specifying
+    semi-major axis and inverse flattening. The coordinate system will
+    always be geographic in this case.<br>
     <br>
   </body>
 </html>
