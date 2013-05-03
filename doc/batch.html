@@ -1,7 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-    <meta content="text/html; charset=ISO-8859-1"
+    <meta content="text/html; charset=windows-1252"
       http-equiv="Content-Type">
     <title>Batch tab</title>
   </head>
@@ -23,12 +23,12 @@
     <h2>Formats </h2>
     KMSTrans2 uses the following data formats:<br>
     <ul>
-      <li>OGR &#8211; A library of vector data formats compiled by the Open
+      <li>OGR – A library of vector data formats compiled by the Open
         Source Geospatial Foundation to be used with GDAL</li>
-      <li>Text &#8211; Simple text format which can be modified</li>
-      <li>DSFL &#8211; Format developed for exchange of data by Dansk Selskab
-        for Fotogrammetri og Landm&aring;ling (now GeoForum)</li>
-      <li>KMSformat &#8211; Internal data format from Kort &amp;
+      <li>Text – Simple text format which can be modified</li>
+      <li>DSFL – Format developed for exchange of data by Dansk Selskab
+        for Fotogrammetri og Landmåling (now GeoForum)</li>
+      <li>KMSformat – Internal data format from Kort &amp;
         Matrikelstyrelsen (now Geodatastyrelsen)<br>
       </li>
     </ul>
@@ -49,7 +49,9 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       &nbsp;<br>
       Refer to the list of <a
         href="http://www.gdal.org/ogr/ogr_formats.html">OGR formats</a>
-      for more details.<br>
+      for more details. <br>
+      <br>
+      <br>
     </blockquote>
     <ul>
       <li>&nbsp;TEXT - simple column based text format with one point on
@@ -59,8 +61,8 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     <blockquote>When pressing the Open Text settings button, the
       File2File settings appear. Here the column separators must be set
       and the sequence of coordinates in the input file must be
-      provided. If the input file contains height information, the &#8220;Has
-      z&#8221; box is checked. <br>
+      provided. If the input file contains height information, the “Has
+      z” box is checked. <br>
       The File2file settings dialog can also be opened via Settings in
       the top menu bar. <br>
       Examples of valid formats for coordinate lines are:<br>
@@ -94,7 +96,11 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
         KMS/GST. </li>
     </ul>
     <blockquote>Column separator is *always* at least two spaces and
-      coordinates must have units. <br>
+      coordinates must have units. The implementation in KMSTrans2 is
+      (still) a 'thin' version of the KMSformat - the region prefix
+      of&nbsp; a coordinate MiniLabel does not infer special parsing /
+      writing of station names. <br>
+      <br>
       A line with coordinates could look like: <br>
       <br>
       BUDD&nbsp;&nbsp; 6 143 200.5 m&nbsp; 512 200.12 m&nbsp; ...other
@@ -109,12 +115,16 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       optional Z-value - depending on the system&gt; &lt;two_spaces&gt;
       &lt;extra_attributes&gt;<br>
       <br>
-      The order of the coordinates, e.g. X,Y (,Z) or Y,X (,Z) depends on
-      the input system.<br>
+      The <b>order</b> of the coordinates, e.g. X,Y (,Z) or Y,X (,Z)
+      depends on the input system, but generally the KMSformat expects
+      planar coordinates in the order N,E (Northing, Easting).<br>
+      See the<a href="mini_labels.html"> MiniLabels page</a> for more
+      details!<br>
     </blockquote>
     <blockquote>The input system is specified like for the TEXT-format
       using mini labels as for instance:&nbsp; #utm32_etrs89<br>
-      <b>NOTE</b>:&nbsp; with the eralier KMStrans software,
+      <b><br>
+        NOTE</b>:&nbsp; with the eralier KMStrans software,
       modifications to the KMS format was possible. This is not possible
       with KMSTrans2. Files which could be read by KMStrans can
       therefore not always be read by KMSTrans2, if for instance units,
@@ -132,10 +142,26 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     </blockquote>
     <br>
     <hr size="2" width="100%">
+    <h2>Updating / overwriting:</h2>
+    <b> <br>
+    </b>For output OGR datasources the behaviour of the program (trogr)
+    is to try to <b>update</b> a datasource if it is an existing <b>directory</b>
+    in the file system and <b>create </b>new layers corresponding to
+    layers in the input datasource. If the output datasource is an
+    existing file, which is <b>not</b> a directory, trogr will try to
+    delete the existing datasource and create a new one (i.e.
+    overwrite).<br>
+    For the other, textual, formats TEXT, KMSformat and DSFL, the
+    behaviour is always to overwrite an existing file by the same name
+    as the output file.
+    <blockquote> <br>
+    </blockquote>
+    <br>
+    <hr size="2" width="100%">
     <h2>Coordinate sequence </h2>
     <br>
     When working with the TEXT format in&nbsp; KMSTrans2, it is
-    important to note how the program reads x, y and z coordinates. The
+    important to know how the program reads x, y and z coordinates. The
     following table contains examples of coordinate designation for the
     most common systems used in Denmark.<br>
     <br>
@@ -143,10 +169,10 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       <tbody>
         <tr>
           <td valign="top">System</td>
-          <td valign="top">&nbsp;X coordinate/colum <br>
+          <td valign="top">&nbsp;X coordinate/column <br>
           </td>
-          <td valign="top">Y coordinate/colum</td>
-          <td valign="top">Z coordinate/colum</td>
+          <td valign="top">Y coordinate/column</td>
+          <td valign="top">Z coordinate/column</td>
         </tr>
         <tr>
           <td valign="top">DKTM</td>
