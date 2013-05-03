@@ -22,13 +22,13 @@ IS_WINDOWS=sys.platform.startswith("win")
 #LIBRARYNAMES
 #PATH TO TRLIB, OGRLIB#
 if IS_WINDOWS:
-	TRLIB="TrLib.dll"
+	TRLIB="trlib_ui.dll"
 	OGRLIB="libtrogr.dll"
 elif "darwin" in sys.platform:
-	TRLIB="TrLib.dylib"
+	TRLIB="trlib_ui.dylib"
 	OGRLIB="libtrogr.dylib"
 else:
-	TRLIB="TrLib.so"
+	TRLIB="trlib_ui.so"
 	OGRLIB="libtrogr.so"
 TROGRNAME="trogr"
 
