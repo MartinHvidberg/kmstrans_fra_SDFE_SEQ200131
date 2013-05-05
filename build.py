@@ -19,6 +19,7 @@
  """
 #Very simplistic build instructions which should work under win, linux and mac as long as gdal is built and findable and gcc or something very similar works....
 #Use -cc compiler, e.g. -cc gcc to specify which compiler to use to build trogr.
+#should be compatible with tip of trlib repo
 import os, sys, shutil
 from TrLib_constants import OGRLIB,TRLIB,TROGRNAME
 
