@@ -427,7 +427,11 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 			yo*=r2d;
 			xo*=r2d;
 		}
-		OGR_G_SetPoint(hGeometry2,i,xo,yo,zo);
+		
+		if (c_dim<3)
+			OGR_G_SetPoint_2D(hGeometry2,i,xo,yo);
+		else
+			OGR_G_SetPoint(hGeometry2,i,xo,yo,zo);
 		#ifdef VERY_VERBOSE
 		Report(REP_DEBUG,0,VERB_HIGH,"%g %g %g -> %g %g %g", x,y,z,xo,yo,zo);
 		#endif
@@ -499,7 +503,7 @@ int TransformOGRDatasource(
 		if (hLayer==NULL)
 			break;
 		OGR_L_ResetReading(hLayer);
-		Report(REP_INFO,0,VERB_LOW,"Layer: %s", OGR_L_GetName(hLayer));
+		Report(REP_INFO,0,VERB_LOW,"Layer: %s, geometry type: %d", OGR_L_GetName(hLayer),OGR_L_GetGeomType(hLayer));
 		
 		if (extra_lcos!=NULL && extra_lcos[layer_num]){
 			/*insert the extra lco*/
@@ -569,7 +573,6 @@ int TransformOGRDatasource(
 					else 
 						hGeometry2=hGeometry;
 						
-				
 				tr_err=TransformGeometry(trf,hGeometry2,is_geo_in,is_geo_out, &ntrans_ok, &ntrans_bad);
 				if (tr_err!=TR_OK){
 					Report(REP_ERROR,tr_err,VERB_HIGH,"Error: %d, transforming geometry of feature: %d",TR_GetLastError(),feat_num);
@@ -582,6 +585,8 @@ int TransformOGRDatasource(
 				Report(REP_DEBUG,0,VERB_HIGH,"Setting geometry and creating feature, tr_err: %d",ERR);
 				#endif
 				OGR_F_SetGeometryDirectly(hFeature_out,hGeometry);
+				//Report(REP_INFO,0,VERB_LOW,"Geom-type out: %d",OGR_G_GetGeometryType(hGeometry));
+				
 				
 			} /*end if geom!=NULL*/
 			else if (layer_has_geometry){
