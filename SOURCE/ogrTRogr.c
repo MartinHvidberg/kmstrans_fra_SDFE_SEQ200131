@@ -85,14 +85,59 @@ int FlattenMLB(char *mlb_in, char *mlb_flat){
 
 OGRSpatialReferenceH TranslateMiniLabel(char *mlb){
      /*try to translate minilabel to osr spatial reference*/
-     char wkt[1024];
-     OGRSpatialReferenceH srs_out;
-     int err=TR_GetEsriText(mlb,wkt);
-     if (err!=TR_OK)
-	     return NULL;
-     srs_out=OSRNewSpatialReference(wkt);
+     char buf[2048];
+     OGRSpatialReferenceH srs_out=OSRNewSpatialReference(NULL);
+     int err=TR_ERROR;
+     OGRErr err2=OGRERR_NONE;
+     /*Temporarliy ignore errors*/
+     SetIgnoreMessages(1);
+     err=TR_ExportLabel(mlb,buf,TR_FRMT_EPSG,2048);
+     if (err==TR_OK){
+	     char *tmp=strstr(buf,":");
+	     int code;
+	     err=TR_ERROR;
+	     if ((tmp-buf)==4){
+		     code=atoi(tmp+1);
+		     Report(REP_DEBUG,0,VERB_LOW,"code: %d, tmp: %s", code,tmp);
+		     err2=OSRImportFromEPSG(srs_out,code);
+	             if (err2==OGRERR_NONE){
+			     err=TR_OK;
+			     //Report(REP_INFO,0,VERB_HIGH,"Succesful translation of minilabel via EPSG code: %d",code);
+		     }
+	     }
+     }
+     if (err!=TR_OK){
+	     err=TR_ExportLabel(mlb,buf,TR_FRMT_PROJ4,2048);
+	     if (err==TR_OK){
+		     err=TR_ERROR;
+		     err2=OSRImportFromProj4(srs_out,buf);
+		      if (err2==OGRERR_NONE){
+			     err=TR_OK;
+			     //Report(REP_INFO,0,VERB_HIGH,"Succesful translation of minilabel via proj4-string: %s",buf);
+		     }
+	     }
+     }
+      if (err!=TR_OK){
+	     err=TR_ExportLabel(mlb,buf,TR_FRMT_ESRI_WKT,2048);
+	     if (err==TR_OK){
+		     char *tmp[2]={buf,NULL};
+		     err=TR_ERROR;
+		     err2=OSRImportFromESRI(srs_out,tmp);
+		      if (err2==OGRERR_NONE){
+			     err=TR_OK;
+			     //Report(REP_INFO,0,VERB_HIGH,"Succesful translation of minilabel via ESRI-wkt");
+		     }
+	     }
+	    
+     }
+     SetIgnoreMessages(0);
+     if (err!=TR_OK){     
+	OSRRelease(srs_out);
+	return NULL;
+     }
      return srs_out;
 }
+
 
 int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 	 char *p;
@@ -101,38 +146,33 @@ int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len){
 	 OGRErr err;
 	 if (srs==NULL)
 		 return TR_LABEL_ERROR;
-	p=(char*) OSRGetAuthorityName(srs,NULL);
+	 SetIgnoreMessages(1); /*temporarily ignore errors from trlib and gdal*/
+	 p=(char*) OSRGetAuthorityName(srs,NULL);
 	 if (p && !strcmp(p,"EPSG")){
 		 
 		 p=(char*) OSRGetAuthorityCode(srs,NULL);
 		 if (p!=NULL){
 			sprintf(buf,"EPSG:%s",p);
 			ok=TR_ImportLabel(buf,mlb,buf_len);
-			if (ok==TR_OK){
-				Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from EPSG definition");
-				return TR_OK;
-			}
+			
 		}
 	 }
-	 err=OSRExportToProj4(srs,&p);
-	 if (err==OGRERR_NONE){
-		 Report(REP_INFO,0,VERB_LOW,p);
-		 ok=TR_ImportLabel(p,mlb,buf_len);
-		 if (ok==TR_OK){
-			 Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from Proj4 definition (ignore previous errors).");
-			 return TR_OK;
-		 }
-	 }
-	 OSRMorphToESRI(srs);
-	 err=OSRExportToWkt(srs,&p);
-	 if (err==OGRERR_NONE){
-		 ok=TR_ImportLabel(p,mlb,buf_len);
-		 if (ok==TR_OK){
-			 Report(REP_INFO,0,VERB_HIGH,"Succesful translation of srs from WKT definition (ignore previous errors).");
-			 return TR_OK;
-		 }
-	 }
-	 return TR_LABEL_ERROR;
+	 if (ok!=TR_OK){
+		 err=OSRExportToProj4(srs,&p);
+		 if (err==OGRERR_NONE){
+			 Report(REP_INFO,0,VERB_LOW,p);
+			 ok=TR_ImportLabel(p,mlb,buf_len);
+		}
+	}
+	if (ok!=TR_OK){
+		 OSRMorphToESRI(srs);
+		 err=OSRExportToWkt(srs,&p);
+		 if (err==OGRERR_NONE){
+			 ok=TR_ImportLabel(p,mlb,buf_len);
+		}
+	}
+	SetIgnoreMessages(0);
+	return ok;
  }
 	
   OGRLayerH GetLayer(OGRDataSourceH hDSin, int layer_num){
@@ -539,7 +579,7 @@ int TransformOGRDatasource(
 				is_geo_in=(IS_GEOGRAPHIC(trf->proj_in));
 			}
 			else{
-				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to translate input srs - skipping layer.");
+				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to translate input srs to mini label- skipping layer.");
 				continue;
 			}
 				
