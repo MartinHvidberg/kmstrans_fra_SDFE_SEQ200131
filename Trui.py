@@ -267,21 +267,26 @@ class DialogCreationOptions(QDialog,Ui_Dialog_creation_options):
 		else:
 			self.lbl_format_short.setText("Not defined!")
 	def accept(self):
+		#driver: ["name",lco,dco]
 		if self.driver in self.drivers:
-			dco=str(self.txt_dco.text())
-			lco=str(self.txt_lco.text())
+			dco=str(self.txt_dco.text()).strip()
+			lco=str(self.txt_lco.text()).strip()
 			if len(dco)>0:
 				if self.validate(dco):
 					self.drivers[self.driver][1]=dco
 				else:
 					self.txt_dco.setFocus()
 					return
+			else:
+				self.drivers[self.driver][1]=""
 			if len(lco)>0:
 				if self.validate(lco):
 					self.drivers[self.driver][2]=lco
 				else:
 					self.txt_lco.setFocus()
 					return
+			else:
+				self.drivers[self.driver][2]=""
 		self.close()
 	def validate(self,text):
 		cops=text.split(",")
