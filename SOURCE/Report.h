@@ -10,6 +10,7 @@ void SetLogFile(FILE *fp);
 int GetErrors();
 void AppendGeoid(const char *geoid_name);
 void LogGeoids();
+void SetIgnoreMessages(int ignore); /*temporarily ignore errors*/
 #define VERB_LOW  (0)
 #define VERB_HIGH (1)
 enum REPORT_TYPE { REP_DEBUG=0, REP_INFO=1, REP_WARNING=2 , REP_ERROR=3, REP_CRITICAL=4};

@@ -29,7 +29,7 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.02 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.03 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -116,6 +116,13 @@ int message_handler(int err_class, int err_code, const char *msg){
 	return 0;
 }
 
+/*callback to a callback to a callback....
+* Will enable us to temporarily disable output from trlib via SetIgnoreErrors
+*/
+void trlib_callback(LORD_CLASS errc,int err, char *msg){
+	Report(errc, err, VERB_HIGH, msg);
+}
+
 char **ParseCreationOptions(char *text){
 	char **pairs,*pos1,*pos2;
 	int n_pairs=0;
@@ -162,6 +169,7 @@ int main(int argc, char *argv[])
     /*set reporting callback fct.*/
     SetCallBack(message_handler);
     RedirectOGRErrors();
+    TR_SetLordCallBack(trlib_callback);
     if (argc>1) {
 	    if (!strcmp(argv[1],"--formats")){
 		    ListFormats();
@@ -347,7 +355,7 @@ int main(int argc, char *argv[])
     }
     if (fp_log!=NULL){
 	    SetLogFile(fp_log);
-	    set_lord_outputs(fp_log,fp_log,fp_log,fp_log,fp_log);
+	    /*set_lord_outputs(fp_log,fp_log,fp_log,fp_log,fp_log); now uses callback*/
 	    
     }
     else

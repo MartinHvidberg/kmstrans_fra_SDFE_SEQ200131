@@ -16,6 +16,7 @@ static int N_GEOIDS=0;
 static  unsigned long GEOID_HASH[MAX_GEOIDS];
 static  char LAST_GEOID[64];
 static FILE *log_file=NULL;
+static int IGNORE_MESSAGES=0; /* flag to temporarily disable error messages */
 
 
 static unsigned long hash(const char *str)
@@ -40,6 +41,8 @@ This is controlled via the verbosity parameter...
 	char msg[512];
 	int written_now=0;
 	va_list ap;
+	if (IGNORE_MESSAGES)
+		return;
 	N_ERRS+=(class_code>=REP_ERROR);
 	if (verbosity>VERB_LOW && N_LOGGED>MAX_MESSAGES)
 		return;
@@ -59,6 +62,10 @@ This is controlled via the verbosity parameter...
 		fprintf(log_file,"%s",msg);
 	
 	
+}
+
+void SetIgnoreMessages(int ignore){
+	IGNORE_MESSAGES=ignore;
 }
 
  void SetCallBack( int (*func)(int, int , const char*) ){
