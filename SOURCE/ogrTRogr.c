@@ -353,7 +353,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 		if (srs_out!=NULL){
 			char *proj4_text; 
 			err=OSRExportToProj4(srs_out,&proj4_text);
-			Report(REP_INFO,0,VERB_LOW,"Translating output projection to: %s",proj4_text);
+			Report(REP_INFO,0,VERB_LOW,"Translating output mini label to osr-srs.\nProj4 translation of osr-srs is: %s",proj4_text);
 		}
 		if (srs_out!=NULL && (!strcmp(drv_out,"FileGDB") || !strcmp(drv_out,"ESRI Shapefile")))
 			OSRMorphToESRI(srs_out);
