@@ -43,13 +43,17 @@
       depend on your GDAL installation. OGR will try to open an input
       data source by iteration over available drivers. This behaviour
       can be overridden by specifying a specific input driver, for
-      instance (if the WFS driver is available):<br>
+      instance (if the WFS driver is<b> available</b>):<br>
       <br>
 WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&amp;version=1.0.0&amp;login=usr_name&amp;password=pass_wd<br>
       &nbsp;<br>
       Refer to the list of <a
         href="http://www.gdal.org/ogr/ogr_formats.html">OGR formats</a>
-      for more details. <br>
+      for more details.&nbsp; Note that many ogr formats will not be
+      available in the default distribution that comes with prepackaged
+      versions of KMSTrans2 for windows. See the <a
+        href="gdal_installation.html">GDAL installation</a> page for
+      information on how to enable a "full" installation of GDAL.<br>
       <br>
       <br>
     </blockquote>
@@ -209,7 +213,7 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
         <tr>
           <td valign="top">System 34<br>
           </td>
-          <td valign="top">X ( i.e. the usual s34 X)<br>
+          <td valign="top">X ( i.e. the usual s34 'Westing')<br>
           </td>
           <td valign="top">Y</td>
           <td valign="top">Height</td>
