@@ -11,13 +11,20 @@ def getInput(fields,is_angle=False,z_fields=[2],angular_unit="dg"):
 		coords=[]
 		for i in range(len(fields)):
 			field=fields[i]
-			inp=str(field.text()).replace(" ","")
+			inp=str(field.text()).replace(" ","").strip()
 			try:
 				if is_angle and (not i in z_fields):
 					inp=TranslateToDegrees(inp,angular_unit)
+					unit="dg"
 				else:
-					inp=inp.replace("m","")
+					if inp.endswith("km"):
+						unit="km"
+					else:
+						unit="m"
+					inp=inp.replace(unit,"")
 				inp=float(inp)
+				if unit=="km":
+					inp*=1e3
 			except Exception,msg:
 				return coords,str(msg)
 			else:
@@ -35,7 +42,7 @@ def setOutput(coords,fields,is_angle=False,z_fields=[2],angular_unit="dg"):
 			fields[i].setText("%s" %(TranslateFromDegrees(coords[i],angular_unit)))
 		else:
 			#TODO: global precision here
-			fields[i].setText("%.3f m" %coords[i])
+			fields[i].setText("%.4f m" %coords[i])
 
 def translateAngularField(field,geo_unit):
 	try:
