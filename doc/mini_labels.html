@@ -6,8 +6,7 @@
     <title>MiniLabels</title>
   </head>
   <body>
-    <h1>Coordinate MiniLabels
-    </h1>
+    <h1>Coordinate MiniLabels </h1>
     <p>MiniLabels are short text strings used by the transformation
       library as metadata description of projections and datums.
       Internally at GST (formely KMS) MiniLabels are used generally as
@@ -27,11 +26,9 @@
       describing MiniLabel components.</p>
     <p>The separator is used in two ways:</p>
     <ol>
-      <li>Separate the coordinate system and the datum
-      </li>
+      <li>Separate the coordinate system and the datum </li>
       <li>Contain information on the height system (and possibly the
-        height MiniLabel)
-      </li>
+        height MiniLabel) </li>
     </ol>
     <p>Note: that an extra separator char ‘_’ is placed before the
       height MiniLabel.</p>
@@ -42,17 +39,14 @@
         MiniLabel is required after “datum”. </li>
     </ul>
     <ul>
-      <li><strong>'E':</strong> Ellipsoidal Heights.
-      </li>
+      <li><strong>'E':</strong> Ellipsoidal Heights. </li>
     </ul>
     <ul>
-      <li><strong>‘_’:</strong> No Heights.
-      </li>
+      <li><strong>‘_’:</strong> No Heights. </li>
     </ul>
     <ul>
       <li><strong>'N':</strong> Normal Heights (i.e. the same as H and
-        _h_msl).
-      </li>
+        _h_msl). </li>
     </ul>
     <p>The datum is the name of the datum (for coordinates) in small
       letters. For example:</p>
@@ -68,20 +62,16 @@
     <h3 id="!a-few-type-1-coordinate-minilabels">A few type 1 coordinate
       MiniLabels:</h3>
     <ul>
-      <li>geo_wgs84 : Geographic coordinates, Datum WGS84. No heights
-      </li>
-      <li>utm32_etsf89 : UTM Zone 32, Datum ED50. No heights
-      </li>
-      <li>crt_nad83g : Cartesian Coordinates, Datum NAD83g. No heights
-      </li>
+      <li>geo_wgs84 : Geographic coordinates, Datum WGS84. No heights </li>
+      <li>utm32_etrs89 : UTM Zone 32, Datum ETRS89. No heights </li>
+      <li>crt_nad83g : Cartesian Coordinates, Datum NAD83g. No heights </li>
     </ul>
     <h3 id="!coordinate-minilabels-of-type-2">Coordinate MiniLabels of
       type 2:</h3>
     <p>A string consisting of three components:</p>
     <ul>
       <li>&lt;coordinate system&gt;[&lt;separator&gt;[_&lt;height
-        MiniLabel&gt;]].
-      </li>
+        MiniLabel&gt;]]. </li>
     </ul>
     <p>The second type of MiniLabels is mostly used to identify
       "regional" coordinate systems. For this type, the MiniLabel string
@@ -95,23 +85,17 @@
     <ul>
       <li>dktm1 : DK TM Zone 1 EUREF89 </li>
       <li>dktm2 : DK TM Zone 2 EUREF89 </li>
-      <li>dktm3E : DK TM Zone 3 EUREF89 and ellipsoid height
-      </li>
+      <li>dktm3E : DK TM Zone 3 EUREF89 and ellipsoid height </li>
       <li>dktm4 : DK TM Zone 4 EUREF89 </li>
-      <li>kp2000j : System 2000 Jylland
-      </li>
-      <li>kp2000s : System 2000 Sjælland
-      </li>
-      <li>kp2000b : System 2000 Bornholm
-      </li>
-      <li>sbH_h_dvr90 : Great Belt and DVR90 heights
-      </li>
+      <li>kp2000j : System 2000 Jylland </li>
+      <li>kp2000s : System 2000 Sjælland </li>
+      <li>kp2000b : System 2000 Bornholm </li>
+      <li>sbH_h_dvr90 : Great Belt and DVR90 heights </li>
     </ul>
     <h3 id="!height-minilabels">Height MiniLabels:</h3>
     <p>A string consisting of three components:</p>
     <ul>
-      <li>&lt;height system&gt;_&lt;datum&gt;.
-      </li>
+      <li>&lt;height system&gt;_&lt;datum&gt;. </li>
     </ul>
     <p>The only legal separator is ‘_’.</p>
     <p>A list of height systems and (height) datums is given below. </p>
@@ -254,6 +238,7 @@
       geographic coordinates <strong>longitude, latitude, height.</strong>
       However, for the special 'KMS' file format usually the assumption
       is made that the coordinate sequence in the file is <strong>northing,
+
         easting, height.</strong> Some MiniLabels have an extra variant
       with an 'i' appended to the projection, e.g. utmi32_etrs89. This
       is an extra metadata information <strong>ONLY</strong> relevant
@@ -1000,23 +985,17 @@
     <p>The Separator in a coordinate MiniLabel determines the type of
       height information / height datum:</p>
     <ul>
-      <li>H Height described in height minilabel
-      </li>
-      <li>E Ellipsoid Heights
-      </li>
-      <li>_ No Heights
-      </li>
-      <li>N Normal Heights: short for: H … _h_msl
-      </li>
+      <li>H Height described in height minilabel </li>
+      <li>E Ellipsoid Heights </li>
+      <li>_ No Heights </li>
+      <li>N Normal Heights: short for: H … _h_msl </li>
     </ul>
     <p>This separator is written in the MiniLabel right after the
       coordinate system sub string. It provides:</p>
     <ol>
       <li>A 'real' separation between the sub strings indicating
-        coordinate system and datum respectively.
-      </li>
-      <li>Information on presence of height system.
-      </li>
+        coordinate system and datum respectively. </li>
+      <li>Information on presence of height system. </li>
     </ol>
     <p>(See also a list of vertical datums below).</p>
     <p>For the systems having a predefined datum (P.D.), the datum
@@ -1025,8 +1004,7 @@
     <p>Accordingly, a MiniLabel indicating the following list to contain
       dktm1 coordinates - and DVR90 heights will look like:</p>
     <ul>
-      <li>dktm1H_h_dvr90
-      </li>
+      <li>dktm1H_h_dvr90 </li>
     </ul>
     <h3 id="!list-of-datums">List of Datums</h3>
     <p>The following list contains the datums supported by the KMS
@@ -1455,12 +1433,9 @@
     <p>The content of an ITM label could be:</p>
     <ul>
       <li>itmHetrf89_h_dvr90&nbsp; 0 sx&nbsp; 0 m&nbsp; 9 00 00 sx&nbsp;
-        500000.0 m&nbsp; 0.9996
-        or using other units:
-      </li>
+        500000.0 m&nbsp; 0.9996 or using other units: </li>
       <li>itmHetrf89_h_dvr90&nbsp; 0 dg&nbsp; 0 m&nbsp; 9 dg&nbsp; 500
-        km&nbsp; 0.9996
-      </li>
+        km&nbsp; 0.9996 </li>
     </ul>
     <p>Note that the separation between two fields /entities must be at
       least two spaces!</p>
