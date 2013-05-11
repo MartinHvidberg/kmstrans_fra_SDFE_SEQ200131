@@ -150,9 +150,13 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				return
 			try:
 				x1,y1,z=ct.Transform(x1,y1)
-			except:
-				self.message("Error in transformation of coords for station1")
+			except: #TODO TODO
+				msg=""
+				err=TrLib.GetLastError()
+				if err in ERRORS:
+					msg="\n%s" %ERRORS[err]
 				ct.Close()
+				self.message("Error in transformation of coords for station1"+msg)
 				return
 		#display output of first transformation, x1,y1 should now alwyas be in geo-coords#
 		WidgetUtils.setOutput([x1,y1],self.output_bshlm_geo[:2],True,z_fields=[],angular_unit=self.geo_unit)
