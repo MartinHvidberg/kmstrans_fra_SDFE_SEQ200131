@@ -26,6 +26,15 @@ def GetSystemLabels(mlb):
 	return PROJ_LABELS
 
 
+def IsProjWeaklyDefined(mlb):
+	try:
+		region,proj,datum,hdatum,htype=SplitMLB(mlb)
+	except:
+		return True
+	if proj in ["s34j","s34s","s34b","os","kk"]:
+		return True
+	return False
+
 def GetPlanarSystems(mlbs):
 	systems=[]
 	for mlb in mlbs:

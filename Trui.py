@@ -33,6 +33,7 @@ import threading, subprocess
 import File2File
 import sys,os,time
 import WidgetUtils
+import math
 try:
 	import importlib
 except ImportError:
@@ -41,7 +42,7 @@ else:
 	HAS_IMPORTLIB=True
 
 DEBUG="-debug" in sys.argv
-OVERRIDE_LOCAL_GDAL="-my_gdal" in sys.argv
+#OVERRIDE_LOCAL_GDAL="-my_gdal" in sys.argv
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
 	sys.frozen
@@ -59,10 +60,10 @@ IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
 #PATHS TO A MINIMAL DEFAULT GDAL INSTALLATION ON WINDOWS
-GDAL_PREFIX=os.path.join(PREFIX,"gdal")
-GDAL_DATA_PATH=os.path.join(GDAL_PREFIX,"gdal-data")
-GDAL_PLUGIN_PATH=os.path.join(GDAL_PREFIX,"plugins")
-GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
+#GDAL_PREFIX=os.path.join(PREFIX,"gdal")
+GDAL_DATA_PATH=os.path.join(PREFIX,"gdal-data")
+#GDAL_PLUGIN_PATH=os.path.join(GDAL_PREFIX,"plugins")
+#GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
 #OTHER PATHS
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
@@ -75,24 +76,10 @@ if not os.path.exists(PLUGIN_PATH):
 DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
-#SET UP ENVIRONMENT#
-if IS_WINDOWS: #gdal and binaries built with same compiler - make sure the runtime stuff is findable
-	env=os.environ["PATH"]
-	os.environ["PATH"]=BIN_PREFIX+os.pathsep+env
-#Set up local GDAL env#
-IS_LOCAL_GDAL=False
-if (os.path.exists(GDAL_PREFIX)) and (not OVERRIDE_LOCAL_GDAL) and IS_WINDOWS:
-	if os.path.exists(GDAL_DATA_PATH):
-		os.environ["GDAL_DATA"]=GDAL_DATA_PATH
-	if os.path.exists(GDAL_PLUGIN_PATH):
-		os.environ["GDAL_DRIVER_PATH"]=GDAL_PLUGIN_PATH
-	if os.path.exists(GDAL_BIN_PATH):
-		env=os.environ["PATH"]
-		os.environ["PATH"]=GDAL_BIN_PATH+os.pathsep+env
-	IS_LOCAL_GDAL=True
-	
-#MAKE SURE THAT THE LIBRARIES ARE FINDABLE ON LINUX/MAC - THEY SEEM TO AUTOMATICALLY BE AS LONG AS LOCATED NEXT TO EXECUTABLE...
-#END SETUP ENV#
+
+#If this folder is included its a sign that we're using a local gdal installation (dll's in bin folder)...
+if os.path.exists(GDAL_DATA_PATH):
+	os.environ["GDAL_DATA"]=GDAL_DATA_PATH
 
 
 #DEFAULT DIR FOR FILE BROWSING - COULD BE STORED IN INI-FILE#
@@ -190,6 +177,23 @@ class PointData(object):
 		self.mlb=None
 		self.meridian_convergence=None
 		self.scale=None
+		self.proj_weakly_defined=False #flag for type 8 and 10 systems - right now detected on minilabel level. Would be great to expose the proj object (and thereby cstm code etc.)
+
+#Hack to get scale and convergence for type 8 and 10 systems...
+def GetNumericScale(x1,y1,coord_transf,axis,flat):
+	lon1,lat1,z=coord_transf.Transform(x1,y1)
+	lat2=lat1+8e-5
+	x2,y2,z=coord_transf.InverseTransform(lon1,lat2)
+	d,a1,a2=TrLib.BesselHelmert(axis,flat,lon1,lat1,lon1,lat2)
+	if (d is not None):
+		d2=math.sqrt((x1-x2)**2+(y1-y2)**2)
+		sc=d2/d
+		m=-math.atan2((x2-x1),(y2-y1))*180.0/math.pi
+	else:
+		sc,m=-1,-1
+	return sc,m
+
+
 	
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 	"""Class for specifying options to TEXT and KMS drivers"""
@@ -458,7 +462,6 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.setDerivedAngularUnitsDegrees()
 		self.region=REGION_DK
 		self._handle_system_change=True
-		self.coordinate_transformation=None
 		self.point_center=[0,0]
 		self.map_zoom=0
 		try:
@@ -499,6 +502,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				self.geoids=self.selectTabDir()
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
+		#Now that trlib is initlialised we can define these objects - kind of ineffective this way. Would be great to expose the projection object directly...#
+		self.numeric_scale_transf=TrLib.CoordinateTransformation("","geo_etrs89")
+		self.fallback_ellipsoid=TrLib.GetEllipsoidParametersFromDatum("etrs89")
+		self.coordinate_transformation=TrLib.CoordinateTransformation("","")
 		#Initialse the map transformation#
 		self.map_transformation=TrLib.CoordinateTransformation("geo_wgs84","geo_wgs84")
 		#Will initialise some attributes which must be present in other methods#
@@ -638,14 +645,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if not self._handle_system_change:
 			return
 		#Trigger a transformation#
-		self.transform_input()
+		self.transform_input(True,False)
 		
 	
 	def onSystemOutChanged(self):
 		if not self._handle_system_change:
 			return
 		#Trigger a transformation#
-		self.transform_input()
+		self.transform_input(False,True)
 		
 			
 	def setSystemInfo(self,do_input=True,do_output=False):
@@ -672,7 +679,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
-			self.transform_input()
+			self.transform_input(True,False)
 		
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_out_clicked(self):
@@ -680,7 +687,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_out:
 			self.cb_output_system.setEditText(mlb)
-			self.transform_input()
+			self.transform_input(False,True)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_interactive_swap_clicked(self):
 		#Transform - then swap input/output
@@ -769,24 +776,32 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.action_angular_units[key].setChecked(self.geo_unit==key)
 		
 	def translateDerivedGeoUnits(self):
-		for field in self.derived_angular_output:
-			WidgetUtils.translateAngularField(field,self.geo_unit_derived)
+		#for field in self.derived_angular_output:
+		#	WidgetUtils.translateAngularField(field,self.geo_unit_derived)
+		self.onShowScale()
 		for widget in self.getAdditionalWidgets():
 			if hasattr(widget,"handleAngularUnitChange"):
 				widget.handleAngularUnitChange(self.geo_unit_derived)
 		for key in self.action_angular_units_derived.keys():
 			self.action_angular_units_derived[key].setChecked(self.geo_unit_derived==key)	
 	#will be called both from event handler and programtically to set/clear fields on success/error#
+	#Added numeric hack for s34, kk and os systems....
 	def onShowScale(self):
 		if (self.chb_show_scale.isChecked() and self.output_cache.is_valid):
 			if not self.output_cache.has_scale:
 				#cache scale and convergence....
-				sc,m=self.coordinate_transformation.GetLocalGeometry(self.output_cache.coords[0],self.output_cache.coords[1])
+				if (self.output_cache.proj_weakly_defined):
+					if (self.output_cache.mlb!=self.numeric_scale_transf.mlb_in):
+						self.numeric_scale_transf.Insert(self.output_cache.mlb,True)
+					sc,m=GetNumericScale(self.output_cache.coords[0],self.output_cache.coords[1],self.numeric_scale_transf,self.fallback_ellipsoid[1],self.fallback_ellipsoid[2])
+					self.log_interactive("INFO: calculating scale and convergence numerically relative to ETRS89 datum")
+				else:
+					sc,m=self.coordinate_transformation.GetLocalGeometry(self.output_cache.coords[0],self.output_cache.coords[1])
 				self.output_cache.scale=sc
 				self.output_cache.meridian_convergence=m
 				self.output_cache.has_scale=True
-			self.txt_scale.setText("%.8f" %self.output_cache.scale)
-			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived))
+			self.txt_scale.setText("%.7f" %self.output_cache.scale)
+			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived,coarse=True))
 			if DEBUG:
 				self.log_interactive(repr(self.output_cache.coords)+"\n"+self.output_cache.mlb)
 		else:
@@ -819,7 +834,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		WidgetUtils.setOutput(coords,self.input,is_angle,z_fields=[2],angular_unit=self.geo_unit)
 		
 		
-	def transform_input(self):
+	def transform_input(self,input_index_changed=False,output_index_changed=False):
 		self.log_interactive("",clear=True)
 		self.output_cache.is_valid=False
 		self.output_cache.has_scale=False
@@ -832,6 +847,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.setSystemInfo(update_in,update_out)
 			self.mlb_in=mlb_in
 			self.output_cache.mlb=mlb_out
+			self.output_cache.proj_weakly_defined=Minilabel.IsProjWeaklyDefined(mlb_out)
 		coords=self.getInteractiveInput(mlb_in)
 		if len(coords)!=3:
 			self.log_interactive("Input coordinate in field %d not OK!" %(len(coords)+1))
@@ -840,21 +856,31 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.input[len(coords)].setFocus()
 			return
 		x_in,y_in,z_in=coords
-		if self.coordinate_transformation is None or mlb_in!=self.coordinate_transformation.mlb_in or mlb_out!=self.coordinate_transformation.mlb_out:
+		if  mlb_in!=self.coordinate_transformation.mlb_in: 
 			try:
-				if self.coordinate_transformation is None:
-					self.coordinate_transformation=TrLib.CoordinateTransformation(mlb_in,mlb_out)
-				else: 
-					#both can happen at the same time!
-					if mlb_in!=self.coordinate_transformation.mlb_in:
-						self.coordinate_transformation.Insert(mlb_in)
-					if mlb_out!=self.coordinate_transformation.mlb_out:
-						self.coordinate_transformation.Insert(mlb_out,False)
+				self.coordinate_transformation.Insert(mlb_in)
 			except Exception,msg:
+				#if call was from in_system_changed - remove item
+				if input_index_changed:
+					self._handle_system_change=False
+					self.cb_input_system.removeItem(self.cb_input_system.currentIndex())
+					self.cb_input_system.setEditText(mlb_in)
+					self._handle_system_change=True
 				self.setInteractiveOutput([])
-				self.log_interactive("Mini labels not OK!\n%s" %repr(msg),color="red")
+				self.log_interactive("Input label not OK!\n%s" %repr(msg),color="red")
 				return 
-			
+		if mlb_out!=self.coordinate_transformation.mlb_out:	
+			try:
+				self.coordinate_transformation.Insert(mlb_out,False)
+			except Exception,msg:
+				if output_index_changed:
+					self._handle_system_change=False
+					self.cb_output_system.removeItem(self.cb_output_system.currentIndex())
+					self.cb_output_system.setEditText(mlb_out)
+					self._handle_system_change=True
+				self.setInteractiveOutput([])
+				self.log_interactive("Output label not OK!\n%s" %repr(msg),color="red")
+				return
 		try:
 			x,y,z,h=self.coordinate_transformation.TransformGH(x_in,y_in,z_in)
 		except Exception,msg:
@@ -889,8 +915,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.log_f2f("OGR library not available. A proper gdal installation might not be present?")
 			self.tab_ogr.setEnabled(False)
 			return
-		if IS_LOCAL_GDAL:
-			self.log_f2f("Using local GDAL installation.")
+		#if IS_LOCAL_GDAL:
+		#	self.log_f2f("Using local GDAL installation.")
 		frmts=File2File.GetOGRFormats()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
