@@ -8,39 +8,25 @@
   <body>
     <h1>GDAL <br>
     </h1>
-    <p><b>KMSTrans2 / trui</b> depends on <a href="http://gdal.org">GDAL/OGR</a>
+    <p><b>KMSTrans2&nbsp;</b> depends on <a href="http://gdal.org">GDAL/OGR</a>
       for transformation of data sources in the batch tab as well as for
       displaying a coast line in the map window. Currently only the OGR
       part of GDAL is used to transform vector data. <br>
     </p>
     <h2>Windows only:<br>
     </h2>
-    <p>A prepackaged version of <b>KMSTrans2</b> with prebuilt binaries
-      will come also with a (minimal) GDAL installation, which the
-      binaries are linked against.<br>
-      Relative to the root directory&nbsp; (where the Trui.py or
-      KMSTrans2.exe file is located) the structure of this installations
-      is:<br>
-    </p>
-    <ul>
-      <li>gdal/bin - a folder containing shared libraries (.dll), e.g.
-        gdalxx.dll and various additional libraries that this dll is
-        linked against.</li>
-      <li>gdal/plugins - a folder containing optional plugins for GDAL
-        (might be empty or non existing, depending on the distribution).
-        <br>
-      </li>
-      <li>gdal/gdal-data - a folder contaning data files needed by
-        various GDAL drivers.</li>
-    </ul>
-    <p>You can override the GDAL installation by simply dropping in
-      another compatible GDAL installation with a similar directory
-      structure.<br>
-      &nbsp;If you already have a compatible GDAL installation on your
-      computer which is included in your PATH environment variable, you
-      can simply delete the gdal folder in the root directory, or run<b>
-      </b>the program<b> </b>from the command line with a <b>-my_gdal
-      </b>option.<br>
+    <p>A prepackaged version of <b>KMSTrans2</b> with prebuilt
+      binaries&nbsp; will come also with a (minimal) GDAL installation,
+      which the binaries are linked against (gdalxxx.dll, where xxx is a
+      version number e.g. gdal110.dll) </p>
+    <p>If you have a compatible gdal installation (currently
+      gdal110.dll)&nbsp; on your computer, possibly with more drivers
+      enabled, you can override the default GDAL installation simply by
+      deleting or renaming the gdalxxx.dll library in the <b>bin</b>
+      sub folder. You may also want to delete or rename the <b>gdal-data
+      </b>sub folder - if this folder is present KMSTrans2 will set the
+      GDAL_DATA environment variable to point to it. <br>
+      <br>
     </p>
     <h2>Building binaries yourself:<br>
     </h2>

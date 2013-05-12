@@ -31,7 +31,7 @@ def IsProjWeaklyDefined(mlb):
 		region,proj,datum,hdatum,htype=SplitMLB(mlb)
 	except:
 		return True
-	if proj in ["s34j","s34s","s34b","os","kk"]:
+	if proj in ["s34j","s34s","s34b","s45b","os","kk"]:
 		return True
 	return False
 
