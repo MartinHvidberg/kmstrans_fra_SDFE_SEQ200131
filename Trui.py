@@ -186,10 +186,12 @@ def GetNumericScale(x1,y1,coord_transf,axis,flat):
 	x2,y2,z=coord_transf.InverseTransform(lon1,lat2)
 	d,a1,a2=TrLib.BesselHelmert(axis,flat,lon1,lat1,lon1,lat2)
 	if (d is not None):
-		d2=math.sqrt((x1-x2)**2+(y1-y2)**2)
-		sc=d2/d
-		m=-math.atan2((x2-x1),(y2-y1))*180.0/math.pi
+		dE=(x2-x1)
+		dN=(y2-y1)
+		sc=math.hypot(dE,dN)/d
+		m=-math.atan2(dE,dN)*180.0/math.pi
 	else:
+		print("Exception during calculation of scale and convergence.") #or simply raise an exception
 		sc,m=-1,-1
 	return sc,m
 

@@ -17,16 +17,21 @@
     </h2>
     <p>A prepackaged version of <b>KMSTrans2</b> with prebuilt
       binaries&nbsp; will come also with a (minimal) GDAL installation,
-      which the binaries are linked against (gdalxxx.dll, where xxx is a
-      version number e.g. gdal110.dll) </p>
+      which the binaries are linked against (gdalxxx.dll located in the
+      <b>bin</b> subfolder, where xxx is a version number e.g.
+      gdal110.dll) </p>
     <p>If you have a compatible gdal installation (currently
       gdal110.dll)&nbsp; on your computer, possibly with more drivers
       enabled, you can override the default GDAL installation simply by
-      deleting or renaming the gdalxxx.dll library in the <b>bin</b>
+      deleting or renaming <b>gdalxxx.dll</b>&nbsp; in the <b>bin</b>
       sub folder. You may also want to delete or rename the <b>gdal-data
+
       </b>sub folder - if this folder is present KMSTrans2 will set the
-      GDAL_DATA environment variable to point to it. <br>
-      <br>
+      GDAL_DATA environment variable to point to there. </p>
+    <p>Advanced users are encouraged to install a full gdal version,
+      available e.g. from <a href="http://gisinternals.com/sdk/">here</a>,
+      in order to enable all OGR drivers (like WFS, Postgis and
+      Spatialite).<br>
     </p>
     <h2>Building binaries yourself:<br>
     </h2>
