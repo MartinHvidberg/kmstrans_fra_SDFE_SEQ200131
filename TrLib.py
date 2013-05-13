@@ -449,7 +449,9 @@ def DescribeLabel(mlb):
 		descr_prj="Projection not ok"
 	elif (len(impl_dtm)>0 and len(dtm)==0):
 		dtm=impl_dtm
-	descr_dtm=DescribeDatum(dtm)
+	descr_dtm=None
+	if len(dtm)>0:	
+		descr_dtm=DescribeDatum(dtm)
 	if (descr_dtm is None):
 		descr_dtm="datum not ok"
 	if (len(h_dtm)>0):

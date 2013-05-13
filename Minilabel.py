@@ -21,10 +21,19 @@ def GetSystemLabels(mlb):
 		return GEO_LABELS
 	if proj=="crt":
 		return CRT_LABELS
-	if proj in ["s34j","s34s","s34b"]:
+	if proj in ["s34j","s34s","s34b","s45b","os","kk","gs","gsb"]:
 		return S34_LABELS
 	return PROJ_LABELS
 
+
+def IsProjWeaklyDefined(mlb):
+	try:
+		region,proj,datum,hdatum,htype=SplitMLB(mlb)
+	except:
+		return True
+	if proj in ["s34j","s34s","s34b","s45b","os","kk"]:
+		return True
+	return False
 
 def GetPlanarSystems(mlbs):
 	systems=[]
