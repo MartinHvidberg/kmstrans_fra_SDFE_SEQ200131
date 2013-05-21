@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Fri May 03 14:31:17 2013
+# Created: Tue May 21 15:07:21 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -537,14 +537,6 @@ class Ui_Trui(object):
         self.rdobt_f2f_kmsformat = QtGui.QRadioButton(self.groupBox_5)
         self.rdobt_f2f_kmsformat.setObjectName(_fromUtf8("rdobt_f2f_kmsformat"))
         self.horizontalLayout_9.addWidget(self.rdobt_f2f_kmsformat)
-        self.bt_f2f_settings = QtGui.QPushButton(self.groupBox_5)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.bt_f2f_settings.sizePolicy().hasHeightForWidth())
-        self.bt_f2f_settings.setSizePolicy(sizePolicy)
-        self.bt_f2f_settings.setObjectName(_fromUtf8("bt_f2f_settings"))
-        self.horizontalLayout_9.addWidget(self.bt_f2f_settings)
         self.verticalLayout.addLayout(self.horizontalLayout_9)
         self.verticalLayout_5.addWidget(self.groupBox_5)
         self.groupBox_3 = QtGui.QGroupBox(self.tab_ogr)
@@ -1006,8 +998,6 @@ class Ui_Trui(object):
         self.rdobt_f2f_simple_text.setText(_translate("Trui", "TEXT", None))
         self.rdobt_f2f_dsfl.setText(_translate("Trui", "DSFL", None))
         self.rdobt_f2f_kmsformat.setText(_translate("Trui", "KMSformat", None))
-        self.bt_f2f_settings.setWhatsThis(_translate("Trui", "Open settings specific for the TEXT format.", None))
-        self.bt_f2f_settings.setText(_translate("Trui", "Open TEXT settings", None))
         self.groupBox_3.setTitle(_translate("Trui", "Source", None))
         self.lbl_f2f_input_file.setText(_translate("Trui", "Input path or connection string: ", None))
         self.txt_f2f_input_file.setWhatsThis(_translate("Trui", "<html><head/><body><p>A simple file name or, if using OGR, a connection string to e.g. a database. Use * wildcards for globbing over several input files in a directory.</p></body></html>", None))
@@ -1099,5 +1089,5 @@ class Ui_Trui(object):
         self.actionRadians_derived.setText(_translate("Trui", "radians", None))
         self.actionSx_derived.setText(_translate("Trui", "sx: ddd mm ss.sss", None))
         self.actionNt_derived.setText(_translate("Trui", "nt: ddd mm.mmmm", None))
-        self.actionFile2file_settings.setText(_translate("Trui", "TEXT format settings", None))
+        self.actionFile2file_settings.setText(_translate("Trui", "TEXT/KMS format settings", None))
 

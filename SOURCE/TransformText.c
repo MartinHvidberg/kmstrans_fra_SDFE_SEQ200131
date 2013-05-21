@@ -444,7 +444,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 			/*test here if we should insert a z value also*/
 			if (insert_z && coords_found==2){
 				current_pos_out+=sprintf(current_pos_out,"%s",default_separator);
-				current_pos_out+=sputg(current_pos,coords[coord_order[2]],&type_height,""); 
+				current_pos_out+=sputg(current_pos_out,coords[coord_order[2]],&type_height,""); 
 				/*sprintf(current_pos_out,frmt_out,coords[coord_order[2]]);*/
 				if (append_unit){
 					if (space_in_sep)

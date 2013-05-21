@@ -1453,22 +1453,6 @@
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QPushButton" name="bt_f2f_settings">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="whatsThis">
-                <string>Open settings specific for the TEXT format.</string>
-               </property>
-               <property name="text">
-                <string>Open TEXT settings</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
           </layout>
@@ -2373,7 +2357,7 @@
   </action>
   <action name="actionFile2file_settings">
    <property name="text">
-    <string>TEXT format settings</string>
+    <string>TEXT/KMS format settings</string>
    </property>
   </action>
  </widget>

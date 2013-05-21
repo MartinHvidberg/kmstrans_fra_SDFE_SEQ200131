@@ -246,6 +246,22 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		if sep_char=="":
 			self.message("Specify column separation chars.")
 			return False
+		comments=str(self.txt_comments.text()).strip()
+		if len(comments)>0:
+			self.settings.comments=comments
+		else:
+			self.settings.comments=None
+		if self.chb_output_units.isChecked():
+			self.settings.units_in_output=True
+		else:
+			self.settings.units_in_output=False
+		self.settings.output_geo_unit="dg"
+		if self.rdb_sx.isChecked():
+			self.settings.output_geo_unit="sx"
+		elif self.rdb_nt.isChecked():
+			self.settings.output_geo_unit="nt"
+		elif self.rdb_rad.isChecked():
+			self.settings.output_geo_unit="rad"
 		#else get the stuff from other boxes...#
 		self.settings.col_x=col_x
 		self.settings.col_y=col_y
@@ -411,7 +427,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
-		self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
+		#self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)

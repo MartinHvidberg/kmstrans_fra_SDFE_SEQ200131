@@ -62,6 +62,9 @@ class F2F_Settings(object):
 		self.input_layers=[]
 		self.accepted=False
 		self.sep_char=None
+		self.comments=None
+		self.units_in_output=False
+		self.output_geo_unit="dg"
 		self.log_file=None
 		self.is_done=False
 		self.is_started=False
@@ -194,6 +197,11 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-z', '%d' %options.col_z]
 		if options.sep_char is not None:
 			args+=['-sep', options.sep_char]
+		if options.units_in_output:
+			args+=['-ounits']
+		if options.comments is not None:
+			args+=['-comments',options.comments]
+		
 	elif options.driver=="DSFL":
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'DSFL' driver you can batch several files using the * expansion char."
@@ -203,6 +211,13 @@ def TransformDatasource(options,log_method,post_method):
 			return False,"For the 'KMS' driver you can batch several files using the * expansion char."
 		args+=['-drv','KMS']
 		#TODO: implement extra options for KMS-driver#
+	if options.driver=="KMS" or options.driver=="TEXT":
+		if options.output_geo_unit=="sx":
+			args+=['-sx']
+		elif options.output_geo_unit=="nt":
+			args+=['-nt']
+		elif options.output_geo_unit=="rad":
+			args+=['-rad']
 	files=glob.glob(options.ds_in)
 	if len(files)==0:
 		files=[options.ds_in]  #OK so we assume its not a file - could be a db or url.... TODO: see if WFS or similar driver is specified....
