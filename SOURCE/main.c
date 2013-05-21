@@ -60,6 +60,12 @@ void Usage(int help){
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
+	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
+	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
+	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
+	printf("-sx  Use sexagesimal format for output of geographic coordinates.\n");
+	printf("-nt Use nautical units for output of geographic coordinates.\n");
+	printf("-rad Use radians for output of geographic coordinates.\n");
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
 	if (!help)
@@ -119,7 +125,7 @@ int message_handler(int err_class, int err_code, const char *msg){
 /*callback to a callback to a callback....
 * Will enable us to temporarily disable output from trlib via SetIgnoreErrors
 */
-void trlib_callback(LORD_CLASS errc,int err, char *msg){
+void trlib_callback(LORD_CLASS errc,int err, const char *msg){
 	Report(errc, err, VERB_HIGH, msg);
 }
 
@@ -160,8 +166,10 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:f:sep:x:y:z:log:dco:lco:n;v;a;"; /*for processing command line options*/
-    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0;
+    char *key,*val,opts[]="pin:drv:f:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;"; /*for processing command line options*/
+    char *output_geo_unit="dg",*comments=NULL;
+    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0;
+    struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
     TR *trf=NULL;
@@ -248,12 +256,26 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
+		else if (!strcmp(key,"comments")){
+			if (val)
+				comments=val;
+			else
+				goto usage;
+		}
 		else if (!strcmp(key,"v"))
 			be_verbose=1;
 		else if (!strcmp(key,"n"))
 			set_output_projection=0;
 		else if (!strcmp(key,"a"))
 			append_to_log=1;
+		else if (!strcmp(key,"ounits"))
+			units_in_output=1;
+		else if (!strcmp(key,"sx"))
+			output_geo_unit="sx";
+		else if (!strcmp(key,"nt"))
+			output_geo_unit="nt";
+		else if (!strcmp(key,"rad"))
+			output_geo_unit="rad";
 		else{
 			printf ("?? getopt returned character unknown option %s\n", key);
 			goto usage;
@@ -411,16 +433,26 @@ int main(int argc, char *argv[])
     }
     /* end DSFL */
     
-   else if (!strcmp(drv_in,"KMS")){ /*begin simple text */
-	   err=TransformText(inname,outname,trf,NULL,-1,-1,-1,1,1);
-    } /*end KMS*/
-    else if (!strcmp(drv_in,"TEXT")){ /*begin simple text */
+   else if (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT")){ /*begin simple text or KMS*/
+	frmt.col_x=col_x;
+	frmt.col_y=col_y;
+	frmt.col_z=col_z;
+	frmt.set_output_projection=set_output_projection;
+	frmt.sep_char=sep_char;
+	frmt.units_in_output=units_in_output;
+	frmt.output_geo_unit=output_geo_unit;
+	frmt.comments=comments;
+	frmt.is_kms_format=!strcmp(drv_in,"KMS");
+	frmt.units_in_output=units_in_output;
+	frmt.comments=comments;
+	if (!frmt.is_kms_format){
 	    if (sep_char)
 	        Report(REP_INFO,0,VERB_LOW,"Using column separator(s): %s",sep_char);
 	    else
 		Report(REP_INFO,0,VERB_LOW,"Using (all) whitespace as default column separator.");
-	    err=TransformText(inname,outname,trf,sep_char,col_x,col_y,col_z,set_output_projection,0);
-    } /* end simple text */
+        }
+	    err=TransformText(inname,outname,trf,frmt);
+    } /* end simple text /KMS */
     else if (!strcmp(drv_in,"OGR")){ /*begin OGR */
 	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos);
     }/* end OGR */	     

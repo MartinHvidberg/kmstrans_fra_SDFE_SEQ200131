@@ -1,2 +1,12 @@
 #include "trlib_api.h"
-int TransformText(char *inname, char *outname, TR *trf, char *sep_char, int col_x, int col_y, int col_z, int set_output_projection, int is_kms_format);
+struct format_options{
+int is_kms_format;
+int col_x,col_y,col_z;
+int set_output_projection;
+char *sep_char;
+int units_in_output;
+char *output_geo_unit; 
+char *comments;
+};
+
+int TransformText(char *inname, char *outname, TR *trf, struct format_options frmt);
