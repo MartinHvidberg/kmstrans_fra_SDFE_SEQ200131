@@ -501,6 +501,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if not ok:
 			if not os.path.exists(BIN_PREFIX):
 				msg+="\nDid you build binaries?"
+			msg+="\nYou may need to rebuild libraries..."
 			self.message("Failed to load transformation library:\n%s" %msg)
 			self.close()
 			sys.exit(1)
@@ -510,7 +511,9 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.loadSettings()
 		if self.geoids is None and "TR_TABDIR" in os.environ:
 			self.geoids=os.environ["TR_TABDIR"]
-		while (not ok) or (self.geoids is None):
+		tries=0
+		max_tries=2 #only try twice....
+		while ((not ok) or (self.geoids is None)) and tries<max_tries:
 			if self.geoids is not None:
 				try:
 					ok=TrLib.InitLibrary(self.geoids,None,None)
@@ -519,14 +522,15 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			if not ok:
 				self.message("Geoid dir is not set - please select a valid geoid directory.")
 				self.geoids=self.selectTabDir()
+				tries+=1
+		if not ok:
+			self.message("Unable to set geoid dir - exiting...")
+			self.close()
+			sys.exit(1)
 		TrLib.SetThreadMode(False)
 		os.environ["TR_TABDIR"]=self.geoids
-		#Now that trlib is initlialised we can define these objects - kind of ineffective this way. Would be great to expose the projection object directly...#
-		self.numeric_scale_transf=TrLib.CoordinateTransformation("","geo_etrs89")
-		self.fallback_ellipsoid=TrLib.GetEllipsoidParametersFromDatum("etrs89")
-		self.coordinate_transformation=TrLib.CoordinateTransformation("","")
-		#Initialse the map transformation#
-		self.map_transformation=TrLib.CoordinateTransformation("geo_wgs84","geo_wgs84")
+		#Now that trlib is initlialised we can define these objects
+		self.initTransformations()
 		#Will initialise some attributes which must be present in other methods#
 		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
 		self.initF2FTab()
@@ -545,6 +549,19 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		sys.stderr=RedirectOutput(self.handleStdErr)
 		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
 		self.show()
+	def closeTransformations(self):
+		if self.numeric_scale_transf is not None:
+			self.numeric_scale_transf.Close()
+		if self.coordinate_transformation is not None:
+			self.coordinate_transformation.Close()
+		if self.map_transformation is not None:
+			self.map_transformation.Close()
+	def initTransformations(self):
+		self.numeric_scale_transf=TrLib.CoordinateTransformation("","geo_etrs89")
+		self.fallback_ellipsoid=TrLib.GetEllipsoidParametersFromDatum("etrs89")
+		self.coordinate_transformation=TrLib.CoordinateTransformation("","")
+		#Initialse the map transformation#
+		self.map_transformation=TrLib.CoordinateTransformation("geo_wgs84","geo_wgs84")
 	def onExit(self):
 		self.close()
 	def onActionWhatsThis(self):
@@ -695,7 +712,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_in_clicked(self):
 		mlb_in=str(self.cb_input_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
+		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS,False)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
 			self.transform_input(True,False)
@@ -1233,17 +1250,24 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		
 	def selectTabDir(self):
 		my_file = str(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
+		for name in TrLib.REQUIRED_FILES:
+			if not os.path.exists(os.path.join(my_file,name)):
+				self.message("Required file %s not found." %name)
+				return None
 		return my_file
 	def changeTabDir(self):
 		my_file = self.selectTabDir()
-		if len(my_file)>0:
+		if my_file is not None and len(my_file)>0:
+			self.closeTransformations()
 			ok,msg=TrLib.SetGeoidDir(my_file)
 			if ok:
 				self.lbl_geoid_dir_value.setText(os.path.realpath(my_file))
 				self.geoids=my_file
 				os.environ["TR_TABDIR"]=self.geoids
 			else:
-				self.message("Failed to set geoid dir!\n%s" %msg)
+				TrLib.SetGeoidDir(self.geoids)
+				self.message("Failed to change geoid dir!\n%s" %msg)
+			self.initTransformations()
 	#PLUGIN LOADER#
 	def loadPlugins(self):
 		plugins=GetPlugins(PLUGIN_PATH)

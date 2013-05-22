@@ -58,12 +58,13 @@ def GetImplicitDatum(mlb_prj):
 		raise LabelException("Label not OK!")
 	return impl_dtm
 
-def ChangeHeightSystem(mlb,default_systems, allowed_systems=None):
+def ChangeHeightSystem(mlb,default_systems, allowed_systems=None,allow_no_heights=True):
 	try:
 		region,proj,datum,hdatum,htype=SplitMLB(mlb)
 	except:
 		return mlb
-	if "crt" in proj:
+	
+	if proj=="crt":
 		return mlb
 	if len(datum)==0:
 		sdtm=GetImplicitDatum(proj)
@@ -73,17 +74,23 @@ def ChangeHeightSystem(mlb,default_systems, allowed_systems=None):
 		systems=allowed_systems[sdtm]
 	else:
 		systems=default_systems
+	i=0
 	if not hdatum in systems:
-		default=systems[0]
+		default=systems[i]
 	else:
 		i=(systems.index(hdatum)+1) % len(systems)
 		default=systems[i]
+	if (not allow_no_heights) and default=="_": #go to next system
+		default=systems[(i+1)% len(systems)]
 	out=""
 	if region!="":
 		out=region+"_"
 	out+=proj
 	if default in ["E","N"]:
 		out+=default+datum
+	elif default=="_":
+		if len(datum)>0:
+			out+="_"+datum
 	else:
 		out+="H"+datum+"_h_"+default
 	for param in GetParameters(mlb):

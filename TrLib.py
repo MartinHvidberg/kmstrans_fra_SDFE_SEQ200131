@@ -429,7 +429,7 @@ def DescribeDatum(mlb_dtm):
 		if (mlb_dtm=="E"):
 			return "Ellipsoidal heights"
 		if (mlb_dtm=="N"):
-			return "Normal heights"
+			return "Mean Sea Level heights"
 		descr=ctypes.create_string_buffer(512)
 		rc=tr_lib.doc_dtm(mlb_dtm,descr,0)
 		if (rc==TR_OK):
@@ -459,7 +459,7 @@ def DescribeLabel(mlb):
 		if (descr_h_dtm is None):
 			descr_h_dtm="height datum not ok"
 	else:
-		descr_h_dtm=""
+		descr_h_dtm="No heights"
 	descr=descr_prj+", "+descr_dtm
 	if len(descr_h_dtm)>0:
 		descr+=", "+descr_h_dtm
