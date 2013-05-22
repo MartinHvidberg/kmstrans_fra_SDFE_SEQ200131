@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Tue May 21 15:07:23 2013
+# Created: Wed May 22 08:48:37 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(791, 458)
+        Dialog.resize(748, 514)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.groupBox = QtGui.QGroupBox(Dialog)
@@ -78,6 +78,8 @@ class Ui_Dialog(object):
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem1, 0, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout)
+        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem2)
         self.chb_output_units = QtGui.QCheckBox(self.groupBox)
         self.chb_output_units.setObjectName(_fromUtf8("chb_output_units"))
         self.verticalLayout_3.addWidget(self.chb_output_units)
@@ -150,8 +152,8 @@ class Ui_Dialog(object):
         self.gridLayout_3.addLayout(self.formLayout_4, 0, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_3)
         self.verticalLayout.addWidget(self.groupBox)
-        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem2)
+        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem3)
         self.groupBox_2 = QtGui.QGroupBox(Dialog)
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_2)
@@ -170,12 +172,12 @@ class Ui_Dialog(object):
         self.rdb_rad.setObjectName(_fromUtf8("rdb_rad"))
         self.horizontalLayout_3.addWidget(self.rdb_rad)
         self.verticalLayout.addWidget(self.groupBox_2)
-        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem3)
+        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem4)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem4)
+        spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem5)
         self.bt_apply = QtGui.QPushButton(Dialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -195,15 +197,15 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.retranslateUi(Dialog)
-        QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("pressed()")), self.chb_space.click)
+        QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_space.setChecked)
         QtCore.QObject.connect(self.chb_has_z, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.spb_col_z.setEnabled)
-        QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("pressed()")), self.chb_tab.click)
+        QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_tab.setChecked)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
         self.groupBox.setTitle(_translate("Dialog", "Text Format", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). </p><p>If no units are found they are considered as either <span style=\" font-weight:600;\">meters or degrees</span> (for geographic coordinates).</p><p> If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and it\'s unit:</p><p>Use <span style=\" font-weight:600;\">500000m</span>, NOT <span style=\" font-weight:600;\">500000 m</span>. </p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
         self.label_2.setText(_translate("Dialog", "Column separators:", None))
         self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
         self.chb_tab.setText(_translate("Dialog", "Tab", None))
@@ -221,10 +223,10 @@ class Ui_Dialog(object):
         self.label_3.setText(_translate("Dialog", "X column", None))
         self.label_4.setText(_translate("Dialog", "Z column", None))
         self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. Applies to both KMS and TEXT formats!", None))
-        self.rdb_dg.setText(_translate("Dialog", "Degrees (dg)", None))
-        self.rdb_sx.setText(_translate("Dialog", "Sexagesimal (sx)", None))
-        self.rdb_nt.setText(_translate("Dialog", "Nautical units (nt)", None))
-        self.rdb_rad.setText(_translate("Dialog", "Radians (rad)", None))
+        self.rdb_dg.setText(_translate("Dialog", "Degrees (dg: ddd.ddd...)", None))
+        self.rdb_sx.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))
+        self.rdb_nt.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))
+        self.rdb_rad.setText(_translate("Dialog", "Radians (rad: rr.rrrr...)", None))
         self.bt_apply.setToolTip(_translate("Dialog", "Click to apply changes", None))
         self.bt_apply.setText(_translate("Dialog", "Apply", None))
         self.bt_close.setToolTip(_translate("Dialog", "Press to apply changes and close", None))

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
-    <height>458</height>
+    <width>748</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format: field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Remember to click the 'Apply' button to apply changes!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format: field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Coordinates may have units (m, km, dg, sx, nt or rad). &lt;/p&gt;&lt;p&gt;If no units are found they are considered as either &lt;span style=&quot; font-weight:600;&quot;&gt;meters or degrees&lt;/span&gt; (for geographic coordinates).&lt;/p&gt;&lt;p&gt; If the column separators inlcude a blank/space (' '), remember to &lt;span style=&quot; font-weight:600;&quot;&gt;NOT&lt;/span&gt; include a space between a coordinate and it's unit:&lt;/p&gt;&lt;p&gt;Use &lt;span style=&quot; font-weight:600;&quot;&gt;500000m&lt;/span&gt;, NOT &lt;span style=&quot; font-weight:600;&quot;&gt;500000 m&lt;/span&gt;. &lt;/p&gt;&lt;p&gt;Remember to click the 'Apply' button to apply changes!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -131,6 +131,19 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QCheckBox" name="chb_output_units">
@@ -287,7 +300,7 @@
       <item>
        <widget class="QRadioButton" name="rdb_dg">
         <property name="text">
-         <string>Degrees (dg)</string>
+         <string>Degrees (dg: ddd.ddd...)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -297,21 +310,21 @@
       <item>
        <widget class="QRadioButton" name="rdb_sx">
         <property name="text">
-         <string>Sexagesimal (sx)</string>
+         <string>Sexagesimal (sx: dddmmss.sss...)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="rdb_nt">
         <property name="text">
-         <string>Nautical units (nt)</string>
+         <string>Nautical units (nt: ddd mm.mmm...)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="rdb_rad">
         <property name="text">
-         <string>Radians (rad)</string>
+         <string>Radians (rad: rr.rrrr...)</string>
         </property>
        </widget>
       </item>
@@ -386,9 +399,9 @@
  <connections>
   <connection>
    <sender>chb_whitespace</sender>
-   <signal>pressed()</signal>
+   <signal>toggled(bool)</signal>
    <receiver>chb_space</receiver>
-   <slot>click()</slot>
+   <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
@@ -418,9 +431,9 @@
   </connection>
   <connection>
    <sender>chb_whitespace</sender>
-   <signal>pressed()</signal>
+   <signal>toggled(bool)</signal>
    <receiver>chb_tab</receiver>
-   <slot>click()</slot>
+   <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>65</x>

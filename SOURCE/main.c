@@ -33,7 +33,36 @@
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
+static void unescape(char*);
 static char *INPUT_DRIVERS[]={"DSFL","TEXT","KMS","OGR",0};
+
+/* quick and dirty unescaper - can be hard to enter literal tabs,newlines etc in some shells*/
+static void unescape(char *text){
+	char *out=text;
+	while(*text){
+		if (*text=='\\'){ /* if a literal escape character */
+			switch(*(text+1)){
+				case 'r':
+					*(out++)='\r';
+					text+=2;
+					break;
+				case 'n':
+					*(out++)='\n';
+					text+=2;
+					break;
+				case 't':
+					*(out++)='\t';
+					text+=2;
+					break;
+				default:
+					*(out++)=*(text++); /*simply copy*/
+			}
+		}
+		else
+			*(out++)=*(text++);
+	}
+	*out='\0';
+}
 
 void Usage(int help){
 	printf("To run:\n");
@@ -434,6 +463,27 @@ int main(int argc, char *argv[])
     /* end DSFL */
     
    else if (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT")){ /*begin simple text or KMS*/
+	frmt.is_kms_format=!strcmp(drv_in,"KMS");
+	if (!frmt.is_kms_format){
+	    if (sep_char)
+	        Report(REP_INFO,0,VERB_LOW,"Using column separator(s): %s",sep_char);
+	    else
+		Report(REP_INFO,0,VERB_LOW,"Using (all) whitespace as default column separator.");
+        }
+	if (comments)
+		unescape(comments);
+	if (sep_char){
+		unescape(sep_char);
+		#ifdef _DEBUG
+		{
+			char *tmp=sep_char;
+			while (*tmp){
+				printf("\nsep:%c\n",*tmp);
+				tmp++;
+			}
+		}
+		#endif
+	}
 	frmt.col_x=col_x;
 	frmt.col_y=col_y;
 	frmt.col_z=col_z;
@@ -442,16 +492,10 @@ int main(int argc, char *argv[])
 	frmt.units_in_output=units_in_output;
 	frmt.output_geo_unit=output_geo_unit;
 	frmt.comments=comments;
-	frmt.is_kms_format=!strcmp(drv_in,"KMS");
+	
 	frmt.units_in_output=units_in_output;
 	frmt.comments=comments;
-	if (!frmt.is_kms_format){
-	    if (sep_char)
-	        Report(REP_INFO,0,VERB_LOW,"Using column separator(s): %s",sep_char);
-	    else
-		Report(REP_INFO,0,VERB_LOW,"Using (all) whitespace as default column separator.");
-        }
-	    err=TransformText(inname,outname,trf,frmt);
+        err=TransformText(inname,outname,trf,frmt);
     } /* end simple text /KMS */
     else if (!strcmp(drv_in,"OGR")){ /*begin OGR */
 	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos);

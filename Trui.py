@@ -225,7 +225,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 			return False
 		sep_char=""
 		if self.chb_whitespace.isChecked():
-			sep_char=None
+			sep_char+=" \\t"
 		else:
 			if self.chb_space.isChecked():
 				sep_char+=" "
@@ -326,6 +326,7 @@ class TextViewer(QDialog):
 	"""Class to display text files"""
 	def __init__(self,parent,txt=None,fname=None):
 		QDialog.__init__(self,parent)
+		self.setWindowTitle("Text Viewer")
 		self.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 		txt_field=QTextEdit(self)
 		txt_field.setCurrentFont(QFont("Courier",9))
