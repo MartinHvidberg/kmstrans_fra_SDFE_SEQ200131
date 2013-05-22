@@ -25,10 +25,10 @@
     <ul>
       <li>OGR – A library of vector data formats compiled by the Open
         Source Geospatial Foundation to be used with GDAL</li>
-      <li>Text – Simple text format which can be modified</li>
+      <li>TEXT – Simple text format which can be modified</li>
       <li>DSFL – Format developed for exchange of data by Dansk Selskab
         for Fotogrammetri og Landmåling (now GeoForum)</li>
-      <li>KMSformat – Internal data format from Kort &amp;
+      <li>KMS format – Internal data format from Kort &amp;
         Matrikelstyrelsen (now Geodatastyrelsen)<br>
       </li>
     </ul>
@@ -36,7 +36,7 @@
     except for input formats readable by OGR, where a specific OGR
     output format can be chosen. <br>
     <ul>
-      <li>&nbsp;OGR - a range of common vector formats, including
+      <li>&nbsp;<b>OGR</b> - a range of common vector formats, including
         various databases, depending on your GDAL installation. </li>
     </ul>
     <blockquote>Available input and output vector data formats will
@@ -58,9 +58,10 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       <br>
     </blockquote>
     <ul>
-      <li>&nbsp;TEXT - simple column based text format with one point on
-        each line. The column separator and sequence of coordinates in
-        the columns can be specified in the File2file settings dialog..</li>
+      <li><b>&nbsp;TEXT</b> - simple column based text format with one
+        point on each line. The column separator and sequence of
+        coordinates in the columns can be specified in the File2file
+        settings dialog..</li>
     </ul>
     <blockquote>When pressing the Open Text settings button, the
       File2File settings appear. Here the column separators must be set
@@ -88,22 +89,43 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
         href="file:///C:/Dev/trui/doc/mini_labels.html">Mini Labels
         page.</a><b><br>
         <br>
-        NOTE:</b> KMSTrans2 expects geographical input coordinates to be
-      in decimal degrees. Generally input coordinates must be decimal
-      numbers without spaces or units. If you have a more complicated
-      format consider using&nbsp; the KMS-format which accepts things
-      like units and spaces in coordinates (and remember to use two
-      spaces as column separator).<br>
+        NOTE:</b> Coordinates can have units like <b>m</b> or <b>km</b>
+      and for geographic coordinates <b>dg, sx, nt </b>or <b>rad</b>.
+      If <b>no units</b> are found KMSTrans2 expects geographical input
+      coordinates to be in <b>decimal degrees</b> and <b>meters</b>
+      for other systems. If you use <b>space</b> ' ' as a column
+      separator, remember <b>NOT </b>to include spaces between
+      coordinates and units or spaces in coordinates, e.g.:<br>
+      Use<b> 6143200.1m</b> rather than <b>6 143 200.1 m</b><br>
+      <br>
+      A valid format using ',' separator and geographic input
+      coordinates could also be<br>
+      <br>
+      CITY ,&nbsp; 55 10 20.00 sx , 11 35 40.21 sx<br>
+      <br>
+      or using white space as separator:<br>
+      <br>
+      CITY&nbsp;&nbsp; 551020.00sx&nbsp;&nbsp; 113540.21sx<br>
+      <br>
+      Note that leading white space or repeated white space in between
+      fields will have no significance. When using white space as
+      separator the 'TEXT' format will decide that a new column has
+      started after finding the first space or tab character, and will
+      the skip all subsequent white space until the first regular
+      character is found (or the line is terminated).<br>
+      <br>
+      <br>
+      <br>
     </blockquote>
     <ul>
-      <li>&nbsp;KMSformat - A special text format used internally at
-        KMS/GST. </li>
+      <li>&nbsp;<b>KMS format</b> - A special text format used
+        internally at KMS/GST. </li>
     </ul>
-    <blockquote>Column separator is *always* at least two spaces and
-      coordinates must have units. The implementation in KMSTrans2 is
-      (still) a 'thin' version of the KMSformat - the region prefix
-      of&nbsp; a coordinate MiniLabel does not infer special parsing /
-      writing of station names. <br>
+    <blockquote>Column separator is *always* at least two spaces or a
+      tabulator character and coordinates must have units. The
+      implementation in KMSTrans2 is (still) a 'thin' version of the KMS
+      format - the region prefix of&nbsp; a coordinate MiniLabel does
+      not infer special parsing / writing of station names. <br>
       <br>
       A line with coordinates could look like: <br>
       <br>
@@ -120,7 +142,7 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       &lt;extra_attributes&gt;<br>
       <br>
       The <b>order</b> of the coordinates, e.g. X,Y (,Z) or Y,X (,Z)
-      depends on the input system, but generally the KMSformat expects
+      depends on the input system, but generally the KMS format expects
       planar coordinates in the order N,E (Northing, Easting).<br>
       See the<a href="mini_labels.html"> MiniLabels page</a> for more
       details!<br>
@@ -128,16 +150,33 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     <blockquote>The input system is specified like for the TEXT-format
       using mini labels as for instance:&nbsp; #utm32_etrs89<br>
       <b><br>
-        NOTE</b>:&nbsp; with the eralier KMStrans software,
+        NOTE</b>:&nbsp; with the earlier KMStrans software,
       modifications to the KMS format was possible. This is not possible
-      with KMSTrans2. Files which could be read by KMStrans can
-      therefore not always be read by KMSTrans2, if for instance units,
-      point ID or other information is not included. In such cases, the
-      user is encouraged to use the TEXT format instead. <br>
+      with KMSTrans2, except for modifications of output unit for
+      geographic coordinates. Files which could be read by KMStrans can
+      therefore not always be read by KMSTrans2, if for instance point
+      ID or other information is not included. In such cases, the user
+      is encouraged to use the TEXT format instead. <br>
+      <br>
+      When using KMS format the program will skip, but copy, all lines
+      starting with either <b>* or ;</b>&nbsp; - so a valid format
+      could also be:<br>
+      <br>
+      &nbsp;K -01-02397 f&nbsp;&nbsp;&nbsp; 6 178 913.1051
+      m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 722 090.5882
+      m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      63.79041 m&nbsp; *<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      ;&nbsp;&nbsp;&nbsp;&nbsp; 1997 01 17,
+      11.49&nbsp;&nbsp;&nbsp;&nbsp; 1997 01 17, 11.49<br>
+      <br>
+      in which case trogr will not attempt to read coordinates from the
+      second line. <br>
     </blockquote>
     <br>
     <ul>
-      <li>DSFL - a specific Danish exchange format for vector data.</li>
+      <li><b>DSFL</b> - a specific Danish exchange format for vector
+        data.</li>
     </ul>
     <blockquote>More information on the DSFL format can be found on the
       web site of GeoForum: <a
@@ -155,7 +194,7 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     existing file, which is <b>not</b> a directory, trogr will try to
     delete the existing datasource and create a new one (i.e.
     overwrite).<br>
-    For the other, textual, formats TEXT, KMSformat and DSFL, the
+    For the other, textual, formats TEXT, KMS format and DSFL, the
     behaviour is always to overwrite an existing file by the same name
     as the output file.
     <blockquote> <br>
