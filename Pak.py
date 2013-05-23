@@ -37,8 +37,8 @@ except:
 #write build info#
 os.system("hg identify > .\\dist\\build_info.txt")
 f=open(".\\dist\\build_info.txt","a")
-f.write("Built with py2exe on %s\n" %time.asctime())
-f.write("Python version: %s" %sys.version)
+f.write("\nBuilt with py2exe on %s\n" %time.asctime())
+f.write("Python version:\n%s" %sys.version)
 f.close()
 os.rename("dist\\Trui.exe","dist\\KMSTrans2.exe")
 os.rename("dist",oname)
