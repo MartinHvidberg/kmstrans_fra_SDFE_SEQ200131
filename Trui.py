@@ -255,6 +255,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 			self.settings.units_in_output=True
 		else:
 			self.settings.units_in_output=False
+		self.settings.flip_xy=bool(self.chb_invert_xy.isChecked())
 		self.settings.output_geo_unit="dg"
 		if self.rdb_sx.isChecked():
 			self.settings.output_geo_unit="sx"

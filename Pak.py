@@ -4,6 +4,15 @@ import shutil
 import os
 import sys
 import glob
+import time
+if len(sys.argv)>1:
+	oname=sys.argv.pop(1)
+else:
+	oname="KMSTRANS2"
+try:
+	shutil.rmtree("dist") #delete previous output
+except:
+	pass
 sys.argv.append("py2exe")
 extra_files=["icon.png","LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
@@ -25,6 +34,12 @@ try:
 	shutil.copytree("doc","dist\\doc")
 except:
 	print("Could not copy documentation")
+#write build info#
+os.system("hg identify > .\\dist\\build_info.txt")
+f=open(".\\dist\\build_info.txt","a")
+f.write("Built with py2exe on %s\n" %time.asctime())
+f.write("Python version: %s" %sys.version)
+f.close()
 os.rename("dist\\Trui.exe","dist\\KMSTrans2.exe")
-os.rename("dist","KMSTRANS2")
+os.rename("dist",oname)
 sys.exit()

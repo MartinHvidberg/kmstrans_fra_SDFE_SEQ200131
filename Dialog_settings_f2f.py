@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Wed May 22 08:48:37 2013
+# Created: Thu May 23 10:02:43 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(748, 514)
+        Dialog.resize(825, 587)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.groupBox = QtGui.QGroupBox(Dialog)
@@ -83,15 +83,17 @@ class Ui_Dialog(object):
         self.chb_output_units = QtGui.QCheckBox(self.groupBox)
         self.chb_output_units.setObjectName(_fromUtf8("chb_output_units"))
         self.verticalLayout_3.addWidget(self.chb_output_units)
-        self.formLayout_2 = QtGui.QFormLayout()
-        self.formLayout_2.setObjectName(_fromUtf8("formLayout_2"))
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         self.commentaryLinesStartWithLabel = QtGui.QLabel(self.groupBox)
         self.commentaryLinesStartWithLabel.setObjectName(_fromUtf8("commentaryLinesStartWithLabel"))
-        self.formLayout_2.setWidget(0, QtGui.QFormLayout.LabelRole, self.commentaryLinesStartWithLabel)
+        self.horizontalLayout_4.addWidget(self.commentaryLinesStartWithLabel)
         self.txt_comments = QtGui.QLineEdit(self.groupBox)
         self.txt_comments.setObjectName(_fromUtf8("txt_comments"))
-        self.formLayout_2.setWidget(0, QtGui.QFormLayout.FieldRole, self.txt_comments)
-        self.verticalLayout_3.addLayout(self.formLayout_2)
+        self.horizontalLayout_4.addWidget(self.txt_comments)
+        spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem3)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
         self.label_6 = QtGui.QLabel(self.groupBox)
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.verticalLayout_3.addWidget(self.label_6)
@@ -151,9 +153,12 @@ class Ui_Dialog(object):
         self.formLayout_4.setWidget(0, QtGui.QFormLayout.FieldRole, self.spb_col_z)
         self.gridLayout_3.addLayout(self.formLayout_4, 0, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_3)
+        self.chb_invert_xy = QtGui.QCheckBox(self.groupBox)
+        self.chb_invert_xy.setObjectName(_fromUtf8("chb_invert_xy"))
+        self.verticalLayout_3.addWidget(self.chb_invert_xy)
         self.verticalLayout.addWidget(self.groupBox)
-        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem3)
+        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem4)
         self.groupBox_2 = QtGui.QGroupBox(Dialog)
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_2)
@@ -172,12 +177,12 @@ class Ui_Dialog(object):
         self.rdb_rad.setObjectName(_fromUtf8("rdb_rad"))
         self.horizontalLayout_3.addWidget(self.rdb_rad)
         self.verticalLayout.addWidget(self.groupBox_2)
-        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem4)
+        spacerItem5 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem5)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem5)
+        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem6)
         self.bt_apply = QtGui.QPushButton(Dialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -222,6 +227,8 @@ class Ui_Dialog(object):
         self.chb_has_z.setText(_translate("Dialog", "Has z", None))
         self.label_3.setText(_translate("Dialog", "X column", None))
         self.label_4.setText(_translate("Dialog", "Z column", None))
+        self.chb_invert_xy.setToolTip(_translate("Dialog", "Swap the order of x and y columns in output.", None))
+        self.chb_invert_xy.setText(_translate("Dialog", "Invert output x/y column order", None))
         self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. Applies to both KMS and TEXT formats!", None))
         self.rdb_dg.setText(_translate("Dialog", "Degrees (dg: ddd.ddd...)", None))
         self.rdb_sx.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))

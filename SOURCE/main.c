@@ -73,7 +73,7 @@ void Usage(int help){
 	if (help)
 		printf("For the DSFL driver the -p switch can *not* be used.\n");
 	printf("-drv <input_driver> Optional. Will default to 'OGR'. Output driver will be the same as the input driver.\n");
-	printf("-f <output_ogr_driver> Optional. defaults to 'ESRI Shapefile'.\n");
+	printf("-of <output_ogr_driver> Optional. defaults to 'ESRI Shapefile'.\n");
 	printf("-dco <datasource_creation_options> OGR driver specific datasource creation options (comma separated list of key=value pairs).\n");
 	printf("-lco <layer_creation_options> OGR driver specific layer creation options (comma separated list of key=value pairs).\n");
 	printf("-log <log_file> Specify log file.\n");
@@ -89,6 +89,7 @@ void Usage(int help){
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
+	printf("-flipxy Invert order of x and y columns in output.\n");
 	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
 	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
 	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
@@ -117,7 +118,7 @@ void ListFormats(void){
 	fprintf(stdout,"%s\nInput drivers:\n%s\n",stars,stars);
 	while ((drv_in=INPUT_DRIVERS[i++]))
 		fprintf(stdout,"%s\n",drv_in);
-	fprintf(stdout,"%s\nOutput drivers provided by OGR (option -f <driver>):\n%s\n",stars,stars);
+	fprintf(stdout,"%s\nOutput drivers provided by OGR (option -of <driver>):\n%s\n",stars,stars);
 	GetOGRDrivers(1,0); /*reset reading*/
 	while ((frmt=GetOGRDrivers(0,1))!=NULL)
 		fprintf(stdout,"%s\n",frmt);
@@ -195,9 +196,9 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:f:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;flipxy;"; /*for processing command line options*/
     char *output_geo_unit="dg",*comments=NULL;
-    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0;
+    int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -225,13 +226,14 @@ int main(int argc, char *argv[])
     do{
 	n_opts=my_get_opt(opts,argc,argv,&key,&val);
 	if (key){
+		/*printf("key: %s\n",key);*/
 		if (!strcmp(key,"pin")){
 			if (val)
 				mlb_in=val;
 		else
 			goto usage;
 		}
-		else if (!strcmp(key,"f")){
+		else if (!strcmp(key,"of")){
 			if (val)
 				drv_out=val;
 			else
@@ -305,6 +307,8 @@ int main(int argc, char *argv[])
 			output_geo_unit="nt";
 		else if (!strcmp(key,"rad"))
 			output_geo_unit="rad";
+		else if (!strcmp(key,"flipxy"))
+			flip_xy=1;
 		else{
 			printf ("?? getopt returned character unknown option %s\n", key);
 			goto usage;
@@ -470,6 +474,8 @@ int main(int argc, char *argv[])
 	    else
 		Report(REP_INFO,0,VERB_LOW,"Using (all) whitespace as default column separator.");
         }
+	if (flip_xy)
+		Report(REP_INFO,0,VERB_LOW,"Flipping output x/y columns.");
 	if (comments)
 		unescape(comments);
 	if (sep_char){
@@ -487,6 +493,7 @@ int main(int argc, char *argv[])
 	frmt.col_x=col_x;
 	frmt.col_y=col_y;
 	frmt.col_z=col_z;
+	frmt.flip_xy=flip_xy;
 	frmt.set_output_projection=set_output_projection;
 	frmt.sep_char=sep_char;
 	frmt.units_in_output=units_in_output;

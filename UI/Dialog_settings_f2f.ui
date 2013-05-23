@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>748</width>
-    <height>514</height>
+    <width>825</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -153,20 +153,33 @@
        </widget>
       </item>
       <item>
-       <layout class="QFormLayout" name="formLayout_2">
-        <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
          <widget class="QLabel" name="commentaryLinesStartWithLabel">
           <property name="text">
            <string>Commentary lines start with:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item>
          <widget class="QLineEdit" name="txt_comments">
           <property name="toolTip">
            <string>Skip but copy lines starting with the token defined here.</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -274,6 +287,16 @@
          </layout>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chb_invert_xy">
+        <property name="toolTip">
+         <string>Swap the order of x and y columns in output.</string>
+        </property>
+        <property name="text">
+         <string>Invert output x/y column order</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

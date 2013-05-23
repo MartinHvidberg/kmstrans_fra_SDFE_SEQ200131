@@ -55,6 +55,7 @@ class F2F_Settings(object):
 		self.col_x=None
 		self.col_y=None
 		self.col_z=None
+		self.flip_xy=False
 		self.set_projection=True
 		self.be_verbose=False
 		self.ds_in=None
@@ -179,7 +180,7 @@ def TransformDatasource(options,log_method,post_method):
 			frmt_out=options.format_out
 			if frmt_out in OGR_LONG_TO_SHORT:
 				frmt_out,dco,lco=OGR_LONG_TO_SHORT[frmt_out]
-			args+= ['-f',frmt_out]
+			args+= ['-of',frmt_out]
 			if len(dco)>0:
 				args+=['-dco',dco]
 			if len(lco)>0:
@@ -198,6 +199,8 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-z', '%d' %options.col_z]
 		if options.sep_char is not None:
 			args+=['-sep', options.sep_char]
+		if options.flip_xy:
+			args+=['-flipxy']
 		if options.units_in_output:
 			args+=['-ounits']
 		if options.comments is not None:

@@ -411,7 +411,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    flip_xy=(COORD_ORDER(trf->proj_in)!=COORD_ORDER(trf->proj_out));
 	    /*stupid exception - seems that cartesic have order 0 */
 	    flip_xy=flip_xy || (IS_CARTESIC(trf->proj_out) && (!IS_CARTESIC(trf->proj_in) && COORD_ORDER(trf->proj_in)==0));
-	}		
+	}
+	else
+		flip_xy=frmt.flip_xy;
 	if (flip_xy){
 		double old_x=coords[coord_order[0]];
 		coords[coord_order[0]]=coords[coord_order[1]];
