@@ -76,7 +76,11 @@ if not os.path.exists(PLUGIN_PATH):
 DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
-
+#SETUP ENV - SICKENING, BUT REALLY NEEDED TO MAKE SURE 
+#THAT THE GDAL VERSION WHICH PYTHON LOADS IS THE SAME AS THE ONE TROGR WILL USE!!!
+if IS_WINDOWS:
+	old_path=os.environ['PATH']
+	os.environ['PATH']=BIN_PREFIX+os.pathsep+old_path
 #If this folder is included its a sign that we're using a local gdal installation (dll's in bin folder)...
 if os.path.exists(GDAL_DATA_PATH):
 	os.environ["GDAL_DATA"]=GDAL_DATA_PATH
