@@ -166,7 +166,8 @@ def TransformDatasource(options,log_method,post_method):
 	#compose command and preanalyze validity#
 	args=[]
 	if options.log_file is not None:
-		args+=['-log',options.log_file]
+		#encode just in time#
+		args+=['-log',options.log_file.encode(sys.getfilesystemencoding())]
 	if not options.set_projection:
 		args+=['-n']
 	if options.be_verbose:
@@ -265,6 +266,9 @@ class WorkerThread(threading.Thread):
 			if done==1:
 				if ("-log") in args:
 					self.args.insert(1,"-a")
+			#encode in file system encoding - just in time #
+			f_out=f_out.encode(sys.getfilesystemencoding())
+			f_in=f_in.encode(sys.getfilesystemencoding())
 			args=self.args+[f_out,f_in]+self.layers
 			self.log_method(repr(args))
 			self.prc,msg=RunCommand(args,True)

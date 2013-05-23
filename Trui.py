@@ -94,7 +94,7 @@ else:
 
 
 
-VERSION="TRUI v2.0"
+VERSION="KMSTrans2 v2.01dev"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -507,29 +507,35 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			sys.exit(1)
 		TrLib.SetMessageHandler(LordCallback)
 		TrLib.SetMaxMessages(-1)
-		ok=False
+		#load settings now#
 		self.loadSettings()
 		if self.geoids is None and "TR_TABDIR" in os.environ:
 			self.geoids=os.environ["TR_TABDIR"]
 		tries=0
 		max_tries=2 #only try twice....
-		while ((not ok) or (self.geoids is None)) and tries<max_tries:
+		ok=False
+		while (not ok) and tries<max_tries:
 			if self.geoids is not None:
 				try:
 					ok=TrLib.InitLibrary(self.geoids,None,None)
 				except Exception, e_value:
 					self.message("Failed to initialise TrLib:\n%s" %(str(e_value)))
+				tries+=1
 			if not ok:
 				self.message("Geoid dir is not set - please select a valid geoid directory.")
 				self.geoids=self.selectTabDir()
-				tries+=1
+				if len(self.geoids)==0: #means a cancel in select geoid dir
+					self.geoids=None
+					break
+				
 		if not ok:
 			self.message("Unable to set geoid dir - exiting...")
 			self.close()
 			sys.exit(1)
 		TrLib.SetThreadMode(False)
-		os.environ["TR_TABDIR"]=self.geoids
-		#Now that trlib is initlialised we can define these objects
+		#important to set this var which will be passed on to trogr when running batch mode 
+		os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
+		#Now that trlib is initlialised we can define these tranformation objects#
 		self.initTransformations()
 		#Will initialise some attributes which must be present in other methods#
 		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
@@ -1009,36 +1015,36 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		my_file = QFileDialog.getOpenFileName(self, "Select a vector-data input file",self.dir)
 		if len(my_file)>0:
 			self.txt_f2f_input_file.setText(my_file)
-			self.dir=os.path.dirname(str(my_file))
+			self.dir=os.path.dirname(unicode(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_browse_input_dir_clicked(self):
 		my_file = QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir)
 		if len(my_file)>0:
 			self.txt_f2f_input_file.setText(my_file)
-			self.dir=os.path.dirname(str(my_file))
+			self.dir=os.path.dirname(unicode(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_browse_output_clicked(self):
 		my_file = QFileDialog.getSaveFileName(self, "Select a vector-data output file",self.dir)
 		if len(my_file)>0:
 			self.txt_f2f_output_file.setText(my_file)
-			self.dir=os.path.dirname(str(my_file))
+			self.dir=os.path.dirname(unicode(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_browse_output_dir_clicked(self):
 		my_file = QFileDialog.getExistingDirectory(self, "Select an output directory",self.dir)
 		if len(my_file)>0:
 			self.txt_f2f_output_file.setText(my_file)
-			self.dir=os.path.dirname(str(my_file))
+			self.dir=os.path.dirname(unicode(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_browse_log_clicked(self):
 		my_file = QFileDialog.getSaveFileName(self, "Select a log file",self.dir)
 		if len(my_file)>0:
 			self.txt_f2f_log_name.setText(my_file)
-			self.dir=os.path.dirname(str(my_file))
+			self.dir=os.path.dirname(unicode(my_file))
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_input_layers_clicked(self):
-		inname=str(self.txt_f2f_input_file.text())
+		inname=unicode(self.txt_f2f_input_file.text())
 		if len(inname)>0:
-			ds=File2File.Open(inname)
+			ds=File2File.Open(inname.encode(sys.getfilesystemencoding())) #do encoding here?
 			if ds is not None:
 				layers=File2File.GetLayerNames(ds)
 				File2File.Close(ds)
@@ -1067,8 +1073,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)
 	def transformFile2File(self):
-		file_in=str(self.txt_f2f_input_file.text())
-		file_out=str(self.txt_f2f_output_file.text())
+		file_in=unicode(self.txt_f2f_input_file.text())
+		file_out=unicode(self.txt_f2f_output_file.text())
 		self.f2f_settings.is_started=False
 		if len(file_in)==0:
 			self.message("Set input datasource!")
@@ -1106,7 +1112,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		else:
 			self.f2f_settings.driver="KMS"
 		if self.chb_f2f_use_log.isChecked():
-			log_name=str(self.txt_f2f_log_name.text())
+			log_name=unicode(self.txt_f2f_log_name.text())
 			if len(log_name)==0:
 				self.message("Specify log file name.")
 				return
@@ -1114,6 +1120,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		else:
 			log_name=None
 			self.f2f_settings.be_verbose=False
+		#encode filenames in file system encoding since we need to pass on to another  executable#
 		self.f2f_settings.log_file=log_name
 		self.f2f_settings.ds_in=file_in
 		self.f2f_settings.ds_out=file_out
@@ -1233,37 +1240,43 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		settings.beginGroup('data')
 		geoids=settings.value('geoids')
 		if geoids.isValid():
-			self.geoids=str(geoids.toString())
+			try:
+				self.geoids=unicode(geoids.toString())
+			except:
+				self.geoids=None
 		else:
 			self.geoids=None
 		dir=settings.value('path')
 		if dir.isValid():
-			self.dir=str(dir.toString())
+			try:
+				self.dir=unicode(dir.toString())
+			except:
+				self.dir=DEFAULT_PATH
 		else:
 			self.dir=DEFAULT_DIR
 		dir=settings.value('script_path')
 		if dir.isValid():
-			self.script_dir=str(dir.toString())
+			try:
+				self.script_dir=unicode(dir.toString())
+			except:
+				self.script_dir=self.dir
 		else:
 			self.script_dir=self.dir
 		settings.endGroup()
 		
 	def selectTabDir(self):
-		my_file = str(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
-		for name in TrLib.REQUIRED_FILES:
-			if not os.path.exists(os.path.join(my_file,name)):
-				self.message("Required file %s not found." %name)
-				return None
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
 		return my_file
+	
 	def changeTabDir(self):
 		my_file = self.selectTabDir()
-		if my_file is not None and len(my_file)>0:
+		if len(my_file)>0:
 			self.closeTransformations()
 			ok,msg=TrLib.SetGeoidDir(my_file)
 			if ok:
 				self.lbl_geoid_dir_value.setText(os.path.realpath(my_file))
 				self.geoids=my_file
-				os.environ["TR_TABDIR"]=self.geoids
+				os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
 			else:
 				TrLib.SetGeoidDir(self.geoids)
 				self.message("Failed to change geoid dir!\n%s" %msg)
