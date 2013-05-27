@@ -24,6 +24,7 @@ from Main_gui import Ui_Trui
 from BesselHelmert import BshlmWidget
 from PythonConsole import PythonWidget
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
+from Dialog_settings_gdal import Ui_Dialog as Ui_Dialog_gdal
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 from Dialog_creation_options import Ui_Dialog as Ui_Dialog_creation_options
 import Minilabel
@@ -42,7 +43,6 @@ else:
 	HAS_IMPORTLIB=True
 
 DEBUG="-debug" in sys.argv
-#OVERRIDE_LOCAL_GDAL="-my_gdal" in sys.argv
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
 	sys.frozen
@@ -60,10 +60,10 @@ IS_64_BIT="64" in platform.architecture()[0]
 BIN_PREFIX=os.path.join(PREFIX,"bin")
 TROGR=os.path.join(os.curdir,"bin",TROGRNAME)
 #PATHS TO A MINIMAL DEFAULT GDAL INSTALLATION ON WINDOWS
-#GDAL_PREFIX=os.path.join(PREFIX,"gdal")
-GDAL_DATA_PATH=os.path.join(PREFIX,"gdal-data")
-#GDAL_PLUGIN_PATH=os.path.join(GDAL_PREFIX,"plugins")
-#GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
+GDAL_PREFIX=os.path.join(PREFIX,"gdal")
+GDAL_DATA_PATH=os.path.join(GDAL_PREFIX,"gdal-data")
+GDAL_PLUGIN_PATH=os.path.join(GDAL_PREFIX,"plugins")
+GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
 #OTHER PATHS
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
@@ -78,13 +78,14 @@ DOC_PATH="file://"+PREFIX+"/"+"doc"
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
 #SETUP ENV - SICKENING, BUT REALLY NEEDED TO MAKE SURE 
 #THAT THE GDAL VERSION WHICH PYTHON LOADS IS THE SAME AS THE ONE TROGR WILL USE!!!
-if IS_WINDOWS:
-	old_path=os.environ['PATH']
-	os.environ['PATH']=BIN_PREFIX+os.pathsep+old_path
+#if IS_WINDOWS:
+#	old_path=os.environ['PATH']
+#	os.environ['PATH']=BIN_PREFIX+os.pathsep+old_path
 #If this folder is included its a sign that we're using a local gdal installation (dll's in bin folder)...
-if os.path.exists(GDAL_DATA_PATH):
-	os.environ["GDAL_DATA"]=GDAL_DATA_PATH
+#if os.path.exists(GDAL_DATA_PATH):
+#	os.environ["GDAL_DATA"]=GDAL_DATA_PATH
 
+UNMODIFIED_ENV=os.environ.copy()
 
 #DEFAULT DIR FOR FILE BROWSING - COULD BE STORED IN INI-FILE#
 if "HOME" in os.environ:
@@ -199,8 +200,104 @@ def GetNumericScale(x1,y1,coord_transf,axis,flat):
 		sc,m=-1,-1
 	return sc,m
 
+class GDALSettings(object):
+	""" Class which holds saved gdal settings """
+	load_mode=0 #0,1 or 2 - 0: inlcuded, 1: system gdal (default except windows), 2: customized
+	paths=["","",""]
+	predefined_paths=[GDAL_BIN_PATH,GDAL_DATA_PATH,GDAL_PLUGIN_PATH]
 
-	
+class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
+	def __init__(self,parent,settings):
+		QtGui.QDialog.__init__(self,parent)
+		self.settings=settings
+		self.parent=parent
+		self.dir=self.parent.dir
+		self.setupUi(self)
+		self.mode_buttons=[self.rdb_gdal_system,self.rdb_gdal_included,self.rdb_gdal_custom]
+		self.txt_paths=[self.txt_bin_folder,self.txt_data_folder,self.txt_plugin_folder]
+		self.browse_buttons=[self.bt_browse_bin,self.bt_browse_data,self.bt_browse_plugin]
+		for bt in self.mode_buttons:
+			bt.clicked.connect(self.onModeChange)
+			if not IS_WINDOWS:
+				box.setEnabled(False)
+		if settings.load_mode==0:
+			self.rdb_gdal_system.setChecked(True)
+		elif settings.load_mode==1:
+			self.rdb_gdal_included.setChecked(True)
+		else:
+			self.rdb_gdal_custom.setChecked(True)
+		self.onModeChange()
+	def onModeChange(self):
+		enable=not (self.rdb_gdal_system.isChecked() or self.rdb_gdal_included.isChecked())
+		for field in self.txt_paths:
+			field.setEnabled(enable)
+		for bt in self.browse_buttons:
+			bt.setEnabled(enable)
+		if self.rdb_gdal_system.isChecked():
+			self.txt_paths[0].setText("") #or ctypes.util.find_library("gdal")
+			i=1
+			for key in ["GDAL_DATA","GDAL_DRIVER_PATH"]:
+				field=self.txt_paths[i]
+				if key in os.environ:
+					field.setText(os.environ[key])
+				else:
+					field.setText("not defined")
+				i+=1
+			return
+		elif self.rdb_gdal_included.isChecked():
+			paths=self.settings.predefined_paths
+		else:
+			paths=self.settings.paths
+		for i in range(3):
+			self.txt_paths[i].setText(paths[i])
+	#TODO: implement this as a 'GetPath class' for reuse....
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_browse_bin_clicked(self):
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		if len(my_file)>0:
+			self.txt_paths[0].setText(my_file)
+			self.dir=my_file
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_browse_data_clicked(self):
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		if len(my_file)>0:
+			self.txt_paths[1].setText(my_file)
+			self.dir=my_file
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_browse_plugin_clicked(self):
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		if len(my_file)>0:
+			self.txt_paths[2].setText(my_file)
+			self.dir=my_file
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_apply_clicked(self):
+		changes=False
+		if self.rdb_gdal_system.isChecked():
+			mode=0
+		elif self.rdb_gdal_included.isChecked():
+			mode=1
+		else:
+			mode=2
+		if self.settings.load_mode!=mode:
+			changes=True
+			self.settings.load_mode=mode
+		if mode==2:
+			paths=[unicode(field.text()) for field in self.txt_paths]
+			if paths!=self.settings.paths:
+				changes=True
+				self.settings.paths=paths
+		if changes: #restart
+			self.parent.saveSettings()
+			subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
+			self.close()
+			self.parent.close()
+			return
+		self.close()
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_cancel_clicked(self):
+		self.close()
+			
+			
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 	"""Class for specifying options to TEXT and KMS drivers"""
 	def __init__(self,parent,settings):
@@ -454,8 +551,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.actionSx_derived.triggered.connect(self.setDerivedAngularUnitsSx)
 		self.actionGeoid_directory.triggered.connect(self.changeTabDir)
 		self.actionFile2file_settings.triggered.connect(self.openFile2FileSettings)
+		self.actionGDAL_settings.triggered.connect(self.openGDALSettings)
 		#end setup event handlers#
-		
 		#Set up convienient pointers to input and output#
 		self.input=[self.txt_x_in,self.txt_y_in,self.txt_z_in]
 		self.input_labels=[self.lbl_x_in,self.lbl_y_in,self.lbl_z_in]
@@ -478,6 +575,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
+		self.showing_gdal_dialog=False
 		self.output_cache=PointData()
 		self.mlb_in=None #New attribute - used to test whether we should upodate system info....
 		self.geo_unit=ANGULAR_UNIT_DEGREES
@@ -512,7 +610,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			sys.exit(1)
 		TrLib.SetMessageHandler(LordCallback)
 		TrLib.SetMaxMessages(-1)
-		#load settings now#
+		#Load settings now#
+		#Will setup various attributes and e.g. if we are running a local gdal installation#
 		self.loadSettings()
 		if self.geoids is None and "TR_TABDIR" in os.environ:
 			self.geoids=os.environ["TR_TABDIR"]
@@ -542,10 +641,19 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
 		#Now that trlib is initlialised we can define these tranformation objects#
 		self.initTransformations()
-		#Will initialise some attributes which must be present in other methods#
-		self.has_ogr=File2File.InitOGR(BIN_PREFIX)
-		self.initF2FTab()
-		self.drawMap()
+		#initialise the map#
+		self.initMap()
+		load_mode=self.gdal_settings.load_mode
+		if (load_mode==1 or load_mode==2) and IS_WINDOWS:
+			path=os.environ["PATH"]
+			if load_mode==1:
+				paths=self.gdal_settings.predefined_paths
+			else:
+				paths=self.gdal_settings.paths
+			os.environ["PATH"]=paths[0].encode(sys.getfilesystemencoding())+os.pathsep+path
+			os.environ["GDAL_DATA"]=paths[1].encode(sys.getfilesystemencoding())
+			os.environ["GDAL_DRIVER_PATH"]=paths[2].encode(sys.getfilesystemencoding())
+		self.loadOGR()
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
 		#Setup BSHLM tab#
 		self.tab_bshlm=BshlmWidget(self)
@@ -588,11 +696,15 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
 		self.dialog_f2f_settings.show()
+	def openGDALSettings(self):
+		if not self.showing_gdal_dialog:
+			dlg=DialogGDALSettings(self,self.gdal_settings)
+			dlg.show()
 	def onNewKMSTrans(self):
-		subprocess.Popen([sys.executable,sys.argv[0]])
+		subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
 		self.log_interactive("Starting new process")
 	#Map Stuff#	
-	def drawMap(self):
+	def initMap(self):
 		self.scene=QtGui.QGraphicsScene(self.gv_map)
 		self.gv_map.setScene(self.scene)
 		self.gv_map.setInteractive(True)
@@ -602,16 +714,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.scene.addLine(0,90,0,-90)
 		self.map_point=QtGui.QGraphicsEllipseItem(0,0,10,10)
 		self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 200)))
-		if self.has_ogr:
-			self.mapthread=MapThread(self)
-			self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
-		else:
-			self.scene.addItem(self.map_point)
+		self.scene.addItem(self.map_point) #always add it - then we can remove and add again later
+		
 	def customEvent(self,event):
 		if int(event.type())==RENDER_COMPLETE:
 			paths=self.mapthread.paths
 			self.log_interactive("Load of coastline completed. Rendering...")
 			t1=time.clock()
+			self.scene.removeItem(self.map_point)
 			for path in paths:
 				self.scene.addPath(path)
 			t2=time.clock()
@@ -957,14 +1067,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		#completer.setModel(QDirModel(completer))
 		#completer.setCompletionMode(QCompleter.InlineCompletion)
 		#self.txt_f2f_input_file.setCompleter(completer)
-		if not self.has_ogr:
-			self.rdobt_f2f_ogr.setEnabled(False)
-			self.log_f2f("OGR library not available. A proper gdal installation might not be present?")
-			self.tab_ogr.setEnabled(False)
-			return
-		#if IS_LOCAL_GDAL:
-		#	self.log_f2f("Using local GDAL installation.")
+		if self.gdal_settings.load_mode==1:
+			self.log_f2f("Using included GDAL installation.")
+		elif self.gdal_settings.load_mode==2:
+			self.log_f2f("Using custom GDAL installation.")
+		else:
+			self.log_f2f("Using system GDAL installation.")
 		frmts=File2File.GetOGRFormats()
+		self.cb_f2f_ogr_driver.clear()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
 		rc,msg=File2File.TestCommand()
@@ -972,6 +1082,24 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.message("Batch transformation program %s not availabe!" %TROGR)
 			self.tab_ogr.setEnabled(False)
 		self.log_f2f(msg)
+	
+	
+	def loadOGR(self):
+		self.has_ogr,msg=File2File.InitOGR(BIN_PREFIX)
+		if not self.has_ogr:
+			dmsg="OGR library not available: "+msg
+			dmsg+="\nA proper gdal installation might not be present?\nConsider changing your GDAL setting from the 'Settings' menu."
+			self.message(dmsg)
+			self.tab_ogr.setEnabled(False)
+			return
+		self.initF2FTab()
+		#decide if a mapthread should be started#
+		if self.has_ogr: #easier than setting all attrs to none as default
+			self.mapthread=MapThread(self)
+			self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
+		
+			
+			
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_execute_clicked(self):
 		self.transformFile2File()
@@ -1231,6 +1359,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		settings.setValue('size', self.size())
 		settings.setValue('position', self.pos())
 		settings.endGroup()
+		settings.beginGroup('gdal')
+		settings.setValue('load_mode',self.gdal_settings.load_mode)
+		settings.setValue('bin_path',self.gdal_settings.paths[0])
+		settings.setValue('data_path',self.gdal_settings.paths[1])
+		settings.setValue('plugin_path',self.gdal_settings.paths[2])
+		settings.endGroup()
 		settings.beginGroup('data')
 		settings.setValue('geoids',self.geoids)
 		settings.setValue('path',self.dir)
@@ -1242,6 +1376,19 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.resize(settings.value('size', self.size()).toSize())
 		self.move(settings.value('position', self.pos()).toPoint())
 		settings.endGroup()
+		self.gdal_settings=GDALSettings()
+		if not IS_WINDOWS:
+			self.gdal_settings.load_mode=0  #Standard mode for all but windows
+		else:
+			settings.beginGroup('gdal')
+			self.gdal_settings.load_mode,ok=settings.value('load_mode',1).toInt()
+			paths=[]
+			for key in ['bin_path','data_path','plugin_path']:
+				paths.append(unicode(settings.value(key,"").toString()))
+			self.gdal_settings.paths=paths
+			if DEBUG:
+				self.message("%s" %(repr(self.gdal_settings.__dict__)))
+			settings.endGroup()
 		settings.beginGroup('data')
 		geoids=settings.value('geoids')
 		if geoids.isValid():

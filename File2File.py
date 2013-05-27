@@ -102,10 +102,10 @@ def InitOGR(prefix,lib_name=OGRLIB):
 		ogrlib.GetCoords.argtypes=[ctypes.c_void_p,LP_c_double,LP_c_double,C_INT]
 		ogrlib.GetCoords.restype=None
 	#END HEADER#
-	except Exception,msg:
-		print repr(msg),path
-		return False
-	return True
+	except Exception,e:
+		#print repr(msg),path
+		return False,repr(e)
+	return True,""
 
 def KillThreads():
 	threads=threading.enumerate()

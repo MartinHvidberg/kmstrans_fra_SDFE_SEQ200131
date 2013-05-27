@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Thu May 23 10:02:41 2013
+# Created: Mon May 27 14:42:19 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -887,6 +887,14 @@ class Ui_Trui(object):
         self.actionNt_derived.setObjectName(_fromUtf8("actionNt_derived"))
         self.actionFile2file_settings = QtGui.QAction(Trui)
         self.actionFile2file_settings.setObjectName(_fromUtf8("actionFile2file_settings"))
+        self.action_local_GDAL = QtGui.QAction(Trui)
+        self.action_local_GDAL.setCheckable(True)
+        self.action_local_GDAL.setObjectName(_fromUtf8("action_local_GDAL"))
+        self.action_own_GDAL = QtGui.QAction(Trui)
+        self.action_own_GDAL.setCheckable(True)
+        self.action_own_GDAL.setObjectName(_fromUtf8("action_own_GDAL"))
+        self.actionGDAL_settings = QtGui.QAction(Trui)
+        self.actionGDAL_settings.setObjectName(_fromUtf8("actionGDAL_settings"))
         self.menuHelp.addAction(self.actionHelp_local)
         self.menuHelp.addAction(self.actionAbout_KMSTrans)
         self.menuFile.addAction(self.actionNew_KMSTrans)
@@ -910,6 +918,8 @@ class Ui_Trui(object):
         self.menuSettings.addAction(self.actionGeoid_directory)
         self.menuSettings.addSeparator()
         self.menuSettings.addAction(self.actionFile2file_settings)
+        self.menuSettings.addSeparator()
+        self.menuSettings.addAction(self.actionGDAL_settings)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -1090,4 +1100,7 @@ class Ui_Trui(object):
         self.actionSx_derived.setText(_translate("Trui", "sx: ddd mm ss.sss", None))
         self.actionNt_derived.setText(_translate("Trui", "nt: ddd mm.mmmm", None))
         self.actionFile2file_settings.setText(_translate("Trui", "TEXT/KMS format settings", None))
+        self.action_local_GDAL.setText(_translate("Trui", "Use included GDAL", None))
+        self.action_own_GDAL.setText(_translate("Trui", "Use own GDAL", None))
+        self.actionGDAL_settings.setText(_translate("Trui", "GDAL settings", None))
 

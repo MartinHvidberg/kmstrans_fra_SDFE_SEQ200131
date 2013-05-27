@@ -2195,6 +2195,8 @@
     <addaction name="actionGeoid_directory"/>
     <addaction name="separator"/>
     <addaction name="actionFile2file_settings"/>
+    <addaction name="separator"/>
+    <addaction name="actionGDAL_settings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -2358,6 +2360,27 @@
   <action name="actionFile2file_settings">
    <property name="text">
     <string>TEXT/KMS format settings</string>
+   </property>
+  </action>
+  <action name="action_local_GDAL">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use included GDAL</string>
+   </property>
+  </action>
+  <action name="action_own_GDAL">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use own GDAL</string>
+   </property>
+  </action>
+  <action name="actionGDAL_settings">
+   <property name="text">
+    <string>GDAL settings</string>
    </property>
   </action>
  </widget>

@@ -6,6 +6,7 @@ uis={"Trui.ui":"Main_gui.py",
 "Dialog_layer_selector.ui":"Dialog_layer_selector.py",
 "Tab_bshlm.ui":"Tab_bshlm.py",
 "Tab_python.ui":"Tab_python.py",
+"Dialog_settings_gdal.ui":"Dialog_settings_gdal.py",
 "Dialog_creation_options.ui":"Dialog_creation_options.py"}
 print("Building UIs...")
 for ui in uis:
