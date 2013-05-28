@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_gdal.ui'
 #
-# Created: Mon May 27 14:42:19 2013
+# Created: Tue May 28 10:56:38 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,6 +29,9 @@ class Ui_Dialog(object):
         Dialog.resize(859, 224)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.label_4 = QtGui.QLabel(Dialog)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.verticalLayout.addWidget(self.label_4)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.rdb_gdal_system = QtGui.QRadioButton(Dialog)
@@ -89,6 +92,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "GDAL settings", None))
+        self.label_4.setText(_translate("Dialog", "GDAL installation currently only customizable on windows. ", None))
         self.rdb_gdal_system.setToolTip(_translate("Dialog", "Use a system wide gdal installation", None))
         self.rdb_gdal_system.setText(_translate("Dialog", "Use system gdal", None))
         self.rdb_gdal_included.setToolTip(_translate("Dialog", "Use the included minimal gdal installation", None))

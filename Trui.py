@@ -213,6 +213,8 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 			bt.clicked.connect(self.onModeChange)
 			if not IS_WINDOWS:
 				bt.setEnabled(False)
+		if not IS_WINDOWS:
+			self.bt_apply.setEnabled(False)
 		if settings.load_mode==0:
 			self.rdb_gdal_system.setChecked(True)
 		elif settings.load_mode==1:
