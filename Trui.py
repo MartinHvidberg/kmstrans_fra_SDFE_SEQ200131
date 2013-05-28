@@ -76,20 +76,13 @@ if not os.path.exists(PLUGIN_PATH):
 DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
 URL_HELP_LOCAL=DOC_PATH+"/index.html"
-#SETUP ENV - SICKENING, BUT REALLY NEEDED TO MAKE SURE 
-#THAT THE GDAL VERSION WHICH PYTHON LOADS IS THE SAME AS THE ONE TROGR WILL USE!!!
-#if IS_WINDOWS:
-#	old_path=os.environ['PATH']
-#	os.environ['PATH']=BIN_PREFIX+os.pathsep+old_path
-#If this folder is included its a sign that we're using a local gdal installation (dll's in bin folder)...
-#if os.path.exists(GDAL_DATA_PATH):
-#	os.environ["GDAL_DATA"]=GDAL_DATA_PATH
 
+#SAVE UNMODIFIED ENV
 UNMODIFIED_ENV=os.environ.copy()
 
 #DEFAULT DIR FOR FILE BROWSING - COULD BE STORED IN INI-FILE#
 if "HOME" in os.environ:
-	DEFAULT_DIR=os.environ["HOME"]
+	DEFAULT_DIR=os.environ["HOME"] #encoding can be problematic - cant assume it's ascii... thus use unicode conversion on saved Qt4 strings.
 elif "HOMEPATH" in os.environ:
 	DEFAULT_DIR=os.environ["HOMEPATH"]
 else:
@@ -219,7 +212,7 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 		for bt in self.mode_buttons:
 			bt.clicked.connect(self.onModeChange)
 			if not IS_WINDOWS:
-				box.setEnabled(False)
+				bt.setEnabled(False)
 		if settings.load_mode==0:
 			self.rdb_gdal_system.setChecked(True)
 		elif settings.load_mode==1:
@@ -575,7 +568,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
-		self.showing_gdal_dialog=False
+		self.showing_gdal_dialog=False #not used yet
 		self.output_cache=PointData()
 		self.mlb_in=None #New attribute - used to test whether we should upodate system info....
 		self.geo_unit=ANGULAR_UNIT_DEGREES
