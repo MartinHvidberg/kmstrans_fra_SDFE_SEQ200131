@@ -103,7 +103,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			self.cache.mlb="custom"
 			ell_data,msg=WidgetUtils.getInput([self.txt_bshlm_axis,self.txt_bshlm_flattening],False)
 			if len(ell_data)!=2 or ell_data[0]<0 or ell_data[1]<0:
-				self.log_bshlm("Bad ellipsoid data:\n%s"%msg)
+				self.log_bshlm("Bad ellipsoid data:\n%s"%msg,"red")
 				self.cache.valid_label=False
 				return
 			self.cache.axis=ell_data[0]
@@ -132,7 +132,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					name,a,f=TrLib.GetEllipsoidParametersFromDatum(dtm)
 					self.cache.geo_mlb=TrLib.Convert2Geo(mlb)
 				except Exception,msg:
-					self.log_bshlm("Invalid label:\n%s" %msg)
+					self.log_bshlm("Invalid label:\n%s" %msg,"red")
 					if called_by_index_change: #if called by handler which adds label to list
 						self._handle_system_change=False
 						self.cb_bshlm_system.removeItem(self.cb_bshlm_system.currentIndex())

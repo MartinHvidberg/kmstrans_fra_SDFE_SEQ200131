@@ -1366,6 +1366,9 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		settings.setValue('script_path',self.script_dir)
 		settings.endGroup()
 	def loadSettings(self):
+		#We catch exceptions here - otherwise the window wont show and it can be hard for py2exe users to find out
+		#that they have to locate and view the log file...
+		caught=""
 		settings = QSettings(COMPANY_NAME,PROG_NAME)
 		settings.beginGroup('MainWindow')
 		self.resize(settings.value('size', self.size()).toSize())
@@ -1379,7 +1382,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.gdal_settings.load_mode,ok=settings.value('load_mode',1).toInt()
 			paths=[]
 			for key in ['bin_path','data_path','plugin_path']:
-				paths.append(unicode(settings.value(key,"").toString()))
+				try:
+					paths.append(unicode(settings.value(key,"").toString()))
+				except Exception,e:
+					paths.append("")
+					caught+="GDAL-settings,caught: %s\n" %str(e)
 			self.gdal_settings.paths=paths
 			if DEBUG:
 				self.message("%s" %(repr(self.gdal_settings.__dict__)))
@@ -1390,27 +1397,25 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			try:
 				self.geoids=unicode(geoids.toString())
 			except:
+				caught+="Encoding error for stored geoid dir.\n"
 				self.geoids=None
 		else:
 			self.geoids=None
-		dir=settings.value('path')
-		if dir.isValid():
-			try:
-				self.dir=unicode(dir.toString())
-			except:
-				self.dir=DEFAULT_PATH
-		else:
+		dir=settings.value('path',DEFAULT_DIR)
+		try:
+			self.dir=unicode(dir.toString())
+		except Exception,e:
 			self.dir=DEFAULT_DIR
-		dir=settings.value('script_path')
-		if dir.isValid():
-			try:
-				self.script_dir=unicode(dir.toString())
-			except:
-				self.script_dir=self.dir
-		else:
+			caught+="Path-settings,caught: %s\n" %str(e)
+		dir=settings.value('script_path',self.dir)
+		try:
+			self.script_dir=unicode(dir.toString())
+		except Exception,e:
 			self.script_dir=self.dir
+			caught+="Path-settings,caught: %s\n" %str(e)
 		settings.endGroup()
-		
+		if len(caught)>0:
+			self.message("Errors during loadSettings:\n%s" %caught)
 	def selectTabDir(self):
 		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
 		return my_file
