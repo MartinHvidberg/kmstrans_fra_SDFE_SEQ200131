@@ -92,7 +92,7 @@ else:
 
 
 
-VERSION="KMSTrans2 v2.01dev"
+VERSION="KMSTrans2 v2.02dev"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""

@@ -23,7 +23,7 @@ windows=[{"script" : "Trui.py"}],
 data_files=[("",extra_files),("bin",BIN),("coast",COAST),])
 MSVCP=glob.glob(".\\dist\\msvcp*.dll")
 try:
-	shutil.copytree("gdal-data","dist\\gdal-data")
+	shutil.copytree("gdal","dist\\gdal")
 except:
 	print("Could not copy gdal installation")
 try:
