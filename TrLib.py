@@ -94,8 +94,10 @@ def LoadLibrary(lib=STD_LIB,lib_dir=STD_DIRNAME):
 	if not os.path.exists(lib_path):
 		return False, "%s does not exist!" %lib_path
 	#to be able to find extra runtime dlls on windows#
-	if "win" in sys.platform.lower():
-		os.environ["PATH"]+=os.pathsep+os.path.realpath(os.path.dirname(lib_path))
+	if sys.platform.startswith("win"):
+		path=os.environ["PATH"]
+		path+=os.pathsep+os.path.realpath(os.path.dirname(lib_path))
+		os.environ["PATH"]=path
 	try:
 		tr_lib=ctypes.cdll.LoadLibrary(lib_path) #Loads the simple API exported on top of the KMS transformation library.
 		#Setup API, corresponds to header file of the API#

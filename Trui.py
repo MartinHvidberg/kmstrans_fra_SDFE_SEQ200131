@@ -553,7 +553,6 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.input_labels=[self.lbl_x_in,self.lbl_y_in,self.lbl_z_in]
 		self.output=[self.txt_x_out,self.txt_y_out,self.txt_z_out]
 		self.output_labels=[self.lbl_x_out,self.lbl_y_out,self.lbl_z_out]
-		
 		self.derived_angular_output=[self.txt_meridian_convergence] #+self.output_bshlm_azimuth[1:]
 		self.action_angular_units={ANGULAR_UNIT_DEGREES:self.actionDegrees,ANGULAR_UNIT_RADIANS:self.actionRadians,
 		ANGULAR_UNIT_SX:self.actionSx,ANGULAR_UNIT_NT:self.actionNt}
@@ -594,6 +593,31 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			pass
 		#redirect python output#
 		sys.stdout=RedirectOutput(self.handleStdOut)
+		#Load settings NOW#
+		#Will setup various attributes and determine e.g. if we are running a local gdal installation#
+		#It's complicated but we need to set the env variables BEFORE loading the first shared library (except for PATH).
+		#Otherwise, e.g. the variable GDAL_DRIVER_PATH, if set AFTER the first load, WONT be passed on the load of the second library.
+		#Has to do with the way different crts and win apis handle env variables. And maybe something internal to the way ctypes handles these.
+		#See: http://bugs.python.org/issue16633
+		self.loadSettings()
+		load_mode=self.gdal_settings.load_mode
+		if IS_WINDOWS:
+			#this is also needed in order to fix the library dependecies in the bin subfolder#
+			path=os.environ["PATH"]
+			path=BIN_PREFIX.encode(sys.getfilesystemencoding())+os.pathsep+path
+			if (load_mode==1 or load_mode==2):
+				if load_mode==1:
+					paths=self.gdal_settings.predefined_paths
+				else:
+					paths=self.gdal_settings.paths
+				path=paths[0].encode(sys.getfilesystemencoding())+os.pathsep+path
+				os.environ["GDAL_DATA"]=paths[1].encode(sys.getfilesystemencoding())
+				os.environ["GDAL_DRIVER_PATH"]=paths[2].encode(sys.getfilesystemencoding())
+			os.environ["PATH"]=path
+		#initialise the map#
+		self.initMap()
+		#load OGR dependent things...
+		self.loadOGR()
 		#init TrLib and load settings#
 		ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
 		if not ok:
@@ -605,9 +629,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			sys.exit(1)
 		TrLib.SetMessageHandler(LordCallback)
 		TrLib.SetMaxMessages(-1)
-		#Load settings now#
-		#Will setup various attributes and e.g. if we are running a local gdal installation#
-		self.loadSettings()
+		
+		
 		if self.geoids is None and "TR_TABDIR" in os.environ:
 			self.geoids=os.environ["TR_TABDIR"]
 		tries=0
@@ -636,19 +659,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
 		#Now that trlib is initlialised we can define these tranformation objects#
 		self.initTransformations()
-		#initialise the map#
-		self.initMap()
-		load_mode=self.gdal_settings.load_mode
-		if (load_mode==1 or load_mode==2) and IS_WINDOWS:
-			path=os.environ["PATH"]
-			if load_mode==1:
-				paths=self.gdal_settings.predefined_paths
-			else:
-				paths=self.gdal_settings.paths
-			os.environ["PATH"]=paths[0].encode(sys.getfilesystemencoding())+os.pathsep+path
-			os.environ["GDAL_DATA"]=paths[1].encode(sys.getfilesystemencoding())
-			os.environ["GDAL_DRIVER_PATH"]=paths[2].encode(sys.getfilesystemencoding())
-		self.loadOGR()
+		
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
 		#Setup BSHLM tab#
 		self.tab_bshlm=BshlmWidget(self)
@@ -1482,11 +1493,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		
 
 if __name__=="__main__":
-	 global app
-	 global MainWindow
-	 app = QtGui.QApplication(sys.argv)
-	 MainWindow = TRUI()
-	 sys.exit(app.exec_())
+	global app
+	global MainWindow
+	app = QtGui.QApplication(sys.argv)
+	MainWindow = TRUI()
+	sys.exit(app.exec_())
 	
 	
 		
