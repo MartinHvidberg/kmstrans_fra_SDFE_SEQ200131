@@ -4,6 +4,7 @@
     <meta content="text/html; charset=windows-1252"
       http-equiv="Content-Type">
     <title>Batch tab</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
     <h1>Batch Tab</h1>
@@ -11,39 +12,45 @@
     given in data files. KMSTrans2 reads and writes a number of
     different data file formats as described below.<br>
     KMSTrans2&nbsp; uses a command line program in the ./bin subfolder
-    called trogr to perform transformations of data sources like files
-    and databases.<br>
+    called <b>trogr</b> to perform transformations of data sources like
+    files and databases.<br>
     Before performing transformation of files, it is important to note
     that trogr is linked against the Geospatial Data Abstraction Library
     (<a href="http://gdal.org">GDAL</a>) which must be installed on your
     system in order for the program to run. Prepackaged versions of
     KMSTrans2 will come with a default GDAL installation.<br>
     <br>
-    <hr size="2" width="100%"><br>
     <h2>Formats </h2>
     KMSTrans2 uses the following data formats:<br>
     <ul>
-      <li>OGR – A library of vector data formats compiled by the Open
-        Source Geospatial Foundation to be used with GDAL</li>
-      <li>TEXT – Simple text format which can be modified</li>
-      <li>DSFL – Format developed for exchange of data by Dansk Selskab
-        for Fotogrammetri og Landmåling (now GeoForum)</li>
-      <li>KMS format – Internal data format from Kort &amp;
-        Matrikelstyrelsen (now Geodatastyrelsen)<br>
+      <li><a href="#OGR">OGR</a> – A library of vector data formats
+        compiled by the Open Source Geospatial Foundation to be used
+        with GDAL</li>
+      <li><a href="#TEXT">TEXT</a> – Simple text format which can be
+        modified</li>
+      <li><a href="#DSFL">DSFL</a> – Format developed for exchange of
+        data by Dansk Selskab for Fotogrammetri og Landmåling (now
+        GeoForum)</li>
+      <li><a href="#KMS_format">KMS format</a> – Internal data format
+        from Kort &amp; Matrikelstyrelsen (now Geodatastyrelsen)<br>
       </li>
     </ul>
     Generally, input and output data source formats will be the same,
     except for input formats readable by OGR, where a specific OGR
     output format can be chosen. <br>
     <ul>
-      <li>&nbsp;<b>OGR</b> - a range of common vector formats, including
-        various databases, depending on your GDAL installation. </li>
     </ul>
-    <blockquote>Available input and output vector data formats will
-      depend on your GDAL installation. OGR will try to open an input
-      data source by iteration over available drivers. This behaviour
-      can be overridden by specifying a specific input driver, for
-      instance (if the WFS driver is<b> available</b>):<br>
+    <h2><a name="OGR"></a><b>OGR</b><br>
+    </h2>
+    <ul>
+    </ul>
+    <blockquote>OGR 'drivers' comprises a range of common vector
+      formats, including various databases.<br>
+      Available input and output vector data formats will depend on your
+      GDAL installation. OGR will try to open an input data source by
+      iteration over available drivers. This behaviour can be overridden
+      by specifying a specific input driver, for instance (if the WFS
+      driver is<b> available</b>):<br>
       <br>
 WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&amp;version=1.0.0&amp;login=usr_name&amp;password=pass_wd<br>
       &nbsp;<br>
@@ -55,13 +62,16 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
         href="gdal_installation.html">GDAL installation</a> page for
       information on how to enable a "full" installation of GDAL.<br>
       <br>
-      <br>
     </blockquote>
     <ul>
-      <li><b>&nbsp;TEXT</b> - simple column based text format with one
-        point on each line. The column separator and sequence of
-        coordinates in the columns can be specified in the File2file
-        settings dialog..</li>
+    </ul>
+    <h2><a name="TEXT"></a><b>TEXT</b><br>
+    </h2>
+    <br>
+    A simple column based text format with one point on each line. The
+    column separator and sequence of coordinates in the columns can be
+    specified in the File2file settings dialog.
+    <ul>
     </ul>
     <blockquote>When pressing the Open Text settings button, the
       File2File settings appear. Here the column separators must be set
@@ -114,18 +124,25 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       the skip all subsequent white space until the first regular
       character is found (or the line is terminated).<br>
       <br>
-      <br>
-      <br>
     </blockquote>
     <ul>
-      <li>&nbsp;<b>KMS format</b> - A special text format used
-        internally at KMS/GST. </li>
     </ul>
-    <blockquote>Column separator is *always* at least two spaces or a
-      tabulator character and coordinates must have units. The
-      implementation in KMSTrans2 is (still) a 'thin' version of the KMS
-      format - the region prefix of&nbsp; a coordinate MiniLabel does
-      not infer special parsing / writing of station names. <br>
+    <h2><a name="KMS_format"></a><b>KMS format</b><br>
+    </h2>
+    <ul>
+    </ul>
+    <blockquote><br>
+      The 'KMS format' is a text based format used internally at GST
+      (formerly known as KMS). It's a readable and friendly format for
+      the human eye (originally designed to be readable in printed
+      format on a real piece of paper), but slightly complicated to read
+      / write in a computer program.<br>
+      <br>
+      Column separator is *always* at least two spaces or a tabulator
+      character and coordinates must have units. The implementation in
+      KMSTrans2 is (still) a 'thin' version of the KMS format - the
+      region prefix of&nbsp; a coordinate MiniLabel does not infer
+      special parsing / writing of station names. <br>
       <br>
       A line with coordinates could look like: <br>
       <br>
@@ -167,6 +184,7 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       63.79041 m&nbsp; *<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
       ;&nbsp;&nbsp;&nbsp;&nbsp; 1997 01 17,
       11.49&nbsp;&nbsp;&nbsp;&nbsp; 1997 01 17, 11.49<br>
       <br>
@@ -175,17 +193,21 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     </blockquote>
     <br>
     <ul>
-      <li><b>DSFL</b> - a specific Danish exchange format for vector
-        data.</li>
     </ul>
-    <blockquote>More information on the DSFL format can be found on the
-      web site of GeoForum: <a
+    <h2><a name="DSFL"></a><b>DSFL</b><br>
+    </h2>
+    <ul>
+    </ul>
+    <blockquote>DSFL is a specific Danish exchange format for vector
+      data.<br>
+      <br>
+      More information on the DSFL format can be found on the web site
+      of GeoForum: <a
         href="http://www.geoforum.dk/DSFL-formatet-10299.aspx">http://www.geoforum.dk/DSFL-formatet-10299.aspx</a><br>
       <br>
     </blockquote>
     <br>
-    <hr size="2" width="100%">
-    <h2>Updating / overwriting:</h2>
+    <h2>Updating / overwriting</h2>
     <b> <br>
     </b>For output OGR datasources the behaviour of the program (trogr)
     is to try to <b>update</b> a datasource if it is an existing <b>directory</b>
@@ -200,7 +222,6 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
     <blockquote> <br>
     </blockquote>
     <br>
-    <hr size="2" width="100%">
     <h2>Coordinate sequence </h2>
     <br>
     When working with the TEXT format in&nbsp; KMSTrans2, it is
