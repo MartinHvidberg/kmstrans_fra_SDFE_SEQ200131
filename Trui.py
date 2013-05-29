@@ -248,19 +248,19 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 	#TODO: implement this as a 'GetPath class' for reuse....
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_browse_bin_clicked(self):
-		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a directory contaning gdal binaries.",self.dir))
 		if len(my_file)>0:
 			self.txt_paths[0].setText(my_file)
 			self.dir=my_file
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_browse_data_clicked(self):
-		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a directory containing gdal data files.",self.dir))
 		if len(my_file)>0:
 			self.txt_paths[1].setText(my_file)
 			self.dir=my_file
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_browse_plugin_clicked(self):
-		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select an input directory",self.dir))
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a directory containing gdal plugins.",self.dir))
 		if len(my_file)>0:
 			self.txt_paths[2].setText(my_file)
 			self.dir=my_file

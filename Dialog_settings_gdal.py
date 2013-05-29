@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_gdal.ui'
 #
-# Created: Tue May 28 10:56:38 2013
+# Created: Tue May 28 11:30:19 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -99,11 +99,11 @@ class Ui_Dialog(object):
         self.rdb_gdal_included.setText(_translate("Dialog", "Use included gdal", None))
         self.rdb_gdal_custom.setToolTip(_translate("Dialog", "A a customized gdal installation (by selecting folders below).", None))
         self.rdb_gdal_custom.setText(_translate("Dialog", "Use customized gdal", None))
-        self.label.setText(_translate("Dialog", "GDAL BIN Folder", None))
+        self.label.setText(_translate("Dialog", "GDAL Bin Folder", None))
         self.txt_data_folder.setToolTip(_translate("Dialog", "Folder containing gdal data files", None))
-        self.txt_plugin_folder.setToolTip(_translate("Dialog", "Folder containing plugin libraries", None))
+        self.txt_plugin_folder.setToolTip(_translate("Dialog", "Folder containing gdal plugin libraries", None))
         self.label_2.setText(_translate("Dialog", "GDAL_DATA", None))
-        self.txt_bin_folder.setToolTip(_translate("Dialog", "Folder comtaining gdal binary (and binary dependencies)", None))
+        self.txt_bin_folder.setToolTip(_translate("Dialog", "Folder containing gdal binary (and binary dependencies)", None))
         self.label_3.setText(_translate("Dialog", "GDAL_DRIVER_PATH", None))
         self.bt_browse_bin.setText(_translate("Dialog", "Browse", None))
         self.bt_browse_data.setText(_translate("Dialog", "Browse", None))

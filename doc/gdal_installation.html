@@ -12,27 +12,71 @@
       for transformation of data sources in the batch tab as well as for
       displaying a coast line in the map window. Currently only the OGR
       part of GDAL is used to transform vector data. <br>
+      For all operating systems, except Windows, KMSTrans2 will use a
+      'system install' of GDAL, i.e. the GDAL libraries and dependencies
+      must be installed in locations pointed to by relevant environment
+      variables.<br>
     </p>
     <h2>Windows only:<br>
     </h2>
     <p>A prepackaged version of <b>KMSTrans2</b> with prebuilt
       binaries&nbsp; will come also with a (minimal) GDAL installation,
-      which the binaries are linked against (gdalxxx.dll located in the
-      <b>bin</b> subfolder, where xxx is a version number e.g.
-      gdal110.dll) </p>
-    <p>If you have a compatible gdal installation (currently
-      gdal110.dll)&nbsp; on your computer, possibly with more drivers
-      enabled, you can override the default GDAL installation simply by
-      deleting or renaming <b>gdalxxx.dll</b>&nbsp; in the <b>bin</b>
-      sub folder. You may also want to delete or rename the <b>gdal-data
-
-      </b>sub folder - if this folder is present KMSTrans2 will set the
-      GDAL_DATA environment variable to point to there. </p>
-    <p>Advanced users are encouraged to install a full gdal version,
-      available e.g. from <a href="http://gisinternals.com/sdk/">here</a>,
-      in order to enable all OGR drivers (like WFS, Postgis and
-      Spatialite).<br>
+      which the binaries are linked against (currently gdal110.dll)<b>.
+      </b>The directory layout of the default GDAL installation is
+      (relative to the root directory of KMSTrans2):<br>
     </p>
+    <p><b>gdal -&gt; <br>
+        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        bin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        (subfolder containing gdal binaries, e.g. gdalxxx.dll and other
+        dependencies)<br>
+        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; gdal-data&nbsp; (subfolder
+        containing gdal data files)<br>
+        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        plugins&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (subfolder containing
+        optional gdal plugins)<br>
+      </b></p>
+    <p><b>There are several ways of customizing the used gdal
+        installation:</b></p>
+    <ul>
+      <li>Modify the included <b>gdal</b> folder - applies if you have
+        KMSTrans2 installed locally (on your own hard drive):</li>
+      <ul>
+        <li>&nbsp;Put your own version of gdalxxx.dll (currently
+          gdal110.dll) and libraries which gdal depends on in the <b>bin
+
+          </b>subfolder.</li>
+        <li>&nbsp;Place optional plugins in the <b>plugins</b>
+          subfolder.</li>
+        <li>&nbsp;If needed modify also the data files in the <b>gdal-data</b>
+          subfolder.</li>
+      </ul>
+    </ul>
+    <blockquote>The GDAL installation can also be customized from the
+      'GDAL settings' dialog, which is opened from the 'Settings' menu:<br>
+    </blockquote>
+    <ul>
+      <li>If you have a compatible GDAL installation on your system
+        select 'Use system gdal'. This requires that you have set the
+        PATH and relevant GDAL environment variables properly on your
+        system.</li>
+    </ul>
+    <blockquote>Or:<br>
+    </blockquote>
+    <ul>
+      <li>Check the 'Use customized gdal' radio button and select proper
+        folders in the text fields below. The GDAL Bin folder should
+        contain the gdalxxx.dll and other binary dependencies.</li>
+    </ul>
+    <br>
+    Changes to the GDAL setup requires a restart to take effect.<br>
+    <ul>
+    </ul>
+    Advanced users are encouraged to install a full gdal version,
+    available e.g. from <a href="http://gisinternals.com/sdk/">here</a>,
+    in order to enable all OGR drivers (like WFS, Postgis and
+    Spatialite).<br>
     <h2>Building binaries yourself:<br>
     </h2>
     <p>If you build the binaries yourself with the included build script
