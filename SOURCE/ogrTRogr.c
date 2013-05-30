@@ -414,7 +414,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 			if (extra_lcos[i]!=NULL)
 				free(extra_lcos[i]);
 		}
-		free(extra_lcos[i]);
+		free(extra_lcos);
 	}
 	LogGeoids();
 	TerminateReport();
