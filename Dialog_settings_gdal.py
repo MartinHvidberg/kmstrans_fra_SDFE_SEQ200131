@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_gdal.ui'
 #
-# Created: Tue May 28 11:30:19 2013
+# Created: Fri May 31 16:56:14 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!

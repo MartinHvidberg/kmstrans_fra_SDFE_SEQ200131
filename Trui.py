@@ -67,8 +67,9 @@ GDAL_BIN_PATH=os.path.join(GDAL_PREFIX,"bin")
 #OTHER PATHS
 COAST_PREFIX=os.path.join(PREFIX,"coast")
 COAST_PATH=os.path.join(COAST_PREFIX,"coast_world.shp")
-PLUGIN_PATH=os.path.expanduser(os.path.join("~","."+PROG_NAME,"plugins"))
-if not os.path.exists(PLUGIN_PATH):
+PLUGIN_PATH_USER=os.path.expanduser(os.path.join("~","."+PROG_NAME,"plugins"))
+PLUGIN_PATH_LOCAL=os.path.join(PREFIX,"plugins")
+if not os.path.exists(PLUGIN_PATH_USER):
 	try:
 		os.makedirs(PLUGIN_PATH)
 	except:
@@ -154,17 +155,23 @@ def LordCallback(err_class,err_code,msg):
 	except:
 		pass
 
-#Get a list of plugins
-def GetPlugins(path):
-	if not os.path.exists(path):
-		return []
-	files=os.listdir(path)
-	plugins=[]
-	for name in files:
-		location=os.path.join(path,name)
-		if os.path.isdir(location):
-			plugins.append(os.path.basename(name))
-	return plugins
+#Get a list of plugins - now from several paths. Enables plugins in root dir also
+def GetPlugins(plugin_paths):
+	plugins=set()
+	dublicates=set()
+	for path in plugin_paths:
+		if not os.path.exists(path):
+			continue
+		files=os.listdir(path)
+		for name in files:
+			location=os.path.join(path,name)
+			if os.path.isdir(location):
+				plugin_name=os.path.basename(name)
+				if plugin_name in plugins:
+					dublicates.add(plugin_name)
+				else:
+					plugins.add(plugin_name)
+	return plugins,dublicates
 
 #A class to keep cached output data#
 class PointData(object):
@@ -507,7 +514,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	def __init__(self,parent=None):
 		QtGui.QMainWindow.__init__(self,parent) 
 		self.setupUi(self)
-		self.save_settings=False #flag which signals whether to save settings - only do it if initialisation succeded!
+		self._save_settings=False #flag which signals whether to save settings - only do it if initialisation succeded!
+		self._clear_log=False #flag to signal whether to clear interactive log before each transformation
 		#APPEARANCE#
 		self.setWindowTitle(VERSION)
 		#Set log methods - tabs work as general plugins do#
@@ -525,7 +533,6 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
-		#self.bt_f2f_settings.clicked.connect(self.openFile2FileSettings)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
@@ -547,6 +554,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.actionGeoid_directory.triggered.connect(self.changeTabDir)
 		self.actionFile2file_settings.triggered.connect(self.openFile2FileSettings)
 		self.actionGDAL_settings.triggered.connect(self.openGDALSettings)
+		self.actionPlugins_enabled.triggered.connect(self.togglePluginsEnabled)
 		#end setup event handlers#
 		#Set up convienient pointers to input and output#
 		self.input=[self.txt_x_in,self.txt_y_in,self.txt_z_in]
@@ -576,7 +584,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.setAngularUnitsDegrees()
 		self.geo_unit_derived=ANGULAR_UNIT_DEGREES
 		self.setDerivedAngularUnitsDegrees()
-		self.region=REGION_DK
+		self.region=REGION_DK #will also be set in loadSettings - TODO: save and load other settings...
 		self._handle_system_change=True
 		self.point_center=[0,0]
 		self.map_zoom=0
@@ -668,11 +676,16 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.tab_python=PythonWidget(self)
 		self.main_tab_host.addTab(self.tab_python,"Python console")
 		#Load plugins#
-		self.loadPlugins()
+		self.actionPlugins_enabled.setChecked(self.enable_plugins)
+		if self.enable_plugins:
+			self.loadPlugins()
+		else:
+			self.log_interactive("Plugins disabled...",color="brown")
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
 		self.initRegion()
 		sys.stderr=RedirectOutput(self.handleStdErr)
-		self.save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
+		self._save_settings=True #flag which signals whether to save settings - only do it if initialisation succeded - so now it's ok!
+		self._clear_log=True
 		self.show()
 	def closeTransformations(self):
 		if self.numeric_scale_transf is not None:
@@ -998,7 +1011,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		
 		
 	def transform_input(self,input_index_changed=False,output_index_changed=False):
-		self.log_interactive("",clear=True)
+		if self._clear_log:
+			self.log_interactive("",clear=True)
 		self.output_cache.is_valid=False
 		self.output_cache.has_scale=False
 		mlb_in=str(self.cb_input_system.currentText())
@@ -1358,7 +1372,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			widget.handleStdErr(text)
 	#SETTINGS#
 	def saveSettings(self):
-		if not self.save_settings:
+		if not self._save_settings:
 			return
 		settings = QSettings(COMPANY_NAME,PROG_NAME)
 		settings.beginGroup('MainWindow')
@@ -1371,10 +1385,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		settings.setValue('data_path',self.gdal_settings.paths[1])
 		settings.setValue('plugin_path',self.gdal_settings.paths[2])
 		settings.endGroup()
+		settings.beginGroup('plugins')
+		settings.setValue('enable',int(self.enable_plugins))
 		settings.beginGroup('data')
 		settings.setValue('geoids',self.geoids)
 		settings.setValue('path',self.dir)
 		settings.setValue('script_path',self.script_dir)
+		settings.setValue('region',self.region)
 		settings.endGroup()
 	def loadSettings(self):
 		#We catch exceptions here - otherwise the window wont show and it can be hard for py2exe users to find out
@@ -1402,6 +1419,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			if DEBUG:
 				self.message("%s" %(repr(self.gdal_settings.__dict__)))
 			settings.endGroup()
+		settings.beginGroup('plugins')
+		enable_plugins,ok=settings.value('enable',1).toInt()
+		if ok:
+			self.enable_plugins=bool(enable_plugins)
+		else:
+			self.enable_plugins=True
+		settings.endGroup()
 		settings.beginGroup('data')
 		geoids=settings.value('geoids')
 		if geoids.isValid():
@@ -1424,6 +1448,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		except Exception,e:
 			self.script_dir=self.dir
 			caught+="Path-settings,caught: %s\n" %str(e)
+		try:
+			region=unicode(settings.value('region',REGION_DK).toString())
+		except:
+			region=REGION_DK
+		if not region in REGIONS:
+			region=REGION_DK
+		self.region=region
 		settings.endGroup()
 		if len(caught)>0:
 			self.message("Errors during loadSettings:\n%s" %caught)
@@ -1444,15 +1475,27 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				TrLib.SetGeoidDir(self.geoids)
 				self.message("Failed to change geoid dir!\n%s" %msg)
 			self.initTransformations()
+	#PLUGINS#
+	def togglePluginsEnabled(self):
+		self.enable_plugins= not self.enable_plugins
+		if self.enable_plugins:
+			state="enabled"
+		else:
+			state="disabled"
+		QMessageBox.warning(self,"Plugins "+state ,"Changes will take effect after a restart.")
 	#PLUGIN LOADER#
 	def loadPlugins(self):
-		plugins=GetPlugins(PLUGIN_PATH)
+		plugins,dublicates=GetPlugins([PLUGIN_PATH_USER,PLUGIN_PATH_LOCAL])
 		if len(plugins)>0:
 			if not HAS_IMPORTLIB:
 				self.log_interactive("Plugin loader needs importlib (python version>=2.7)",color="red")
 				return
-			if not PLUGIN_PATH in sys.path:
-				sys.path.insert(0,PLUGIN_PATH)
+			if not PLUGIN_PATH_LOCAL in sys.path:
+				sys.path.insert(0,PLUGIN_PATH_LOCAL)
+			if not PLUGIN_PATH_USER in sys.path:
+				sys.path.insert(0,PLUGIN_PATH_USER)
+			if len(dublicates)>0:
+				self.log_interactive("Dublicate plugin modules:\n%s\nModules defined in user directory will have precedence." %repr(dublicates),"brown")
 			for plugin in plugins:
 				self.log_interactive("Loading plugin: %s" %plugin,color="brown")
 				try:

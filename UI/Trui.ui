@@ -2197,6 +2197,8 @@
     <addaction name="actionFile2file_settings"/>
     <addaction name="separator"/>
     <addaction name="actionGDAL_settings"/>
+    <addaction name="separator"/>
+    <addaction name="actionPlugins_enabled"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -2381,6 +2383,30 @@
   <action name="actionGDAL_settings">
    <property name="text">
     <string>GDAL settings</string>
+   </property>
+  </action>
+  <action name="actionEnable_plugins">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable plugins</string>
+   </property>
+  </action>
+  <action name="actionDisable_plugins">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Disable plugins</string>
+   </property>
+  </action>
+  <action name="actionPlugins_enabled">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Plugins enabled</string>
    </property>
   </action>
  </widget>

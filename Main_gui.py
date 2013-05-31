@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Tue May 28 11:30:18 2013
+# Created: Fri May 31 16:56:14 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -895,6 +895,15 @@ class Ui_Trui(object):
         self.action_own_GDAL.setObjectName(_fromUtf8("action_own_GDAL"))
         self.actionGDAL_settings = QtGui.QAction(Trui)
         self.actionGDAL_settings.setObjectName(_fromUtf8("actionGDAL_settings"))
+        self.actionEnable_plugins = QtGui.QAction(Trui)
+        self.actionEnable_plugins.setCheckable(True)
+        self.actionEnable_plugins.setObjectName(_fromUtf8("actionEnable_plugins"))
+        self.actionDisable_plugins = QtGui.QAction(Trui)
+        self.actionDisable_plugins.setCheckable(True)
+        self.actionDisable_plugins.setObjectName(_fromUtf8("actionDisable_plugins"))
+        self.actionPlugins_enabled = QtGui.QAction(Trui)
+        self.actionPlugins_enabled.setCheckable(True)
+        self.actionPlugins_enabled.setObjectName(_fromUtf8("actionPlugins_enabled"))
         self.menuHelp.addAction(self.actionHelp_local)
         self.menuHelp.addAction(self.actionAbout_KMSTrans)
         self.menuFile.addAction(self.actionNew_KMSTrans)
@@ -920,6 +929,8 @@ class Ui_Trui(object):
         self.menuSettings.addAction(self.actionFile2file_settings)
         self.menuSettings.addSeparator()
         self.menuSettings.addAction(self.actionGDAL_settings)
+        self.menuSettings.addSeparator()
+        self.menuSettings.addAction(self.actionPlugins_enabled)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -1103,4 +1114,7 @@ class Ui_Trui(object):
         self.action_local_GDAL.setText(_translate("Trui", "Use included GDAL", None))
         self.action_own_GDAL.setText(_translate("Trui", "Use own GDAL", None))
         self.actionGDAL_settings.setText(_translate("Trui", "GDAL settings", None))
+        self.actionEnable_plugins.setText(_translate("Trui", "Enable plugins", None))
+        self.actionDisable_plugins.setText(_translate("Trui", "Disable plugins", None))
+        self.actionPlugins_enabled.setText(_translate("Trui", "Plugins enabled", None))
 
