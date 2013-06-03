@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Fri May 31 16:56:14 2013
+# Created: Fri May 31 19:29:24 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -902,7 +902,7 @@ class Ui_Trui(object):
         self.actionDisable_plugins.setCheckable(True)
         self.actionDisable_plugins.setObjectName(_fromUtf8("actionDisable_plugins"))
         self.actionPlugins_enabled = QtGui.QAction(Trui)
-        self.actionPlugins_enabled.setCheckable(True)
+        self.actionPlugins_enabled.setCheckable(False)
         self.actionPlugins_enabled.setObjectName(_fromUtf8("actionPlugins_enabled"))
         self.menuHelp.addAction(self.actionHelp_local)
         self.menuHelp.addAction(self.actionAbout_KMSTrans)

@@ -2403,7 +2403,7 @@
   </action>
   <action name="actionPlugins_enabled">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Plugins enabled</string>

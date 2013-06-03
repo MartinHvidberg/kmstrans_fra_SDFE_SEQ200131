@@ -676,10 +676,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.tab_python=PythonWidget(self)
 		self.main_tab_host.addTab(self.tab_python,"Python console")
 		#Load plugins#
-		self.actionPlugins_enabled.setChecked(self.enable_plugins)
 		if self.enable_plugins:
+			self.actionPlugins_enabled.setText("Disable plugins")
 			self.loadPlugins()
 		else:
+			self.actionPlugins_enabled.setText("Enable plugins")
 			self.log_interactive("Plugins disabled...",color="brown")
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
 		self.initRegion()
@@ -1471,6 +1472,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				self.lbl_geoid_dir_value.setText(os.path.realpath(my_file))
 				self.geoids=my_file
 				os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
+				self.saveSettings()
 			else:
 				TrLib.SetGeoidDir(self.geoids)
 				self.message("Failed to change geoid dir!\n%s" %msg)
@@ -1480,9 +1482,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.enable_plugins= not self.enable_plugins
 		if self.enable_plugins:
 			state="enabled"
+			self.actionPlugins_enabled.setText("Enable plugins")
 		else:
 			state="disabled"
-		QMessageBox.warning(self,"Plugins "+state ,"Changes will take effect after a restart.")
+			self.actionPlugins_enabled.setText("Disable plugins")
+		self.saveSettings()
+		QMessageBox.information(self,"Plugins "+state ,"Changes will take effect after a restart.")
 	#PLUGIN LOADER#
 	def loadPlugins(self):
 		plugins,dublicates=GetPlugins([PLUGIN_PATH_USER,PLUGIN_PATH_LOCAL])
