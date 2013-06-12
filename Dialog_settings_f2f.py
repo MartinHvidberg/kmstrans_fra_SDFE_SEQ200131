@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Fri May 31 19:29:26 2013
+# Created: Wed Jun 12 11:38:27 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -157,9 +157,14 @@ class Ui_Dialog(object):
         self.chb_invert_xy.setObjectName(_fromUtf8("chb_invert_xy"))
         self.verticalLayout_3.addWidget(self.chb_invert_xy)
         self.verticalLayout.addWidget(self.groupBox)
-        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem4)
-        self.groupBox_2 = QtGui.QGroupBox(Dialog)
+        self.groupBox_3 = QtGui.QGroupBox(Dialog)
+        self.groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.chb_copy_bad = QtGui.QCheckBox(self.groupBox_3)
+        self.chb_copy_bad.setObjectName(_fromUtf8("chb_copy_bad"))
+        self.verticalLayout_2.addWidget(self.chb_copy_bad)
+        self.groupBox_2 = QtGui.QGroupBox(self.groupBox_3)
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_2)
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
@@ -176,7 +181,10 @@ class Ui_Dialog(object):
         self.rdb_rad = QtGui.QRadioButton(self.groupBox_2)
         self.rdb_rad.setObjectName(_fromUtf8("rdb_rad"))
         self.horizontalLayout_3.addWidget(self.rdb_rad)
-        self.verticalLayout.addWidget(self.groupBox_2)
+        self.verticalLayout_2.addWidget(self.groupBox_2)
+        self.verticalLayout.addWidget(self.groupBox_3)
+        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem4)
         spacerItem5 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem5)
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -209,7 +217,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
-        self.groupBox.setTitle(_translate("Dialog", "Text Format", None))
+        self.groupBox.setTitle(_translate("Dialog", "TEXT Format", None))
         self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). </p><p>If no units are found they are considered as either <span style=\" font-weight:600;\">meters or degrees</span> (for geographic coordinates).</p><p> If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and it\'s unit:</p><p>Use <span style=\" font-weight:600;\">500000m</span>, NOT <span style=\" font-weight:600;\">500000 m</span>. </p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
         self.label_2.setText(_translate("Dialog", "Column separators:", None))
         self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
@@ -229,7 +237,9 @@ class Ui_Dialog(object):
         self.label_4.setText(_translate("Dialog", "Z column", None))
         self.chb_invert_xy.setToolTip(_translate("Dialog", "Swap the order of x and y columns in output.", None))
         self.chb_invert_xy.setText(_translate("Dialog", "Invert output x/y column order", None))
-        self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. Applies to both KMS and TEXT formats!", None))
+        self.groupBox_3.setTitle(_translate("Dialog", "Options common to KMS and TEXT formats", None))
+        self.chb_copy_bad.setText(_translate("Dialog", "Copy uniterpretable/erroneous lines to output", None))
+        self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. ", None))
         self.rdb_dg.setText(_translate("Dialog", "Degrees (dg: ddd.ddd...)", None))
         self.rdb_sx.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))
         self.rdb_nt.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))

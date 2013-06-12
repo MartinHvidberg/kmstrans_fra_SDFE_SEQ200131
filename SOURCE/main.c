@@ -96,6 +96,7 @@ void Usage(int help){
 	printf("-sx  Use sexagesimal format for output of geographic coordinates.\n");
 	printf("-nt Use nautical units for output of geographic coordinates.\n");
 	printf("-rad Use radians for output of geographic coordinates.\n");
+	printf("-cpbad Copy uninterpretable lines to output file.\n");
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
 	if (!help)
@@ -196,9 +197,10 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;flipxy;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;flipxy;cpbad;"; /*for processing command line options*/
     char *output_geo_unit="dg",*comments=NULL;
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
+    int copy_bad=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -309,8 +311,10 @@ int main(int argc, char *argv[])
 			output_geo_unit="rad";
 		else if (!strcmp(key,"flipxy"))
 			flip_xy=1;
+		else if (!strcmp(key,"cpbad"))
+			copy_bad=1;
 		else{
-			printf ("?? getopt returned character unknown option %s\n", key);
+			printf ("?? getopt returned unknown option %s\n", key);
 			goto usage;
 		}
         }
@@ -499,7 +503,7 @@ int main(int argc, char *argv[])
 	frmt.units_in_output=units_in_output;
 	frmt.output_geo_unit=output_geo_unit;
 	frmt.comments=comments;
-	
+	frmt.copy_bad=copy_bad;
 	frmt.units_in_output=units_in_output;
 	frmt.comments=comments;
         err=TransformText(inname,outname,trf,frmt);

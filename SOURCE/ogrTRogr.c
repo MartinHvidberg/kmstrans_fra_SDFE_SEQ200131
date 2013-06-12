@@ -293,6 +293,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	 /*open input file */
 	hDSin = OGROpen(inname, FALSE, & hDriver_in);
 	if( hDSin == NULL ){
+		Report(REP_ERROR,TR_ALLOCATION_ERROR,VERB_LOW,"Failed to open input with any OGR driver.");
 		return TR_ALLOCATION_ERROR;
 	}
 	Report(REP_INFO,0,VERB_LOW,"Opened input with driver: %s",OGR_Dr_GetName(hDriver_in));

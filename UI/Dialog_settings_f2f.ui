@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Text Format</string>
+      <string>TEXT Format</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -302,6 +302,65 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Options common to KMS and TEXT formats</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="chb_copy_bad">
+        <property name="toolTip">
+         <string>Copy lines where proper coordinates cannot be read to output file.</string>
+        </property>
+        <property name="text">
+         <string>Copy uniterpretable/erroneous lines to output</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Ouput format for geographic coordinates. </string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="rdb_dg">
+           <property name="text">
+            <string>Degrees (dg: ddd.ddd...)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_sx">
+           <property name="text">
+            <string>Sexagesimal (sx: dddmmss.sss...)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_nt">
+           <property name="text">
+            <string>Nautical units (nt: ddd mm.mmm...)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_rad">
+           <property name="text">
+            <string>Radians (rad: rr.rrrr...)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -313,46 +372,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Ouput format for geographic coordinates. Applies to both KMS and TEXT formats!</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QRadioButton" name="rdb_dg">
-        <property name="text">
-         <string>Degrees (dg: ddd.ddd...)</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rdb_sx">
-        <property name="text">
-         <string>Sexagesimal (sx: dddmmss.sss...)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rdb_nt">
-        <property name="text">
-         <string>Nautical units (nt: ddd mm.mmm...)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rdb_rad">
-        <property name="text">
-         <string>Radians (rad: rr.rrrr...)</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer_2">

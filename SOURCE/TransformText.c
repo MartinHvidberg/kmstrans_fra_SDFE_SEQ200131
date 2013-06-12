@@ -269,6 +269,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	} /* end look for label */
 	/*perhaps write output - like a header - to f_out */
 	if (!trf->proj_in){
+		if (frmt.copy_bad)
+			fputs(buf,f_out);
 		if (is_stdin)
 			fprintf(stdout,"Set minilabel first: #minilabel\n");
 		continue;
@@ -370,7 +372,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	
 	/*uninterpretable line*/
 	if (coords_found!=coords_to_find){
-		fputs(buf,f_out);
+		if (frmt.copy_bad)
+			fputs(buf,f_out);
 		if (n_warnings<MAX_WARNINGS)
 			Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
 		else if (n_warnings==MAX_WARNINGS)

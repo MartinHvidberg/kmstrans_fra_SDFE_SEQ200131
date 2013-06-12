@@ -64,6 +64,7 @@ class F2F_Settings(object):
 		self.accepted=False
 		self.sep_char=None
 		self.comments=None
+		self.copy_bad_lines=False
 		self.units_in_output=False
 		self.output_geo_unit="dg"
 		self.log_file=None
@@ -222,6 +223,8 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-nt']
 		elif options.output_geo_unit=="rad":
 			args+=['-rad']
+		if options.copy_bad_lines:
+			args+=['-cpbad']
 	files=glob.glob(options.ds_in)
 	if len(files)==0:
 		files=[options.ds_in]  #OK so we assume its not a file - could be a db or url.... TODO: see if WFS or similar driver is specified....
