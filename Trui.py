@@ -1389,6 +1389,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		settings.endGroup()
 		settings.beginGroup('plugins')
 		settings.setValue('enable',int(self.enable_plugins))
+		settings.endGroup()
 		settings.beginGroup('data')
 		settings.setValue('geoids',self.geoids)
 		settings.setValue('path',self.dir)
