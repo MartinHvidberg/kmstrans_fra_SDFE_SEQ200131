@@ -243,8 +243,8 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				a1,a2=data[1:]
 				#WidgetUtils.setOutput(data,self.output_bshlm_azimuth,True,z_fields=[0],angular_unit=self.geo_unit_derived)
 				self.output_bshlm_azimuth[0].setText("%.3f m" %data[0])
-				self.output_bshlm_azimuth[1].setText(TranslateFromDegrees(data[1],self.geo_unit_derived,True))
-				self.output_bshlm_azimuth[2].setText(TranslateFromDegrees(data[2],self.geo_unit_derived,True))
+				self.output_bshlm_azimuth[1].setText(TranslateFromDegrees(data[1],self.geo_unit_derived,precision=1))
+				self.output_bshlm_azimuth[2].setText(TranslateFromDegrees(data[2],self.geo_unit_derived,precision=1))
 			else:
 				self.message("Error: could not calculate azimuth!")
 				self.clearOutput()
@@ -268,7 +268,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					y2_out=y2
 				#display result...
 				WidgetUtils.setOutput([x2_out,y2_out],self.input_bshlm[2:],is_geo_in,z_fields=[],angular_unit=self.geo_unit)
-				self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(a2,self.geo_unit_derived,coarse=True))
+				self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(a2,self.geo_unit_derived,precision=1))
 			else:
 				self.message("Error: could not do inverse Bessel Helmert calculation")
 				self.clearOutput()
@@ -313,17 +313,17 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		self.geo_unit=geo_unit
 		if TrLib.IsGeographic(str(self.cb_bshlm_system.currentText())):
 			for field in self.input_bshlm:
-				WidgetUtils.translateAngularField(field,geo_unit)
+				WidgetUtils.translateAngularField(field,geo_unit,precision=4)
 		for field in self.output_bshlm_geo:
-			WidgetUtils.translateAngularField(field,geo_unit)
+			WidgetUtils.translateAngularField(field,geo_unit,precision=4)
 	def handleAngularUnitChange(self,geo_unit):
 		self.geo_unit_derived=geo_unit
 		is_mode1=self.rdobt_bshlm_mode1.isChecked()
 		if is_mode1 and self.cache.is_valid and self.cache.mode==0:
-			self.txt_bshlm_azimuth1.setText(TranslateFromDegrees(self.cache.a1,geo_unit,True))
-			self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(self.cache.a2,geo_unit,True))
+			self.txt_bshlm_azimuth1.setText(TranslateFromDegrees(self.cache.a1,geo_unit,precision=1))
+			self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(self.cache.a2,geo_unit,precision=1))
 		else:
 			for field in self.derived_angular_output:
-				WidgetUtils.translateAngularField(field,geo_unit)
+				WidgetUtils.translateAngularField(field,geo_unit,precision=3)
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)

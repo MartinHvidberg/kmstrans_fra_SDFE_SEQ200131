@@ -576,6 +576,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.menuHelp.addSeparator()
 		self.menuHelp.addAction(QWhatsThis.createAction(self))
 		#SETUP VARIOUS ATTRIBUTES#
+		self.coord_precision=4 # 4 decimals in metric output - translates to something else for angular output...
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
@@ -944,7 +945,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.action_angular_units_derived[ANGULAR_UNIT_SX].setChecked(True)
 	def translateGeoUnits(self):
 		if self.output_cache.is_valid and TrLib.IsGeographic(self.output_cache.mlb) :
-			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],True,angular_unit=self.geo_unit)
+			WidgetUtils.setOutput(self.output_cache.coords,self.output[:2],True,angular_unit=self.geo_unit,precision=self.coord_precision)
 		if TrLib.IsGeographic(str(self.cb_input_system.currentText())):
 			for field in self.input[:2]:
 				WidgetUtils.translateAngularField(field,self.geo_unit)
@@ -980,7 +981,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				self.output_cache.meridian_convergence=m
 				self.output_cache.has_scale=True
 			self.txt_scale.setText("%.7f" %self.output_cache.scale)
-			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived,coarse=True))
+			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived,precision=0))
 			if DEBUG:
 				self.log_interactive(repr(self.output_cache.coords)+"\n"+self.output_cache.mlb)
 		else:
@@ -1002,7 +1003,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			mlb_out=str(self.cb_output_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
 		is_angle=TrLib.IsGeographic(mlb_out)
-		WidgetUtils.setOutput(coords,self.output,is_angle,z_fields=[2],angular_unit=self.geo_unit)
+		WidgetUtils.setOutput(coords,self.output,is_angle,z_fields=[2],angular_unit=self.geo_unit,precision=self.coord_precision)
 		
 		
 		
@@ -1010,7 +1011,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if mlb_in is None:
 			mlb_in=str(self.cb_input_system.currentText())
 		is_angle=TrLib.IsGeographic(mlb_in)
-		WidgetUtils.setOutput(coords,self.input,is_angle,z_fields=[2],angular_unit=self.geo_unit)
+		WidgetUtils.setOutput(coords,self.input,is_angle,z_fields=[2],angular_unit=self.geo_unit,precision=self.coord_precision)
 		
 		
 	def transform_input(self,input_index_changed=False,output_index_changed=False):

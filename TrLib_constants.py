@@ -89,13 +89,24 @@ FRMT_RADIANS_COARSE="{0:.7f}"
 FRMT_NT_COARSE="{0:05.2f}"
 FRMT_SX_COARSE="{0:02d} {1:04.1f}"
 FRMT_DG_COARSE="{0:.6f}"
+LOGR=7
+LOGM=3
+LOGS=2
+LOGD=5
+def GetFrmt(geo_unit,precision):
+	if geo_unit==ANGULAR_UNIT_RADIANS:
+		return "{0:."+str(LOGR+precision)+"f}"
+	if geo_unit==ANGULAR_UNIT_NT:
+		return "{0:0"+str(LOGM+precision+3)+"."+str(LOGM+precision)+"f}"
+	if geo_unit==ANGULAR_UNIT_SX:
+		return "{0:02d} {1:0"+str(LOGS+precision+3)+"."+str(LOGS+precision)+"f}"
+	return "{0:."+str(LOGD+precision)+"f}"
+
 #Translate from dg to other geo units
 #DONE: avoid round up to 60 seconds/minutes - handling negative input ok...
-def TranslateFromDegrees(x,geo_unit, coarse=False):
+def TranslateFromDegrees(x,geo_unit, precision=4):
+	frmt=GetFrmt(geo_unit,precision)
 	if geo_unit==ANGULAR_UNIT_RADIANS:
-		frmt=FRMT_RADIANS
-		if coarse:
-			frmt=FRMT_RADIANS_COARSE
 		return frmt.format(x*pi/180.0)+" "+geo_unit
 	if geo_unit==ANGULAR_UNIT_NT or geo_unit==ANGULAR_UNIT_SX:
 		sign=""
@@ -106,32 +117,29 @@ def TranslateFromDegrees(x,geo_unit, coarse=False):
 		dg=floor(x)
 		m=(x-dg)*60.0 #between 0 and 1 - thus output below 60
 		if geo_unit==ANGULAR_UNIT_NT:
-			if (60.0-m)<1e-6:
+			if (60.0-m)<10**(-precision-LOGM):
 				m=0.0
 				dg=round(x)
-			frmt=FRMT_NT
-			if coarse:
-				frmt=FRMT_NT_COARSE
 			dec=frmt.format(m)
 		else:
-			if (60.0-m)<1e-5/60.0:
+			if (60.0-m)<10**(-precision-LOGM): #double check this logic
 				m=0.0
 				s=0.0
 				dg=round(x)
 			else:	
 				s=(m-floor(m))*60 #between 0 and 1 - thus output below 60
-			frmt=FRMT_SX
-			if coarse:
-				frmt=FRMT_SX_COARSE
+				if (60.0-s)<10**(-precision-LOGS):
+					m=int(round(m))
+					s=0.0
+					if (m==60):
+						m=0.0
+						dg=round(x)
 			dec=frmt.format(int(m),s)
 		out=sign
 		if (dg>0):
 			out+="{0:d} ".format(int(dg))
 		out+=dec+" "+geo_unit
 		return out
-	frmt=FRMT_DG
-	if coarse:
-		frmt=FRMT_DG_COARSE
 	return frmt.format(x)+" "+geo_unit
 
 def TranslateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...

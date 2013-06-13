@@ -32,19 +32,20 @@ def getInput(fields,is_angle=False,z_fields=[2],angular_unit="dg"):
 		return coords,""
 
 #a generel output field setter - flags as above...#
-def setOutput(coords,fields,is_angle=False,z_fields=[2],angular_unit="dg"):
+def setOutput(coords,fields,is_angle=False,z_fields=[2],angular_unit="dg",precision=4):
+	frmt_metric="{0:."+str(precision)+"f} m"
 	if len(coords)==0:
 		for field in fields:
 			field.clear()
 		return
 	for i in range(len(fields)):
 		if is_angle and (not i in z_fields):
-			fields[i].setText("%s" %(TranslateFromDegrees(coords[i],angular_unit)))
+			fields[i].setText("%s" %(TranslateFromDegrees(coords[i],angular_unit,precision=precision)))
 		else:
 			#TODO: global precision here
-			fields[i].setText("%.4f m" %coords[i])
+			fields[i].setText(frmt_metric.format(coords[i]))
 
-def translateAngularField(field,geo_unit):
+def translateAngularField(field,geo_unit,precision=4):
 	try:
 		ang=TranslateToDegrees(str(field.text()),geo_unit)
 	except Exception,msg:
@@ -52,4 +53,4 @@ def translateAngularField(field,geo_unit):
 			print repr(msg)
 		return
 	
-	field.setText("%s" %TranslateFromDegrees(ang,geo_unit))
+	field.setText("%s" %TranslateFromDegrees(ang,geo_unit,precision=precision))
