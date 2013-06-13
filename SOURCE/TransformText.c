@@ -1,3 +1,19 @@
+/* Copyright (c) 2012, National Survey and Cadastre, Denmark
+* (Kort- og Matrikelstyrelsen), kms@kms.dk
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * 
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -70,7 +86,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
     int look_for_label,log_geoids=0;
     int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
-     int coord_order[3]={0,1,2};
+    int coord_order[3]={0,1,2};
     struct typ_dec type_geo;
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
@@ -168,8 +184,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    if (strchr(frmt.sep_char,' '))
 		    space_in_sep=1;
 	   
-    }
-    
+     }
+     /* 2D->3D is disabled from main in this case...*/
      if (trf->proj_in){
 	is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 	coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
@@ -177,8 +193,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		   Report(REP_WARNING,0,VERB_LOW,"Warning: input projection is 3 dimensional- but z column is not specified.");
 		   Report(REP_WARNING,0,VERB_LOW,"Will attempt to read z-values from the column after the last planar coord.");
 		   frmt.col_z=max_col+1;
-		   
-	    }
+	}
 	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
 	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 	
@@ -211,9 +226,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     while (0!= fgets(buf, BUFSIZE, f_in)) {
         int    argc, err;
         double coords[3]={NAN,NAN,NAN},store,x,y,z;
-	char *current_pos,*end_pointer,*current_pos_out,*current_test_char,sep_char_found='\0',n_read;
+	char *current_pos,*end_pointer,*current_pos_out,sep_char_found='\0';
 	char *coord_positions[6]={NULL,NULL,NULL,NULL,NULL,NULL};
-	int current_col=0, coords_found=0, found_z=0, insert_z=0,found_next_col=0;
+	int current_col=0, coords_found=0, found_z=0,found_next_col=0;
 	/*struct typ_dec type_out;*/
 	lines_read++;
 	
@@ -224,6 +239,11 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		if (argc==1){
 			err=TR_Insert(trf,mlb_in_file,0);
 			if (err==TR_OK){
+				if (IS_3D(trf->proj_out) && !IS_3D(trf->proj_in)){
+					Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"2D -> 3D transformation not allowed. Will continue to look for valid input label.");
+					TR_Insert(trf,NULL,0); /*invalidate proj_in*/
+					continue;
+				}
 				Report(REP_INFO,0,VERB_LOW,"Tranformation: %s->%s",GET_MLB(trf->proj_in),GET_MLB(trf->proj_out));
 				is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 				mlbs_found++;
@@ -258,7 +278,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				continue;
 			}
 			else
-				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to translate minilabel: %s",mlb_in_file);
+				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to convert minilabel: %s",mlb_in_file);
 			}
 		
 		if (!trf->proj_in && lines_read>MAX_LINES_SEARCH){
@@ -356,16 +376,11 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		
 		
 	} /*end scan line (while)*/
-	
-	/*see if we should forceably insert a z column*/
-	insert_z=(IS_3D(trf->proj_out) && !found_z);
-	
+	/* We will no more never, no more never forceably insert a z-column!*/ 
 	if (!found_z){/*insert default*/
 		coords[coord_order[2]]=0;
 	}
-	if (!found_z && coords_to_find==3){
-		coords_found+=1;
-	}
+	
 	x=coords[coord_order[0]];
 	y=coords[coord_order[1]];
 	z=coords[coord_order[2]];
@@ -374,8 +389,12 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	if (coords_found!=coords_to_find){
 		if (frmt.copy_bad)
 			fputs(buf,f_out);
-		if (n_warnings<MAX_WARNINGS)
-			Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
+		if (n_warnings<MAX_WARNINGS){
+			if (coords_to_find==3  && coords_found==2 && !found_z)
+				Report(REP_WARNING,0,VERB_HIGH,"Line: %d, did not find z-coordinate.",lines_read);
+			else
+				Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
+		}
 		else if (n_warnings==MAX_WARNINGS)
 			Report(REP_WARNING,0,VERB_LOW,"Line %d, not all coords found - this warning will not be issued anymore.\nDid you set a proper column separator?",lines_read);
 		if (lines_read==CHECK_WARNING_RATIO && n_warnings>MAX_WARNINGS && n_warnings*0.25>n_trans_ok)
@@ -429,7 +448,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	while(*current_pos){
 		if (coords_found<coords_to_find && current_pos==coord_positions[2*coords_found]){
 			
-			if (1==1){/*or coords_found!=coord_order[2] || IS_3D(trf->proj_out)) if we do not want to write z when output is 2d....*/
+			if (coords_found!=coord_order[2] || IS_3D(trf->proj_out)){
 				if (coords_found!=coord_order[2])
 					current_pos_out+=sputg(current_pos_out,coords[coords_found],&type_out,"");
 				else
@@ -446,19 +465,6 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 			
 			current_pos=coord_positions[2*coords_found+1];
 			coords_found++;
-			/*test here if we should insert a z value also*/
-			if (insert_z && coords_found==2){
-				current_pos_out+=sprintf(current_pos_out,"%s",default_separator);
-				current_pos_out+=sputg(current_pos_out,coords[coord_order[2]],&type_height,""); 
-				/*sprintf(current_pos_out,frmt_out,coords[coord_order[2]]);*/
-				if (append_unit){
-					if (space_in_sep)
-						current_pos_out--;
-					current_pos_out+=sprintf(current_pos_out,"m");
-				}
-				insert_z=0;
-				/*TODO: do we need to append a separator in the end also?*/
-			}
 		}
 		else{ /*copy char*/
 			*(current_pos_out++)=*(current_pos++); 

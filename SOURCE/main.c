@@ -24,12 +24,13 @@
 #include "ogrTRogr.h"
 #include "TransformText.h"
 #include "TransformDSFL.h"
+#include "trlib_intern.h"
 #include "trlib_api.h"
 #include "Report.h"
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.04 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.05 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -400,9 +401,15 @@ int main(int argc, char *argv[])
     trf=TR_Open(mlb_in,mlb_out,"");
     if (!trf){
 	    fprintf(stderr,"Failed to open transformation/projection.\n");
+	    TR_TerminateLibrary();
 	    exit(TR_LABEL_ERROR);
     }
-   
+    if (trf->proj_in  && IS_3D(trf->proj_out) && !IS_3D(trf->proj_in)){
+	    fprintf(stderr,"2D -> 3D transformation not allowed.\n");
+	    TR_Close(trf);
+	    TR_TerminateLibrary();
+	    exit(TR_LABEL_ERROR);
+    }
     /*init logging*/
     if (log_name!=NULL){
 	    if (append_to_log)
