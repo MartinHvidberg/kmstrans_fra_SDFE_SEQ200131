@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_layer_selector.ui'
 #
-# Created: Wed Jun 12 11:38:24 2013
+# Created: Thu Jun 13 10:38:31 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!

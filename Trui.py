@@ -323,7 +323,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 			col_z=self.spb_col_z.value()
 		else:
 			col_z=None
-		if  col_x==col_y or col_x==col_z or col_y==col_x:
+		if  col_x==col_y or col_x==col_z or col_y==col_x or col_y==col_z:
 			self.message("Geometry columns must differ!")
 			return False
 		sep_char=""
@@ -535,6 +535,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.chb_show_scale.clicked.connect(self.onShowScale)
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
+		self.rdobt_f2f_ogr.toggled.connect(self.onRdobtOGRToggled)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
 		self.actionExit.triggered.connect(self.onExit)
@@ -1120,7 +1121,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.mapthread=MapThread(self)
 			self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
 		
-			
+	def onRdobtOGRToggled(self):
+		checked=self.rdobt_f2f_ogr.isChecked()
+		self.cb_f2f_ogr_driver.setEnabled(checked)
+		self.bt_f2f_creation_options.setEnabled(checked)
+		if (not checked):
+			self.chb_f2f_all_layers.setChecked(True)
 			
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_execute_clicked(self):
@@ -1316,6 +1322,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.log_f2f("....done....")
 		elif rc==File2File.PROCESS_TERMINATED:
 			self.log_f2f("Process was terminated!")
+		else:
+			self.message("Errors occured during transformation - see log field.")
 		#we're running - a method terminating the process could also enable buttons... and probably will#
 		self.f2f_settings.is_done=True
 		self.bt_f2f_execute.setEnabled(True)

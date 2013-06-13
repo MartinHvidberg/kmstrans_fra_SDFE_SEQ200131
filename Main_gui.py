@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Wed Jun 12 11:38:25 2013
+# Created: Thu Jun 13 11:23:24 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -590,6 +590,7 @@ class Ui_Trui(object):
         self.txt_f2f_layers_in.setObjectName(_fromUtf8("txt_f2f_layers_in"))
         self.horizontalLayout_12.addWidget(self.txt_f2f_layers_in)
         self.bt_f2f_input_layers = QtGui.QPushButton(self.groupBox_3)
+        self.bt_f2f_input_layers.setEnabled(False)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -672,6 +673,7 @@ class Ui_Trui(object):
         self.txt_f2f_log_name.setObjectName(_fromUtf8("txt_f2f_log_name"))
         self.horizontalLayout_11.addWidget(self.txt_f2f_log_name)
         self.bt_f2f_browse_log = QtGui.QPushButton(self.tab_ogr)
+        self.bt_f2f_browse_log.setEnabled(False)
         self.bt_f2f_browse_log.setObjectName(_fromUtf8("bt_f2f_browse_log"))
         self.horizontalLayout_11.addWidget(self.bt_f2f_browse_log)
         spacerItem17 = QtGui.QSpacerItem(170, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
@@ -937,19 +939,20 @@ class Ui_Trui(object):
 
         self.retranslateUi(Trui)
         self.main_tab_host.setCurrentIndex(1)
-        QtCore.QObject.connect(self.actionStation_names_in_input, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.actionStation_names_in_output.setChecked)
-        QtCore.QObject.connect(self.actionStation_names_in_input, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.actionStation_names_in_output.setEnabled)
-        QtCore.QObject.connect(self.rdobt_f2f_ogr, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cb_f2f_ogr_driver.setEnabled)
         QtCore.QObject.connect(self.chb_f2f_label_in_file, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cb_f2f_input_system.setDisabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_scale.setEnabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_meridian_convergence.setEnabled)
         QtCore.QObject.connect(self.chb_f2f_use_log, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_f2f_log_name.setEnabled)
         QtCore.QObject.connect(self.bt_f2f_clear_log, QtCore.SIGNAL(_fromUtf8("clicked()")), self.txt_f2f_log.clear)
         QtCore.QObject.connect(self.chb_f2f_use_log, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_f2f_verbose.setEnabled)
-        QtCore.QObject.connect(self.rdobt_f2f_ogr, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_input_layers.setEnabled)
-        QtCore.QObject.connect(self.rdobt_f2f_ogr, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_f2f_all_layers.setEnabled)
-        QtCore.QObject.connect(self.rdobt_f2f_ogr, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_f2f_layers_in.setEnabled)
         QtCore.QObject.connect(self.chb_f2f_all_layers, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.txt_f2f_layers_in.setDisabled)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.chb_f2f_label_in_file.setChecked)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_f2f_label_in_file.setDisabled)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_f2f_set_projection.setDisabled)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.chb_f2f_set_projection.setChecked)
+        QtCore.QObject.connect(self.chb_f2f_label_in_file, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_change_h_in.setDisabled)
+        QtCore.QObject.connect(self.chb_f2f_use_log, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_browse_log.setEnabled)
+        QtCore.QObject.connect(self.chb_f2f_all_layers, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_input_layers.setDisabled)
         QtCore.QMetaObject.connectSlotsByName(Trui)
 
     def retranslateUi(self, Trui):
@@ -1054,7 +1057,7 @@ class Ui_Trui(object):
         self.lbl_f2f_output_info.setText(_translate("Trui", "TextLabel", None))
         self.chb_f2f_label_in_file.setToolTip(_translate("Trui", "Use this option if projection metadata is extractable from the input datasource.", None))
         self.chb_f2f_label_in_file.setWhatsThis(_translate("Trui", "Use this option if projection metadata is extractable from the input datasource.", None))
-        self.chb_f2f_label_in_file.setText(_translate("Trui", "Label in file", None))
+        self.chb_f2f_label_in_file.setText(_translate("Trui", "Label / projection metadata  in source", None))
         self.chb_f2f_set_projection.setWhatsThis(_translate("Trui", "<html><head/><body><p>If checked, will attempt to write output projection metadata in destionation datasource.</p><p>This might fail for some OGR-drivers like e.g. \'FileGDB\', in which case the metadata can be attached via some appropriate tool afterwards, like e.g. ogr2ogr. </p></body></html>", None))
         self.chb_f2f_set_projection.setText(_translate("Trui", "Set output projection metadata in destination", None))
         self.label_3.setText(_translate("Trui", "Input system:", None))

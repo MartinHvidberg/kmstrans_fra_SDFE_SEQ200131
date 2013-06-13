@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Wed Jun 12 11:38:27 2013
+# Created: Thu Jun 13 10:38:34 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -238,6 +238,7 @@ class Ui_Dialog(object):
         self.chb_invert_xy.setToolTip(_translate("Dialog", "Swap the order of x and y columns in output.", None))
         self.chb_invert_xy.setText(_translate("Dialog", "Invert output x/y column order", None))
         self.groupBox_3.setTitle(_translate("Dialog", "Options common to KMS and TEXT formats", None))
+        self.chb_copy_bad.setToolTip(_translate("Dialog", "Copy lines where proper coordinates cannot be read to output file.", None))
         self.chb_copy_bad.setText(_translate("Dialog", "Copy uniterpretable/erroneous lines to output", None))
         self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. ", None))
         self.rdb_dg.setText(_translate("Dialog", "Degrees (dg: ddd.ddd...)", None))

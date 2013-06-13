@@ -1559,6 +1559,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="bt_f2f_input_layers">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1766,6 +1769,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="bt_f2f_browse_log">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Browse</string>
             </property>
@@ -1826,7 +1832,7 @@
                 <string>Use this option if projection metadata is extractable from the input datasource.</string>
                </property>
                <property name="text">
-                <string>Label in file</string>
+                <string>Label / projection metadata  in source</string>
                </property>
               </widget>
              </item>
@@ -2413,54 +2419,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>actionStation_names_in_input</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>actionStation_names_in_output</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionStation_names_in_input</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>actionStation_names_in_output</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rdobt_f2f_ogr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cb_f2f_ogr_driver</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>169</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>452</x>
-     <y>140</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chb_f2f_label_in_file</sender>
    <signal>toggled(bool)</signal>
    <receiver>cb_f2f_input_system</receiver>
@@ -2557,54 +2515,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>rdobt_f2f_ogr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>bt_f2f_input_layers</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>77</x>
-     <y>189</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rdobt_f2f_ogr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>chb_f2f_all_layers</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>88</x>
-     <y>190</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rdobt_f2f_ogr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>txt_f2f_layers_in</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>515</x>
-     <y>189</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chb_f2f_all_layers</sender>
    <signal>toggled(bool)</signal>
    <receiver>txt_f2f_layers_in</receiver>
@@ -2617,6 +2527,118 @@
     <hint type="destinationlabel">
      <x>572</x>
      <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_dsfl</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>chb_f2f_label_in_file</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>624</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_dsfl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>chb_f2f_label_in_file</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>624</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_dsfl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>chb_f2f_set_projection</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>624</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdobt_f2f_dsfl</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>chb_f2f_set_projection</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>624</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chb_f2f_label_in_file</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bt_f2f_change_h_in</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>132</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>482</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chb_f2f_use_log</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bt_f2f_browse_log</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>776</x>
+     <y>356</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chb_f2f_all_layers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bt_f2f_input_layers</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>931</x>
+     <y>185</y>
     </hint>
    </hints>
   </connection>
