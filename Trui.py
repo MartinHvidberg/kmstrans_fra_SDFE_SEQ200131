@@ -757,6 +757,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
 		dialog=DialogFile2FileSettings(self,self.f2f_settings)
+		dialog.setModal(True)
 		dialog.show()
 	def openGDALSettings(self):
 		if not self.showing_gdal_dialog:

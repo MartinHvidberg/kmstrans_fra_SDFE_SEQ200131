@@ -9,30 +9,35 @@
   <body>
     <h1>Python Console</h1>
     <p>The python console lets you interface with the python bindings
-      for TrLib allowing you to automatise trivial tasks by simple
-      python scripts.</p>
+      for trlib allowing you to automatise trivial tasks using python
+      commands and scripts.</p>
     <p>For example you can type:<br>
+      <br>
     </p>
-    <p>x,y,z=Transform("geoEwgs84","utm32Eed50",11.75,55.10,100.0) <br>
+    x,y,z=Transform("geoEwgs84","utm32Eed50",11.75,55.10,100.0) <br>
+    <p><br>
+      and hit enter. Now the variables x,y and z will hold output
+      coordinates, which you can the use further in your scripting
+      session. For example you could write them to an output file:&nbsp;</p>
+    <p> <br>
+      f=open("myfile.txt","w")<br>
     </p>
-    <p>and hit enter. Now the variables x,y and z will hold output
-      coordinates, which you can the use further in your sripting
-      session. For example you could write them to an output file:<br>
+    <p> f.write("Output: {0:.4f} {1:.4f} {2:.4f}\n".format(x,y,z)) <br>
     </p>
-    <p>f=open("myfile.txt","w")<br>
-      f.write("Output was: %.4f, %,4f, %.4f\n" %(x,y,z))<br>
-      f.close()<br>
+    <p> f.close()<br>
+    </p>
+    <p><br>
     </p>
     <p>If you are doing more complicated things like defining new
       classes or functions, uncheck the&nbsp; 'Run command on enter'
-      check box, and use the 'compile' button the parse the python code.<br>
+      check box, and use the 'compile' button to parse the python code.<br>
     </p>
     <h2>Plugins</h2>
-    <p>You can extend the functionality by placing plugins in subfolders
-      in a folder named:<br>
+    <p>You can extend the functionality by placing plugins in sub
+      folders of the folder:<br>
       ~/.kmstrans2/plugins&nbsp; <br>
-      On win32, the users home directory ~ is typically: C:\Documents
-      and Settings\&lt;my_user_name&gt;<br>
+      On windows, the users home directory ~ is typically: C:\Documents
+      and Settings\&lt;my_user_name&gt; or C:\Users\&lt;my_user_name&gt;<br>
     </p>
     <p>A plugin must be a python package (see <a
         href="http://docs.python.org/2/tutorial/modules.html">
@@ -43,15 +48,7 @@
     </p>
     <p>More detailed developer oriented information is available in the
       <a href="https://bitbucket.org/KMS/kmstrans/wiki/Plugin_API">repository
-
         wiki.</a><br>
     </p>
-    <br>
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;&nbsp; <br>
-    <br>
-    <br>
-    <br>
-    <br>
   </body>
 </html>

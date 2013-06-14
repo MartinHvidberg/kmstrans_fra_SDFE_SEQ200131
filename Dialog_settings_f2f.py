@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Fri Jun 14 15:28:10 2013
+# Created: Fri Jun 14 15:39:19 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -218,7 +218,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
         self.groupBox.setTitle(_translate("Dialog", "TEXT Format", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). </p><p>If no units are found they are considered as either <span style=\" font-weight:600;\">meters or degrees</span> (for geographic coordinates).</p><p> If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and it\'s unit:</p><p>Use <span style=\" font-weight:600;\">500000m</span>, NOT <span style=\" font-weight:600;\">500000 m</span>. </p><p>Remember to click the \'Apply\' button to apply changes!</p></body></html>", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). </p><p>If no units are found they are considered as either <span style=\" font-weight:600;\">meters or degrees</span> (for geographic coordinates).</p><p>If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and it\'s unit:</p><p>Use <span style=\" font-weight:600;\">500000m</span>, NOT <span style=\" font-weight:600;\">500000 m</span>. </p></body></html>", None))
         self.label_2.setText(_translate("Dialog", "Column separators:", None))
         self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
         self.chb_tab.setText(_translate("Dialog", "Tab", None))
