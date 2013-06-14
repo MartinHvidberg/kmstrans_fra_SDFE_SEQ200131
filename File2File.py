@@ -244,7 +244,7 @@ def TransformDatasource(options,log_method,post_method):
 	#Really start a thread here#
 	args=[TROGR]+args+[options.mlb_out]
 	if len(files)>1 and os.path.isdir(options.ds_out):
-		files_out=[os.path.join(options.ds_out,fname) for fname in files]
+		files_out=[os.path.join(options.ds_out,os.path.basename(fname)) for fname in files]
 	else:
 		files_out=[options.ds_out]
 	options.output_files=files_out
@@ -317,7 +317,7 @@ class WorkerThread(threading.Thread):
 				self.post_method(last_err)
 				return
 			done+=1
-		self.post_method(rc)
+		self.post_method(last_err)
 
 
 def GetOGRFormats(is_output=True):
