@@ -310,7 +310,6 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 			fprintf(stdout,"Set minilabel first: #minilabel\n");
 		continue;
 	}
-	/*Special stuff for KMS-format*/
 	/*scan the line for tokens*/
 	current_pos=buf;
 	/*spool to first column - left whitespace means nothing*/ 

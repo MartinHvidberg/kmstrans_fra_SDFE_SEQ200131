@@ -1127,8 +1127,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		checked=self.rdobt_f2f_ogr.isChecked()
 		self.cb_f2f_ogr_driver.setEnabled(checked)
 		self.bt_f2f_creation_options.setEnabled(checked)
+		self.chb_f2f_all_layers.setEnabled(checked)
 		if (not checked):
 			self.chb_f2f_all_layers.setChecked(True)
+			
 			
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_execute_clicked(self):
