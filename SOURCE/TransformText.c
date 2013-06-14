@@ -38,9 +38,15 @@
 #define MAX_WARNINGS (50)
 #define CHECK_WARNING_RATIO (500) /*check ratio for every 500 lines*/
 #define MAX_ITEMS (256)
+#define LOGR   (7)       /*base number of decimals - precision is added*/
+#define LOGM  (3)
+#define LOGS  (2)
+#define LOGD  (5)
+
 static char *next_column(char *current_pos, char *sep_char, char *sep_char_found, int is_kms_format);
+
 static struct typ_dec type_metric= {4,1,6,4};  /*metric output with 4 decimals */
-static struct typ_dec type_height= {4,1,3,4};
+static struct typ_dec type_height= {4,1,2,3}; /* default height output format with 3 decimals - will be updated if input heights are read*/
 static struct typ_dec type_dg      ={2,1,2,8};
 static struct typ_dec type_nt       ={1,8,4,5};
 static struct typ_dec type_sx       ={1,1,6,4};
@@ -73,6 +79,7 @@ static char *next_column(char *current_pos, char *sep_char, char *sep_char_found
 	return current_pos;
 }
 
+
 /* Transform simple text. Or KMS-format
 * TODO: consider using col numbers for KMS-format.
 * Implement a general flip_xy arg 
@@ -87,12 +94,11 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     int look_for_label,log_geoids=0;
     int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
     int coord_order[3]={0,1,2};
-    struct typ_dec type_geo;
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
     char mlb_in_file[128],geoid_name[128],*tmp1,*tmp2;
     char *unit_out, default_separator[3];/*default separator used if we need to forcably insert a z-column*/
-    struct typ_dec type_out;
+    struct typ_dec type_out, type_h, *p_type_h;
     int in_comment=0, is_comment=0, flip_xy=0, append_unit=0, space_in_sep=0; /*flag to determine if we should 'eat' a space before appending unit*/
     /*test if in and out are stdin and stdout*/
     tmp2=buf;
@@ -119,18 +125,26 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     
     look_for_label=(trf->proj_in==NULL);
     is_geo_out=IS_GEOGRAPHIC(trf->proj_out);
-    /* set output units*/
+    /* set output units and precision*/
+    p_type_h=&type_height; /*only for writing of heights - not cartesic z*/
     if (is_geo_out){
 	    type_out=type_dg;
+	    type_out.df=LOGD+frmt.n_decimals;
 	    unit_out="dg";
 	    if (frmt.output_geo_unit){
 		    unit_out=frmt.output_geo_unit;
-		    if (!strcmp(unit_out,"sx"))
+		    if (!strcmp(unit_out,"sx")){
 			    type_out=type_sx;
-		    else if (!strcmp(unit_out,"nt"))
+			    type_out.df=LOGS+frmt.n_decimals;
+		    }
+		    else if (!strcmp(unit_out,"nt")){
 			    type_out=type_nt;
-		    else if (!strcmp(unit_out,"rad"))
+			    type_out.df=LOGM+frmt.n_decimals;
+		    }
+		    else if (!strcmp(unit_out,"rad")){
 			    type_out=type_rad;
+			    type_out.df=LOGR+frmt.n_decimals;
+		    }
 		    else if (strcmp(unit_out,"dg"))
 			    Report(REP_WARNING,0,VERB_LOW,"Unrecognized output unit: %s - using degrees.",unit_out);
 		}
@@ -139,6 +153,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     else{
 	    unit_out="m";
 	    type_out=type_metric;
+	    type_out.df=frmt.n_decimals;
     }
    
      if (frmt.is_kms_format){
@@ -303,7 +318,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		current_pos++;
 	
 	/*test if its a whitespace or a commentary line*/
-	is_comment=frmt.is_kms_format ? (*current_pos==';' || *current_pos=='*') : (*current_pos && frmt.comments && strstr(current_pos,frmt.comments)==current_pos);
+	is_comment=frmt.is_kms_format ? (*current_pos==';' || *current_pos=='*' || strstr(current_pos,"-1")==current_pos) : (*current_pos && frmt.comments && strstr(current_pos,frmt.comments)==current_pos);
 	if (!(*current_pos) || is_comment){
 		fputs(buf,f_out);
 		continue;
@@ -356,8 +371,16 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				default_separator[0]=sep_char_found;
 				default_separator[1]='\0';
 				/*printf("pos after: %s",current_pos);*/
-				if (current_col==frmt.col_z)
+				if (current_col==frmt.col_z){
 					found_z=1;
+					if (!IS_CARTESIC(trf->proj_in)){ /*if it's a real height (including E) */
+						type_h=type_in;
+						type_h.tf=1; /*always m in ouput -TODO: transform number of decimals if input is not in m*/
+						p_type_h=&type_h;
+					}
+					else
+						p_type_h=&type_height;
+				}
 			}
 				
 			
@@ -449,13 +472,24 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		if (coords_found<coords_to_find && current_pos==coord_positions[2*coords_found]){
 			
 			if (coords_found!=coord_order[2] || IS_3D(trf->proj_out)){
-				if (coords_found!=coord_order[2])
-					current_pos_out+=sputg(current_pos_out,coords[coords_found],&type_out,"");
+				char coord_buf[256];
+				tmp1=coord_buf;
+				if (coords_found!=coord_order[2] || IS_CARTESIC(trf->proj_out)) /*if x,y or cartesic z*/
+					sputg(coord_buf,coords[coords_found],&type_out,"");
 				else
-					current_pos_out+=sputg(current_pos_out,coords[coords_found],&type_height,"");
+					sputg(coord_buf,coords[coords_found],p_type_h,"");
+				/* if not kms format - trim the output*/
+				if (!frmt.is_kms_format){
+					while(isspace(*tmp1))
+						tmp1++;
+					/*perhaps only rtrim if space_in_sep?? */
+					tmp2=tmp1;
+					while(*tmp2 && !isspace(*tmp2))
+						tmp2++;
+					*tmp2='\0';
+				}
+				current_pos_out+=sprintf(current_pos_out,tmp1);
 				if (append_unit){
-					if (space_in_sep) /*eat space generated by sputg*/
-						current_pos_out--;
 					if (coords_found!=coord_order[2]) /*if not z*/
 						current_pos_out+=sprintf(current_pos_out,"%s",unit_out);
 					else

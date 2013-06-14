@@ -55,6 +55,7 @@ class F2F_Settings(object):
 		self.col_x=None
 		self.col_y=None
 		self.col_z=None
+		self.n_decimals=4
 		self.flip_xy=False
 		self.set_projection=True
 		self.be_verbose=False
@@ -171,9 +172,9 @@ def TransformDatasource(options,log_method,post_method):
 		#encode just in time#
 		args+=['-log',options.log_file.encode(sys.getfilesystemencoding())]
 	if not options.set_projection:
-		args+=['-n']
+		args+=['-nop']
 	if options.be_verbose:
-		args+=['-v']
+		args+=['-verb']
 	if options.mlb_in is not None:
 		args+=['-pin',options.mlb_in]
 	if options.driver=="OGR":
@@ -225,6 +226,7 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-rad']
 		if options.copy_bad_lines:
 			args+=['-cpbad']
+		args+=['-prc','%d'%options.n_decimals]
 	files=glob.glob(options.ds_in)
 	if len(files)==0:
 		files=[options.ds_in]  #OK so we assume its not a file - could be a db or url.... TODO: see if WFS or similar driver is specified....
@@ -271,7 +273,7 @@ class WorkerThread(threading.Thread):
 			#Append -a to args....
 			if done==1:
 				if ("-log") in args:
-					self.args.insert(1,"-a")
+					self.args.insert(1,"-alog")
 			#encode in file system encoding - just in time #
 			f_out=f_out.encode(sys.getfilesystemencoding())
 			f_in=f_in.encode(sys.getfilesystemencoding())

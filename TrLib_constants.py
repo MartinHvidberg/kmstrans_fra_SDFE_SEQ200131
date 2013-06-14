@@ -66,13 +66,16 @@ REGION_GR:[SYSTEMS_GR,INIT_GR,"Greenland"],
 REGION_WORLD:[SYSTEMS_WORLD,INIT_WORLD,"World"]
 }
 H_SYSTEMS={REGION_DK:H_SYSTEMS_DK,REGION_FO:H_SYSTEMS_FO,REGION_GR:H_SYSTEMS_GR,REGION_WORLD:H_SYSTEMS_WORLD}
-#ERRORS
+#ERRORS - see s_status.h (other error types irrelevant here)
 ERRORS={
 -1:"Inaccurate transformation",
 -2:"Tolerance exceeded",
--3:"Boundary exceeded",
+-3:"Boundary exceeded (serious)",
+-4:"No geoid - illegal transformation",
 -5:"Illegal transformation",
--100:"Table boundary exceeded"
+-6:"Program / system error",
+-7:"Illegal height transformation",
+-100:"Table boundary exceeded (serious)"
 }
 
 #ANGULAR UNITS
@@ -81,14 +84,6 @@ ANGULAR_UNIT_RADIANS="rad"
 ANGULAR_UNIT_NT="nt"
 ANGULAR_UNIT_SX="sx"
 ANGULAR_UNITS=[ANGULAR_UNIT_DEGREES,ANGULAR_UNIT_RADIANS,ANGULAR_UNIT_NT,ANGULAR_UNIT_SX]
-FRMT_RADIANS="{0:.9f}"
-FRMT_NT="{0:09.6f}"
-FRMT_SX="{0:02d} {1:08.5f}"
-FRMT_DG="{0:.8f}"
-FRMT_RADIANS_COARSE="{0:.7f}"
-FRMT_NT_COARSE="{0:05.2f}"
-FRMT_SX_COARSE="{0:02d} {1:04.1f}"
-FRMT_DG_COARSE="{0:.6f}"
 LOGR=7
 LOGM=3
 LOGS=2

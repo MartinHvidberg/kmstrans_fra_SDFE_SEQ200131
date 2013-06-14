@@ -24,7 +24,7 @@
 /* char *opt must be writeable  e.g. char opt[]="flag_only;look_for_key:" will specify an flag option -flag_only and an option -look_for_key with a value <val>
 * key will contain the current key under consideration and val its value, optionally (if found and defined).
 * argv[1:] will contain no-switch inputs, while unrecognized flags will be put from argv[argc-1] and downwards....
-* final return value will be the number of additonal, uncomsumed inputs.
+* final return value will be the number of additonal, unconsumed inputs.
 */
 int my_get_opt(char *opt_definition,int argc,char **argv, char **key, char **val){
 	static char *pos=NULL;

@@ -579,6 +579,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.coord_precision=4 # 4 decimals in metric output - translates to something else for angular output...
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
+		self.f2f_settings.n_decimals=self.coord_precision
 		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
 		self.showing_gdal_dialog=False #not used yet
 		self.output_cache=PointData()

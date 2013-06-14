@@ -68,23 +68,25 @@ static void unescape(char *text){
 void Usage(int help){
 	printf("To run:\n");
 	printf("%s ..options.. <mlb_out> <fname_out> <fname_in> <layer_name1> <layer_name2> ...\n",PROG_NAME);
-	printf("Layer names are optional - if not given the program will loop over all layers.\n");
+	printf("Layer names (OGR only) are optional - if not given the program will loop over all layers.\n");
+	if (help<1)
+		return;
 	printf("Available options:\n");
 	printf("-pin <mlb_in> If not included input metadata should be extracted from input file.\n");
-	if (help)
-		printf("For the DSFL driver the -p switch can *not* be used.\n");
+	if (help>1)
+		printf("For the DSFL driver the -pin switch can *not* be used.\n");
 	printf("-drv <input_driver> Optional. Will default to 'OGR'. Output driver will be the same as the input driver.\n");
 	printf("-of <output_ogr_driver> Optional. defaults to 'ESRI Shapefile'.\n");
 	printf("-dco <datasource_creation_options> OGR driver specific datasource creation options (comma separated list of key=value pairs).\n");
 	printf("-lco <layer_creation_options> OGR driver specific layer creation options (comma separated list of key=value pairs).\n");
 	printf("-log <log_file> Specify log file.\n");
-	printf("-a Append to log file if it exists (and -log <log_file> is used)");
-	if (help)
+	printf("-alog Append to log file if it exists (and -log <log_file> is used)");
+	if (help>1)
 		printf("Will append output if the file already exists.\n");
-	printf("-n Do NOT try to set the projection metadata on the output datasource/layer.\n");
-	if (help)
+	printf("-nop Do NOT try to set the projection metadata on the output datasource/layer.\n");
+	if (help>1)
 		printf("Useful for some drivers which fail to create layers unless projection metadata satisfy striqt requirements.\n");
-	printf("-v Be verbose - i.e. enable info and debug messages.\n");
+	printf("-verb Be verbose - i.e. enable info and debug messages.\n");
 	printf("\nOptions specific for the 'TEXT' driver:\n");
 	printf("-sep <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
@@ -98,9 +100,10 @@ void Usage(int help){
 	printf("-nt Use nautical units for output of geographic coordinates.\n");
 	printf("-rad Use radians for output of geographic coordinates.\n");
 	printf("-cpbad Copy uninterpretable lines to output file.\n");
+	printf("-prc <n_decimals> Specify (metric) precision of coordinate output.\n");
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
-	if (!help)
+	if (help<2)
 		printf("Use %s --help to print extra info.\n",PROG_NAME);
 	else{
 		printf("For the 'TEXT' driver special filenames 'stdin' and 'stdout' are available.\n");
@@ -198,10 +201,10 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:n;v;a;sx;nt;rad;ounits;flipxy;cpbad;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:nop;verb;alog;sx;nt;rad;ounits;flipxy;cpbad;"; /*for processing command line options*/
     char *output_geo_unit="dg",*comments=NULL;
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0;
+    int copy_bad=0, n_decimals=4;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -221,9 +224,13 @@ int main(int argc, char *argv[])
 		    exit(0);
 	    }
 	    if (!strcmp(argv[1],"--help")){
-		    Usage(1);
+		    Usage(2);
 		    exit(0);
 	    }
+    }
+    else{
+	    Usage(1);
+	    exit(0);
     }
     /*parse options*/
     do{
@@ -296,11 +303,17 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
-		else if (!strcmp(key,"v"))
+		else if (!strcmp(key,"prc")){
+			if (val)
+				n_decimals=atoi(val);
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"verb"))
 			be_verbose=1;
-		else if (!strcmp(key,"n"))
+		else if (!strcmp(key,"nop"))
 			set_output_projection=0;
-		else if (!strcmp(key,"a"))
+		else if (!strcmp(key,"alog"))
 			append_to_log=1;
 		else if (!strcmp(key,"ounits"))
 			units_in_output=1;
@@ -314,6 +327,7 @@ int main(int argc, char *argv[])
 			flip_xy=1;
 		else if (!strcmp(key,"cpbad"))
 			copy_bad=1;
+		
 		else{
 			printf ("?? getopt returned unknown option %s\n", key);
 			goto usage;
@@ -324,9 +338,17 @@ int main(int argc, char *argv[])
 	
    /*if not enough args*/
    if (n_opts<3){
+	fprintf(stderr,"At least three no-switch arguments needed: <mlb_out> <ds_out> <ds_in>\n");
         goto usage;
     }
- 
+    /* check unconsumed args - safe to modify argc here as it's not used below*/
+    while( argc-1>3){
+	    if (argv[argc-1]){
+		    fprintf(stderr,"Unrecognized option key: %s\n",argv[argc-1]);
+		    goto usage;
+	    }
+	    argc--;
+    }
     
     mlb_out=argv[1];
     outname=argv[2];
@@ -432,13 +454,6 @@ int main(int argc, char *argv[])
 	    puts(argv[n_opts]);
 	    n_opts--;
     }
-    puts(drv_in);
-    if (log_name)
-	puts(log_name);
-    puts(drv_out);
-    fputs("ost\n",fp_log);
-    fflush(fp_log);
-    Report(REP_INFO,0,VERB_LOW,"POPS"); /*crashes here with MSVC*/
     #endif
     /*TODO: control this via options*/
     set_lord_modes(be_verbose,be_verbose,1,1,1);
@@ -487,6 +502,7 @@ int main(int argc, char *argv[])
         }
 	if (flip_xy)
 		Report(REP_INFO,0,VERB_LOW,"Flipping output x/y columns.");
+	Report(REP_INFO,0,VERB_LOW,"Precision of output coordinates: 1e-%d m",n_decimals); 
 	if (comments)
 		unescape(comments);
 	if (sep_char){
@@ -508,6 +524,7 @@ int main(int argc, char *argv[])
 	frmt.set_output_projection=set_output_projection;
 	frmt.sep_char=sep_char;
 	frmt.units_in_output=units_in_output;
+	frmt.n_decimals=n_decimals;
 	frmt.output_geo_unit=output_geo_unit;
 	frmt.comments=comments;
 	frmt.copy_bad=copy_bad;
