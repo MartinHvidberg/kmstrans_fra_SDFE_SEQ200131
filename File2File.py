@@ -72,6 +72,11 @@ class F2F_Settings(object):
 		self.is_done=False
 		self.is_started=False
 		self.output_files=[]
+		#serialized state of settings dialog
+		self.saved_state_chbs=[] #check boxes
+		self.saved_state_rdbs=[] #radio buttons - mutually exclusive
+		self.saved_state_text=[] # text fields (lineEdit)
+		self.saved_state_spbs=[] #spin boxes
 		
 
 

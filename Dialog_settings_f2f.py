@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Thu Jun 13 10:38:34 2013
+# Created: Fri Jun 14 15:28:10 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -211,7 +211,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_space.setChecked)
-        QtCore.QObject.connect(self.chb_has_z, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.spb_col_z.setEnabled)
+        QtCore.QObject.connect(self.chb_has_z, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.spb_col_z.setEnabled)
         QtCore.QObject.connect(self.chb_whitespace, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_tab.setChecked)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -246,7 +246,7 @@ class Ui_Dialog(object):
         self.rdb_nt.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))
         self.rdb_rad.setText(_translate("Dialog", "Radians (rad: rr.rrrr...)", None))
         self.bt_apply.setToolTip(_translate("Dialog", "Click to apply changes", None))
-        self.bt_apply.setText(_translate("Dialog", "Apply", None))
-        self.bt_close.setToolTip(_translate("Dialog", "Press to apply changes and close", None))
-        self.bt_close.setText(_translate("Dialog", "Close", None))
+        self.bt_apply.setText(_translate("Dialog", "OK", None))
+        self.bt_close.setToolTip(_translate("Dialog", "Cancel changes and close", None))
+        self.bt_close.setText(_translate("Dialog", "Cancel", None))
 

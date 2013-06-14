@@ -305,17 +305,41 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 	def __init__(self,parent,settings):
 		QtGui.QDialog.__init__(self,parent)
 		self.setupUi(self)
+		self.chbs=[self.chb_whitespace,self.chb_space,self.chb_tab,self.chb_semicolon,self.chb_comma,self.chb_pattern,
+		self.chb_output_units,self.chb_has_z,self.chb_invert_xy,self.chb_copy_bad]
+		self.rdbs=[self.rdb_sx,self.rdb_dg,self.rdb_nt,self.rdb_rad]
+		self.text_fields=[self.txt_pattern,self.txt_comments]
+		self.spbs=[self.spb_col_x,self.spb_col_y,self.spb_col_z]
 		self.settings=settings
+		self.restoreSavedState()
 		self.settings.accepted=False
 	#TODO: implement save and load settings like in MainWindow - should also *always* display the current settings, so that the cancel button should uncheck/recheck stuff.
+	def restoreSavedState(self):
+		i=0
+		for val in self.settings.saved_state_chbs:
+			self.chbs[i].setChecked(val)
+			i+=1
+		i=0
+		for val in self.settings.saved_state_rdbs:
+			if val:
+				self.rdbs[i].setChecked(True)
+			i+=1
+		i=0
+		for val in self.settings.saved_state_spbs:
+			self.spbs[i].setValue(val)
+			i+=1
+		i=0
+		for val in self.settings.saved_state_text:
+			self.text_fields[i].setText(val)
+			i+=1
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_close_clicked(self):
-		ok=self.apply()
-		if ok:
-			self.hide()
+		self.close()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_apply_clicked(self):
-		self.apply()
+		ok=self.apply()
+		if ok:
+			self.close()
 	def apply(self):
 		col_x=self.spb_col_x.value()
 		col_y=self.spb_col_y.value()
@@ -373,6 +397,19 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		self.settings.col_z=col_z
 		self.settings.sep_char=sep_char
 		self.settings.accepted=True
+		self.settings.saved_state_chbs=[]
+		self.settings.saved_state_rdbs=[]
+		self.settings.saved_state_spbs=[]
+		self.settings.saved_state_text=[]
+		for obj in self.chbs:
+			self.settings.saved_state_chbs.append(obj.isChecked())
+		for obj in self.rdbs:
+			self.settings.saved_state_rdbs.append(obj.isChecked())
+		for obj in self.text_fields:
+			self.settings.saved_state_text.append(obj.text())
+		for obj in self.spbs:
+			self.settings.saved_state_spbs.append(obj.value())
+		
 		return True
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)
@@ -580,7 +617,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.f2f_settings.n_decimals=self.coord_precision
-		self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
+		#self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
 		self.showing_gdal_dialog=False #not used yet
 		self.output_cache=PointData()
 		self.mlb_in=None #New attribute - used to test whether we should upodate system info....
@@ -719,7 +756,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		msg=ABOUT+"\nTransformation engine:\n%s"%TrLib.GetVersion()
 		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
-		self.dialog_f2f_settings.show()
+		dialog=DialogFile2FileSettings(self,self.f2f_settings)
+		dialog.show()
 	def openGDALSettings(self):
 		if not self.showing_gdal_dialog:
 			dlg=DialogGDALSettings(self,self.gdal_settings)
