@@ -1570,7 +1570,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					if hasattr(_plugin,"startPlugin"):
 						_plugin.startPlugin(self)
 		else:
-			self.log_interactive("No python plugins in "+PLUGIN_PATH)
+			self.log_interactive("No python plugins found...")
 	#Add TAB - for widget type plugins#
 	def addPluginWidget(self,plugin):
 		#TODO: implement a manager, which allows enabling/disabling plugins - which means that we should store info 
