@@ -149,7 +149,7 @@ try:
 	shutil.rmtree("BUILD_PY")
 except:
 	pass
-print("Build succeded!")
+print("Build succeeded!")
 sys.exit(0)
 
 

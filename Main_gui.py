@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Thu Jun 13 11:23:24 2013
+# Created: Mon Jun 17 10:09:38 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -938,7 +938,7 @@ class Ui_Trui(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(Trui)
-        self.main_tab_host.setCurrentIndex(1)
+        self.main_tab_host.setCurrentIndex(0)
         QtCore.QObject.connect(self.chb_f2f_label_in_file, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cb_f2f_input_system.setDisabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_scale.setEnabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_meridian_convergence.setEnabled)

@@ -562,11 +562,14 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="main_tab_host">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
         <string>Interactive</string>
+       </attribute>
+       <attribute name="whatsThis">
+        <string>Interactive tab - used to transform single points.</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="topMargin">
@@ -1391,6 +1394,9 @@
        </property>
        <attribute name="title">
         <string>Batch</string>
+       </attribute>
+       <attribute name="whatsThis">
+        <string>Perform transformations of (vector) datasources here</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>

@@ -288,12 +288,9 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 			if paths!=self.settings.paths:
 				changes=True
 				self.settings.paths=paths
-		if changes: #restart
+		if changes: 
 			self.parent.saveSettings()
-			subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
-			self.close()
-			self.parent.close()
-			return
+			QMessageBox.information(self,"GDAL settings","Changes will take effect after a restart.")
 		self.close()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_cancel_clicked(self):
@@ -756,13 +753,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		msg=ABOUT+"\nTransformation engine:\n%s"%TrLib.GetVersion()
 		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
-		dialog=DialogFile2FileSettings(self,self.f2f_settings)
-		dialog.setModal(True)
-		dialog.show()
+		dlg=DialogFile2FileSettings(self,self.f2f_settings)
+		dlg.setModal(True)
+		dlg.show()
 	def openGDALSettings(self):
-		if not self.showing_gdal_dialog:
-			dlg=DialogGDALSettings(self,self.gdal_settings)
-			dlg.show()
+		dlg=DialogGDALSettings(self,self.gdal_settings)
+		dlg.setModal(True)
+		dlg.show()
 	def onNewKMSTrans(self):
 		subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
 		self.log_interactive("Starting new process")
@@ -1152,7 +1149,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.has_ogr,msg=File2File.InitOGR(BIN_PREFIX)
 		if not self.has_ogr:
 			dmsg="OGR library not available: "+msg
-			dmsg+="\nA proper gdal installation might not be present?\nConsider changing your GDAL setting from the 'Settings' menu."
+			dmsg+="\nA proper gdal installation might not be present?\nConsider changing your GDAL settings from the 'Settings' menu."
 			self.message(dmsg)
 			self.tab_ogr.setEnabled(False)
 			return
@@ -1183,11 +1180,15 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if not self.f2f_settings.driver in ["KMS","TEXT"]:
 			self.message("Use a dedicated viewer for GIS-files.")
 			return
+		ok=True
 		if len(self.f2f_settings.output_files)>1:
-			self.log_f2f("Many output files - will try to view the first one...")
-		fname=self.f2f_settings.output_files[0]
-		dlg=TextViewer(self,fname=fname)
-		dlg.show()
+			fname,ok=QInputDialog.getItem(self, "Ouput files", "Select a file to view", self.f2f_settings.output_files,False)
+		else:
+			fname=self.f2f_settings.output_files[0]
+		if ok:
+			fname=unicode(fname)
+			dlg=TextViewer(self,fname=fname)
+			dlg.show()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_view_log_clicked(self):
 		if not (self.f2f_settings.is_started and self.f2f_settings.is_done):

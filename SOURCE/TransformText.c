@@ -524,7 +524,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Layers found",mlbs_found);
     Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Transformations OK",n_trans_ok);
     if (n_trans_bad>0)
-	Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Transformation errors",n_trans_bad);
+	    Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Transformation errors",n_trans_bad);
+    if (n_trans_ok==0)
+	    Report(REP_WARNING,0,VERB_LOW,"No transformations performed - did you set a proper column separator?");
     LogGeoids();
     TerminateReport();
     return ERR? TR_ERROR: TR_OK;

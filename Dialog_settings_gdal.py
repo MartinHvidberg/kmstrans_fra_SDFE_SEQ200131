@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_gdal.ui'
 #
-# Created: Thu Jun 13 10:38:32 2013
+# Created: Fri Jun 14 22:08:55 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -108,6 +108,6 @@ class Ui_Dialog(object):
         self.bt_browse_bin.setText(_translate("Dialog", "Browse", None))
         self.bt_browse_data.setText(_translate("Dialog", "Browse", None))
         self.bt_browse_plugin.setText(_translate("Dialog", "Browse", None))
-        self.bt_apply.setText(_translate("Dialog", "Apply and restart", None))
+        self.bt_apply.setText(_translate("Dialog", "Save", None))
         self.bt_cancel.setText(_translate("Dialog", "Cancel", None))
 
