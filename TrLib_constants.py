@@ -34,7 +34,7 @@ TROGRNAME="trogr"
 
 #CONSTANTS RELEVANT TO KMSTRLIB
 #A MAPPING FROM SPECIAL DATUMS TO ALLOWED H_SYSTEMS, THE REGION MAP SHOULD BE CONSIDERED AS A DEFAULT,
-DATUM_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10"],"detrs89":["E","dhhn92"]}
+DATUM_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10","_"],"detrs89":["E","dhhn92","_"]}
 #DK
 SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",
 "geoHetrs89_h_dvr90","crt_etrs89","dktm1H_h_dvr90","dktm2H_h_dvr90","dktm3H_h_dvr90","dktm4H_h_dvr90",
