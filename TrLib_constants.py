@@ -40,6 +40,10 @@ SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",
 "geoHetrs89_h_dvr90","crt_etrs89","dktm1H_h_dvr90","dktm2H_h_dvr90","dktm3H_h_dvr90","dktm4H_h_dvr90",
 "utm32Hed50_h_dvr90","fcsH_h_fcsvr10"]
 H_SYSTEMS_DK=["E","dvr90","dnn","_"]
+#Fehmarn
+SYSTEMS_FEHMARN=["fcsH_h_fcsvr10","geoHfeh10_h_fcsvr10","crt_feh10","DE_utm32Hdetrs89_h_dhhn92","DE_geoHdetrs89_h_dhhn92","DE_crt_detrs89",
+"DK_utm32Hetrs89_h_dvr90","DK_utm33Hetrs89_h_dvr90","DK_geoHetrs89_h_dvr90","DK_crt_etrs89"]
+H_SYSTEMS_FEHMARN=["E","dvr90","dnn","_"]
 #FO
 SYSTEMS_FO=["fotmH_h_fvr09","utm29Hetrs89_h_fvr09","geoHetrs89_h_fvr09","fkeH_h_fvr09","fk89H_h_fvr09"]
 H_SYSTEMS_FO=["E","fvr09","foldmsl","_"]
@@ -51,21 +55,24 @@ SYSTEMS_WORLD=["webmrcE","mrc0Ewgs84","geoEwgs84","crt_wgs84","npstgEwgs84"]
 H_SYSTEMS_WORLD=["E","N","_"]
 #INIT COORDS IN FIRST 'DEFAULT' SYSTEM IN LIST
 INIT_DK=[615923.206,6115220.6360,0]
+INIT_FEHMARN=[990000.0,6058000.0,0]
 INIT_FO=[200000.000 ,876910.289,0]
 INIT_GR=[451351.736,7114111.319,0]
 INIT_WORLD=[1204476.890, 7394929.797, 0]
 #REGIONS
 REGION_DK="DK"
+REGION_FEHMARN="FB"
 REGION_FO="FO"
 REGION_GR="GR"
 REGION_WORLD="WORLD"
 REGIONS={
 REGION_DK:[SYSTEMS_DK,INIT_DK,"Denmark"],
+REGION_FEHMARN:[SYSTEMS_FEHMARN,INIT_FEHMARN,"Fehmarn"],
 REGION_FO:[SYSTEMS_FO,INIT_FO,"Faroe Islands"],
 REGION_GR:[SYSTEMS_GR,INIT_GR,"Greenland"],
 REGION_WORLD:[SYSTEMS_WORLD,INIT_WORLD,"World"]
 }
-H_SYSTEMS={REGION_DK:H_SYSTEMS_DK,REGION_FO:H_SYSTEMS_FO,REGION_GR:H_SYSTEMS_GR,REGION_WORLD:H_SYSTEMS_WORLD}
+H_SYSTEMS={REGION_DK:H_SYSTEMS_DK,REGION_FO:H_SYSTEMS_FO,REGION_GR:H_SYSTEMS_GR,REGION_WORLD:H_SYSTEMS_WORLD,REGION_FEHMARN:H_SYSTEMS_FEHMARN}
 #ERRORS - see s_status.h (other error types irrelevant here)
 ERRORS={
 -1:"Inaccurate transformation",
