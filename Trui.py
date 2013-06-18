@@ -1536,10 +1536,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.enable_plugins= not self.enable_plugins
 		if self.enable_plugins:
 			state="enabled"
-			self.actionPlugins_enabled.setText("Enable plugins")
+			self.actionPlugins_enabled.setText("Disable plugins")
 		else:
 			state="disabled"
-			self.actionPlugins_enabled.setText("Disable plugins")
+			self.actionPlugins_enabled.setText("Enable plugins")
 		self.saveSettings()
 		QMessageBox.information(self,"Plugins "+state ,"Changes will take effect after a restart.")
 	#PLUGIN LOADER#
