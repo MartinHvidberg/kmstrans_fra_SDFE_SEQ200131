@@ -326,7 +326,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		/*printf("Current_col: %d\n",current_col);*/
 		if (current_col==frmt.col_x || current_col==frmt.col_y || current_col==frmt.col_z){
 			int is_number=0;
-			int used=0; /* wont read more than an int can hold!*/
+			size_t used=0; /* wont read more than an int can hold!*/
 			struct typ_dec type_in;
 			char udt[3];
 			if (is_geo_in && current_col!=frmt.col_z)

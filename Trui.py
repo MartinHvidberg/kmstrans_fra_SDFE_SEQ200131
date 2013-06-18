@@ -631,7 +631,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		except:
 			pass
 		else:
-			self.log_interactive("Running thorugh py2exe")
+			self.log_interactive("Running through py2exe.")
 		#move to interactive tab - messages will appear there afterwards,,,,#
 		try:
 			self.main_tab_host.setCurrentIndex(0)
