@@ -34,6 +34,7 @@ def Usage():
 	print("-x64 (Windows only) to use a default 32 to 64bit cross compiler. Alternatively, use -cc")
 	print("-cc <gcc_like_compiler> to override the specific compiler 'gcc' in the builds of trogr and trlib.")
 	print("OR (optionally) -msvc to build with msvc (cl).")
+	print("-bindir <output_dir_for_binaries> (optional) to override the default output dir.")
 	print("Use space between option key and option value! e.g. -cc /opt/local/bin/gcc4.6")
 
 if len(sys.argv)<2:
@@ -96,7 +97,12 @@ if "-gdal" in args:
 else:
 	link_gdal=["-lgdal"]
 
-
+#pop this arg and its value... Useful e.g. when crosscompiling..
+if "-bindir" in args:
+	index=args.index("-bindir")+1
+	BIN_DIR=args.pop(index)
+	args.pop(index-1)
+	
 #SET OUTPUT NAMES
 
 try:
