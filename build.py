@@ -100,7 +100,7 @@ else:
 #pop this arg and its value... Useful e.g. when crosscompiling..
 if "-bindir" in args:
 	index=args.index("-bindir")+1
-	BIN_DIR=args.pop(index)
+	BIN_DIR=os.path.join(outdir,args.pop(index))
 	args.pop(index-1)
 	
 #SET OUTPUT NAMES
