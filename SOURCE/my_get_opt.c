@@ -38,7 +38,7 @@ int my_get_opt(char *opt_definition,int argc,char **argv, char **key, char **val
 			j=k=0;
 			*key=NULL;
 			*val=NULL;
-			items=malloc(sizeof(char*)*(argc-1));
+			items=calloc(argc-1,sizeof(char*));
 			if (!items)
 				return -1;
 			for(i=1;i<argc;i++){
