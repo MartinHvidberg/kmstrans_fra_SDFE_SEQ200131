@@ -97,7 +97,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
     char mlb_in_file[128],geoid_name[128],*tmp1,*tmp2;
-    char *unit_out, default_separator[3];/*default separator used if we need to forcably insert a z-column*/
+    char *unit_out;
     struct typ_dec type_out, type_h, *p_type_h;
     int in_comment=0, is_comment=0, flip_xy=0, append_unit=0, space_in_sep=0; /*flag to determine if we should 'eat' a space before appending unit*/
     /*test if in and out are stdin and stdout*/
@@ -175,8 +175,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    frmt.col_y=coord_order[1]+1;
 	    frmt.col_z=3;
 	    max_col=2;
-	    strcpy(default_separator,"  ");
-	    append_unit=1; /* always append units for KMS-format */
+	    append_unit=!frmt.kms_no_unit; 
 	    space_in_sep=0; /*do not eat space after coordinate output from sputg*/
      }    /*end kms_format*/
 	     
@@ -241,7 +240,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     while (0!= fgets(buf, BUFSIZE, f_in)) {
         int    argc, err;
         double coords[3]={NAN,NAN,NAN},store,x,y,z;
-	char *current_pos,*end_pointer,*current_pos_out,sep_char_found='\0';
+	char *current_pos,*current_pos_out,sep_char_found='\0';
 	char *coord_positions[6]={NULL,NULL,NULL,NULL,NULL,NULL};
 	int current_col=0, coords_found=0, found_z=0,found_next_col=0;
 	/*struct typ_dec type_out;*/
@@ -324,51 +323,28 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	}
 	while (coords_found<coords_to_find && *current_pos){
 		/*printf("Current_col: %d\n",current_col);*/
-		if (current_col==frmt.col_x || current_col==frmt.col_y || current_col==frmt.col_z){
+		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
 			int is_number=0;
 			int used=0; /* wont read more than an int can hold!*/
 			struct typ_dec type_in;
-			char udt[3];
+			char *udt,*tmp,tmp_sep;
 			if (is_geo_in && current_col!=frmt.col_z)
-				strcpy(udt,"dg");
+				udt=frmt.input_geo_unit;
 			else
-				strcpy(udt,"m");
-			/* it is always safe to use sgetg unless column separator is ' ' in which case 
-			* well need to check if sgetg stays within the column span - so we might as well do that in all cases*/
-			if (frmt.is_kms_format){ 
-				store=sgetg(current_pos,&type_in,&used,udt);
-				is_number=(type_in.gf>0);
-			}
-			else{ /*a bit more tricky to see whether there are units which must be consumed*/
-				size_t col_span;
-				char tmp_sep;
-				char *tmp=next_column(current_pos,frmt.sep_char,&tmp_sep,0);
-				col_span=tmp-current_pos; /*span until and including the sep_char*/
-				store=sgetg(current_pos,&type_in,&used,udt);
-				if (!(used<=col_span && type_in.gf>0)){ 
-					/*if this fails a unit is not contained in the col span and we will use strtod
-					* as sgetg will skip spaces 
-					printf("Failed to find unit. col_span: %d, used: %d, pos_after_used: %c\n",col_span,used,*(current_pos+used));*/
-					store=strtod(current_pos,&end_pointer);
-					used=end_pointer-current_pos;
-					is_number=(used>0);
-					if (is_number && is_geo_in && current_col!=frmt.col_z) /*since we assumme degrees in this case - convert to radians */
-						store*=d2r;
-					
-				}
-				else
-					is_number=1;
-			}
-			/*printf("used: %d, store: %.5f pos: %s current_col: %d\n",used,store,current_pos,current_col);*/
-			/*some test to see if we found a number - check with KE*/
+				udt="m";
+			/* it is always safe to use sgetg - IF we insert a stop where it's not allowed to go further!*/
+			tmp=next_column(current_pos,frmt.sep_char,&tmp_sep,frmt.is_kms_format);
+			tmp_sep=*tmp; /*well - this is also returned above - except for KMS format. Hence we repeat ourselves a bit....*/
+			*tmp='\0'; /*insert a stop here to not let sgetg go too far*/
+			store=sgetg(current_pos,&type_in,&used,udt);
+			is_number=(type_in.gf>0);
+			*tmp=tmp_sep; /*restore*/	
 			if (is_number){
 				coord_positions[coords_found*2]=current_pos;
 				current_pos+=used;
 				coord_positions[coords_found*2+1]=current_pos;
 				coords[coords_found]=store;
 				coords_found++;
-				default_separator[0]=sep_char_found;
-				default_separator[1]='\0';
 				/*printf("pos after: %s",current_pos);*/
 				if (current_col==frmt.col_z){
 					found_z=1;

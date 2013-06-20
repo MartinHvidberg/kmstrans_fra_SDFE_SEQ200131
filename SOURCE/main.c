@@ -30,11 +30,12 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.05 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.06 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
 static void unescape(char*);
+static int validate_geo_unit(char*);
 static char *INPUT_DRIVERS[]={"DSFL","TEXT","KMS","OGR",0};
 
 /* quick and dirty unescaper - can be hard to enter literal tabs,newlines etc in some shells*/
@@ -64,6 +65,14 @@ static void unescape(char *text){
 	}
 	*out='\0';
 }
+
+int validate_geo_unit(char *unit){
+	if (!strcmp(unit,"dg") || !strcmp(unit,"sx") || !strcmp(unit,"nt") || !strcmp(unit,"rad"))
+		return 1;
+	else
+		return 0;
+}
+	
 
 void Usage(int help){
 	printf("To run:\n");
@@ -96,11 +105,11 @@ void Usage(int help){
 	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
 	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
 	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
-	printf("-sx  Use sexagesimal format for output of geographic coordinates.\n");
-	printf("-nt Use nautical units for output of geographic coordinates.\n");
-	printf("-rad Use radians for output of geographic coordinates.\n");
+	printf("-geoout <unit> (sx, nt or rad) to use a special output format for geographic coordinates (default dg)\n");
+	printf("-geoin <unit> (sx, nt or rad) to use a special interpretation of input geographic coordinates (default dg)\n");
 	printf("-cpbad Copy uninterpretable lines to output file.\n");
 	printf("-prc <n_decimals> Specify (metric) precision of coordinate output.\n");
+	printf("-nounits To turn off units in output for 'KMS' format.\n"); 
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
 	if (help<2)
@@ -201,10 +210,10 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:nop;verb;alog;sx;nt;rad;ounits;flipxy;cpbad;"; /*for processing command line options*/
-    char *output_geo_unit="dg",*comments=NULL;
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;alog;ounits;flipxy;cpbad;nounits;"; /*for processing command line options*/
+    char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0, n_decimals=4;
+    int copy_bad=0, n_decimals=4, kms_no_unit=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -309,6 +318,18 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
+		else if (!strcmp(key,"geoin")){
+			if (val)
+				input_geo_unit=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"geoout")){
+			if (val)
+				output_geo_unit=val;
+			else
+				goto usage;
+		}
 		else if (!strcmp(key,"verb"))
 			be_verbose=1;
 		else if (!strcmp(key,"nop"))
@@ -317,12 +338,8 @@ int main(int argc, char *argv[])
 			append_to_log=1;
 		else if (!strcmp(key,"ounits"))
 			units_in_output=1;
-		else if (!strcmp(key,"sx"))
-			output_geo_unit="sx";
-		else if (!strcmp(key,"nt"))
-			output_geo_unit="nt";
-		else if (!strcmp(key,"rad"))
-			output_geo_unit="rad";
+		else if (!strcmp(key,"nounits"))
+			kms_no_unit=1;
 		else if (!strcmp(key,"flipxy"))
 			flip_xy=1;
 		else if (!strcmp(key,"cpbad"))
@@ -335,7 +352,11 @@ int main(int argc, char *argv[])
         }
    } /*end do*/
     while (n_opts == 0 && key); 
-	
+   /*validate some choices...*/
+   if (drv_in && (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT")) && (!validate_geo_unit(input_geo_unit) || !validate_geo_unit(output_geo_unit))){
+	   fprintf(stderr,"Geograhic unit: %s not supported. Only 'dg','sx','nt' or 'rad' allowed.\n");
+	   goto usage;
+   }
    /*if not enough args*/
    if (n_opts<3){
 	fprintf(stderr,"At least three no-switch arguments needed: <mlb_out> <ds_out> <ds_in>\n");
@@ -519,6 +540,8 @@ int main(int argc, char *argv[])
 	frmt.units_in_output=units_in_output;
 	frmt.n_decimals=n_decimals;
 	frmt.output_geo_unit=output_geo_unit;
+	frmt.input_geo_unit=input_geo_unit;
+	frmt.kms_no_unit=kms_no_unit;
 	frmt.comments=comments;
 	frmt.copy_bad=copy_bad;
 	frmt.units_in_output=units_in_output;

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Fri Jun 14 15:39:19 2013
+# Created: Thu Jun 20 13:34:46 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(825, 587)
+        Dialog.resize(980, 615)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.groupBox = QtGui.QGroupBox(Dialog)
@@ -182,7 +182,33 @@ class Ui_Dialog(object):
         self.rdb_rad.setObjectName(_fromUtf8("rdb_rad"))
         self.horizontalLayout_3.addWidget(self.rdb_rad)
         self.verticalLayout_2.addWidget(self.groupBox_2)
+        self.groupBox_4 = QtGui.QGroupBox(self.groupBox_3)
+        self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
+        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.groupBox_4)
+        self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
+        self.rdb_dg_in = QtGui.QRadioButton(self.groupBox_4)
+        self.rdb_dg_in.setChecked(True)
+        self.rdb_dg_in.setObjectName(_fromUtf8("rdb_dg_in"))
+        self.horizontalLayout_5.addWidget(self.rdb_dg_in)
+        self.rdb_sx_in = QtGui.QRadioButton(self.groupBox_4)
+        self.rdb_sx_in.setObjectName(_fromUtf8("rdb_sx_in"))
+        self.horizontalLayout_5.addWidget(self.rdb_sx_in)
+        self.rdb_nt_in = QtGui.QRadioButton(self.groupBox_4)
+        self.rdb_nt_in.setObjectName(_fromUtf8("rdb_nt_in"))
+        self.horizontalLayout_5.addWidget(self.rdb_nt_in)
+        self.rdb_rad_in = QtGui.QRadioButton(self.groupBox_4)
+        self.rdb_rad_in.setObjectName(_fromUtf8("rdb_rad_in"))
+        self.horizontalLayout_5.addWidget(self.rdb_rad_in)
+        self.verticalLayout_2.addWidget(self.groupBox_4)
         self.verticalLayout.addWidget(self.groupBox_3)
+        self.groupBox_5 = QtGui.QGroupBox(Dialog)
+        self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
+        self.verticalLayout_4 = QtGui.QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
+        self.chb_kms_no_units = QtGui.QCheckBox(self.groupBox_5)
+        self.chb_kms_no_units.setObjectName(_fromUtf8("chb_kms_no_units"))
+        self.verticalLayout_4.addWidget(self.chb_kms_no_units)
+        self.verticalLayout.addWidget(self.groupBox_5)
         spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem4)
         spacerItem5 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
@@ -218,7 +244,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "File2File settings", None))
         self.groupBox.setTitle(_translate("Dialog", "TEXT Format", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). </p><p>If no units are found they are considered as either <span style=\" font-weight:600;\">meters or degrees</span> (for geographic coordinates).</p><p>If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and it\'s unit:</p><p>Use <span style=\" font-weight:600;\">500000m</span>, NOT <span style=\" font-weight:600;\">500000 m</span>. </p></body></html>", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p>Format: field1 &lt;sep_char&gt; field2 &lt;sep_char&gt; field3 &lt;sep_char&gt; .....</p><p>Coordinates may have units (m, km, dg, sx, nt or rad). If no units are found they are considered as <span style=\" font-weight:600;\">meters </span>(except for geographic coordinates).</p><p>If the column separators inlcude a blank/space (\' \'), remember to <span style=\" font-weight:600;\">NOT</span> include a space between a coordinate and its unit.</p></body></html>", None))
         self.label_2.setText(_translate("Dialog", "Column separators:", None))
         self.chb_semicolon.setText(_translate("Dialog", "; Semicolon ", None))
         self.chb_tab.setText(_translate("Dialog", "Tab", None))
@@ -245,6 +271,13 @@ class Ui_Dialog(object):
         self.rdb_sx.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))
         self.rdb_nt.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))
         self.rdb_rad.setText(_translate("Dialog", "Radians (rad: rr.rrrr...)", None))
+        self.groupBox_4.setTitle(_translate("Dialog", "Interpretation of  input geographic coordinates without units", None))
+        self.rdb_dg_in.setText(_translate("Dialog", "Degrees (dg: ddd.ddd...)", None))
+        self.rdb_sx_in.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))
+        self.rdb_nt_in.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))
+        self.rdb_rad_in.setText(_translate("Dialog", "Radians (rad: rr.rrrr...)", None))
+        self.groupBox_5.setTitle(_translate("Dialog", "KMS format", None))
+        self.chb_kms_no_units.setText(_translate("Dialog", "Do not append units for KMS format output", None))
         self.bt_apply.setToolTip(_translate("Dialog", "Click to apply changes", None))
         self.bt_apply.setText(_translate("Dialog", "OK", None))
         self.bt_close.setToolTip(_translate("Dialog", "Cancel changes and close", None))
