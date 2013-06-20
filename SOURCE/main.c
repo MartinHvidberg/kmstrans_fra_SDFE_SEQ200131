@@ -345,11 +345,11 @@ int main(int argc, char *argv[])
     while( argc-1>3){
 	    if (argv[argc-1]){
 		    fprintf(stderr,"Unrecognized option key: %s\n",argv[argc-1]);
+		    /*fprintf(stderr,"len: %d argc: %d mem: %d\n",strlen(argv[argc-1]),argc,argv[argc-1]);*/
 		    goto usage;
 	    }
 	    argc--;
     }
-    
     mlb_out=argv[1];
     outname=argv[2];
     inname=argv[3];
@@ -448,13 +448,6 @@ int main(int argc, char *argv[])
     }
     else
 	    set_lord_outputs(stdout,stdout,stderr,stderr,stderr);
-    #ifdef _DEBUG
-    printf("N_OPTS: %d\n",n_opts);
-    while (n_opts>=0){
-	    puts(argv[n_opts]);
-	    n_opts--;
-    }
-    #endif
     /*TODO: control this via options*/
     set_lord_modes(be_verbose,be_verbose,1,1,1);
     set_lord_verbosity_levels(3,3,3,3,3);
