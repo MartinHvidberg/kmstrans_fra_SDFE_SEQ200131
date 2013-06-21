@@ -42,8 +42,12 @@
 #define LOGM  (3)
 #define LOGS  (2)
 #define LOGD  (5)
+#define GET_COORD_POSITION(a,b,c) ((a==c) ? 2 : ((a==b) ? 0 : 1))
+#undef MAX
+#define MAX(a,b) ((a>b)?a:b)
 
 static char *next_column(char *current_pos, char *sep_char, char *sep_char_found, int is_kms_format);
+static int set_coordinate_order(TR *trf, int *output_order, struct format_options *frmt);
 
 static struct typ_dec type_metric= {4,1,6,4};  /*metric output with 4 decimals */
 static struct typ_dec type_height= {4,1,2,3}; /* default height output format with 3 decimals - will be updated if input heights are read*/
@@ -79,6 +83,72 @@ static char *next_column(char *current_pos, char *sep_char, char *sep_char_found
 	return current_pos;
 }
 
+static int set_coordinate_order(TR *trf, int *output_order, struct format_options *frmt){
+	if (!trf->proj_out || !trf->proj_in)
+		return -1; /*well - should alwyas be set when this is called...*/
+	if (frmt->is_kms_format){
+		frmt->col_z=3;
+		output_order[2]=2;
+		if (COORD_ORDER(trf->proj_in)!=0 || IS_CARTESIC(trf->proj_in)){
+				/* N,E, (Z) */
+				frmt->col_x=1;
+				frmt->col_y=2;
+			}
+			else{
+				frmt->col_x=2;
+				frmt->col_y=1;
+			}
+		
+		
+		if (COORD_ORDER(trf->proj_out)!=0 || IS_CARTESIC(trf->proj_out)){
+			output_order[0]=0;
+			output_order[1]=1;
+		}
+		else{
+			output_order[0]=1;
+			output_order[1]=0;
+		}
+		
+		return IS_3D(trf->proj_in)?3:2;
+		
+	}
+	else{ /*if TEXT */
+		int max_col,min_col;
+		if (frmt->col_z<0){
+			if (IS_3D(trf->proj_in)){
+				Report(REP_WARNING,0,VERB_LOW,"Warning: input system is 3 dimensional- but input z column is not specified.");
+				Report(REP_INFO,0,VERB_LOW,"Will attempt to read z-values from the column after the last planar coord.");
+			}
+			frmt->col_z=(frmt->col_x>frmt->col_y)?(frmt->col_x+1):(frmt->col_y+1);
+		}
+		/*what to do if input is 3D and output is 2D??*/
+		/*well - that's ok - in that case we just don't write the output z-coord*/ 
+		max_col=MAX(frmt->col_x,frmt->col_y);
+		min_col=-MAX(-frmt->col_x,-frmt->col_y);
+		max_col=MAX(max_col,frmt->col_z);
+		min_col=-MAX(-min_col,-frmt->col_z);
+		if (IS_CARTESIC(trf->proj_out) && frmt->crt_xyz){
+			output_order[0]=0;
+			output_order[1]=1;
+			output_order[2]=2;
+			
+		}
+		else{ /*TODO:  hmm - what if col_z is given but input is 2D? for now consider it an error on the user side*/
+			output_order[0]=GET_COORD_POSITION(frmt->col_x,min_col,max_col);
+			output_order[1]=GET_COORD_POSITION(frmt->col_y,min_col,max_col);
+			output_order[2]=GET_COORD_POSITION(frmt->col_z,min_col,max_col);
+			if (frmt->flip_xy){
+				int store=output_order[0];
+				output_order[0]=output_order[1];
+				output_order[1]=store;
+			}
+		}
+		if (IS_CARTESIC(trf->proj_out) && (output_order[0]!=0 || output_order[1]!=1))
+			Report(REP_WARNING,0,VERB_LOW,"Warning: Output projection is cartesian, but output coordinate order is not x,y,z. ");
+		return IS_3D(trf->proj_in) ? (max_col) : MAX(frmt->col_x,frmt->col_y);
+	}
+}
+
 
 /* Transform simple text. Or KMS-format
 * TODO: consider using col numbers for KMS-format.
@@ -93,7 +163,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
     int look_for_label,log_geoids=0;
     int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
-    int coord_order[3]={0,1,2};
+    int  output_order[3]={0,1,2};
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
     char mlb_in_file[128],geoid_name[128],*tmp1,*tmp2;
@@ -112,8 +182,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     while(*tmp1) *(tmp2++)=tolower(*(tmp1++));
     *tmp2='\0';
      is_stdout=(!strcmp(buf,"stdout"));
-     
-    /*start reporting*/
+     /*start reporting*/
     InitialiseReport();
     if (!frmt.sep_char) /*defaults to all whitespace*/
 	    frmt.sep_char=" \t\r\n";
@@ -157,60 +226,25 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     }
    
      if (frmt.is_kms_format){
-	     if (trf->proj_in){
-	          
-		  if (COORD_ORDER(trf->proj_in)!=0 || IS_CARTESIC(trf->proj_in)){
-		     /* N,E, (Z) */
-		      coord_order[0]=0;
-		      coord_order[1]=1;
-		  }
-		  else{
-		      coord_order[0]=1;
-		      coord_order[1]=0;
-		  }
-		  coord_order[2]=2;
-	    } /*else coords to find set when minilabel is found*/
-	    /*format is always: station XY/YX (Z)*/
-	    frmt.col_x=coord_order[0]+1;
-	    frmt.col_y=coord_order[1]+1;
-	    frmt.col_z=3;
-	    max_col=2;
-	    append_unit=!frmt.kms_no_unit; 
-	    space_in_sep=0; /*do not eat space after coordinate output from sputg*/
+		append_unit=!frmt.kms_no_unit; 
+		space_in_sep=0;
+	    
      }    /*end kms_format*/
-	     
-     
      else{
+		append_unit=frmt.units_in_output;
 	   
-	   /* set the minimum number of columns and order of coordinates
-	    TODO: test order of z-column
-	    */
-	    max_col=(frmt.col_x>frmt.col_y)?(frmt.col_x):(frmt.col_y);
-	    max_col=(frmt.col_z>max_col)?(frmt.col_z):(max_col);
-	    min_col= (frmt.col_x<frmt.col_y)?(frmt.col_x):(frmt.col_y);
-	    min_col= (frmt.col_z<min_col && frmt.col_z>=0) ? (frmt.col_z) : (min_col);
-	    if (frmt.col_y<frmt.col_x){
-		    coord_order[0]=1;
-		    coord_order[1]=0;
-	    }
-	    append_unit=frmt.units_in_output;
-	    /*test whether we have space in sep*/
-	    if (strchr(frmt.sep_char,' '))
-		    space_in_sep=1;
-	   
+		/*test whether we have space in sep*/
+		if (strchr(frmt.sep_char,' '))
+			space_in_sep=1;
+	  
      }
      /* 2D->3D is disabled from main in this case...*/
      if (trf->proj_in){
+	max_col=set_coordinate_order(trf,output_order,&frmt);
 	is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 	coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
-	if (IS_3D(trf->proj_in) && frmt.col_z<0){
-		   Report(REP_WARNING,0,VERB_LOW,"Warning: input projection is 3 dimensional- but z column is not specified.");
-		   Report(REP_WARNING,0,VERB_LOW,"Will attempt to read z-values from the column after the last planar coord.");
-		   frmt.col_z=max_col+1;
-	}
 	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
 	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
-	
     }
     
     if (!is_stdin)
@@ -259,42 +293,19 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 					continue;
 				}
 				Report(REP_INFO,0,VERB_LOW,"Tranformation: %s->%s",GET_MLB(trf->proj_in),GET_MLB(trf->proj_out));
-				is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 				mlbs_found++;
-				/*special handling of kms-formats*/
-				if (frmt.is_kms_format){
-					
-					if (COORD_ORDER(trf->proj_in)!=0 || IS_CARTESIC(trf->proj_in)){
-						/* N,E, (Z) */
-						coord_order[0]=0;
-						coord_order[1]=1;
-					}
-					else{
-						coord_order[0]=1;
-						coord_order[1]=0;
-					}
-					coord_order[2]=2;
-					frmt.col_x=coord_order[0]+1;
-					frmt.col_y=coord_order[1]+1;
-					/*
-					printf("in: %d, out: %d\n",COORD_ORDER(trf->proj_in),COORD_ORDER(trf->proj_out));
-					printf("in: %d, out: %d\n",IS_3D(trf->proj_in),IS_3D(trf->proj_out));
-					*/
-				} /*end kms-format*/
+				max_col=set_coordinate_order(trf,output_order,&frmt);
+				is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 				log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
 				log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 				coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
-				 if (IS_3D(trf->proj_in) && frmt.col_z<0){
-					Report(REP_WARNING,0,VERB_LOW,"Warning: input projection is 3 dimensional- but z column is not specified.");
-					Report(REP_WARNING,0,VERB_LOW,"Will attempt to read z-values from the column after the last planar coord.");
-					frmt.col_z=max_col+1;					 
-				 }
-				continue;
+				
 			}
 			else
 				Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Failed to convert minilabel: %s",mlb_in_file);
+			continue;
 			}
-		
+			
 		if (!trf->proj_in && lines_read>MAX_LINES_SEARCH){
 			Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"No proper minilabel found!");
 			return TR_LABEL_ERROR;
@@ -321,7 +332,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		fputs(buf,f_out);
 		continue;
 	}
-	while (coords_found<coords_to_find && *current_pos){
+	while (coords_found<coords_to_find && *current_pos && current_col<=max_col){
 		/*printf("Current_col: %d\n",current_col);*/
 		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
 			int is_number=0;
@@ -332,6 +343,11 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				udt=frmt.input_geo_unit;
 			else
 				udt="m";
+			/*sgetg will skip non-numeric chars - we dont want that. Right now we should be pointing to the beginning of a number!*/
+			if (!isdigit(*current_pos) && *current_pos!='+' && *current_pos!='-'){
+				Report(REP_ERROR,1,VERB_HIGH,"Line: %d, non numeric input in column: %d",lines_read,current_col+1);
+				break;
+			}
 			/* it is always safe to use sgetg - IF we insert a stop where it's not allowed to go further!*/
 			tmp=next_column(current_pos,frmt.sep_char,&tmp_sep,frmt.is_kms_format);
 			tmp_sep=*tmp; /*well - this is also returned above - except for KMS format. Hence we repeat ourselves a bit....*/
@@ -343,10 +359,10 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				coord_positions[coords_found*2]=current_pos;
 				current_pos+=used;
 				coord_positions[coords_found*2+1]=current_pos;
-				coords[coords_found]=store;
 				coords_found++;
 				/*printf("pos after: %s",current_pos);*/
 				if (current_col==frmt.col_z){
+					coords[2]=store;
 					found_z=1;
 					if (!IS_CARTESIC(trf->proj_in)){ /*if it's a real height (including E) */
 						type_h=type_in;
@@ -356,8 +372,15 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 					else
 						p_type_h=&type_height;
 				}
+				else if (current_col==frmt.col_x)
+					coords[0]=store;
+				else
+					coords[1]=store;
 			}
-				
+			else{/*so we failed - no need to scan any further!*/
+				Report(REP_ERROR,1,VERB_HIGH,"Line: %d, sgetg failed to interpret input in column: %d as a number.",lines_read,current_col+1);
+				break;
+			}
 			
 		}
 		
@@ -376,22 +399,27 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	} /*end scan line (while)*/
 	/* We will no more never, no more never forceably insert a z-column!*/ 
 	if (!found_z){/*insert default*/
-		coords[coord_order[2]]=0;
+		coords[2]=0;
+		if (IS_3D(trf->proj_in)){
+			if (frmt.zlazy && !IS_CARTESIC(trf->proj_in)) /*be forgiving.....*/
+				coords_found+=1;
+			else if (n_warnings<MAX_WARNINGS){
+				Report(REP_WARNING,0,VERB_HIGH,"Line: %d, did not find z-coordinate.",lines_read);
+				n_warnings++;
+			}
+		}
 	}
 	
-	x=coords[coord_order[0]];
-	y=coords[coord_order[1]];
-	z=coords[coord_order[2]];
+	x=coords[0];
+	y=coords[1];
+	z=coords[2];
 	
 	/*uninterpretable line*/
 	if (coords_found!=coords_to_find){
 		if (frmt.copy_bad)
 			fputs(buf,f_out);
 		if (n_warnings<MAX_WARNINGS){
-			if (coords_to_find==3  && coords_found==2 && !found_z)
-				Report(REP_WARNING,0,VERB_HIGH,"Line: %d, did not find z-coordinate.",lines_read);
-			else
-				Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
+			Report(REP_WARNING,0,VERB_HIGH,"Line: %d, not all coords found.",lines_read);
 		}
 		else if (n_warnings==MAX_WARNINGS)
 			Report(REP_WARNING,0,VERB_LOW,"Line %d, not all coords found - this warning will not be issued anymore.\nDid you set a proper column separator?",lines_read);
@@ -408,7 +436,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	}
        
 	/*TODO: fixup what is to be writen to log */
-	err = TR_Transform(trf,coords+coord_order[0],coords+coord_order[1],coords+coord_order[2],1);
+	err = TR_Transform(trf,coords,coords+1,coords+2,1);
 	if (err==TR_OK){
 		n_trans_ok++;
 		/*perhaps do this in all cases?*/
@@ -425,34 +453,20 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		Report(REP_ERROR,err,VERB_HIGH,"Error: %d, In: %.5f %.5f %.5f ",TR_GetLastError(),x,y,z);
 	}
 	/*continue even after an error?*/
-	
-	/*flip xy?*/
-	if (frmt.is_kms_format){
-	    flip_xy=(COORD_ORDER(trf->proj_in)!=COORD_ORDER(trf->proj_out));
-	    /*stupid exception - seems that cartesic have order 0 */
-	    flip_xy=flip_xy || (IS_CARTESIC(trf->proj_out) && (!IS_CARTESIC(trf->proj_in) && COORD_ORDER(trf->proj_in)==0));
-	}
-	else
-		flip_xy=frmt.flip_xy;
-	if (flip_xy){
-		double old_x=coords[coord_order[0]];
-		coords[coord_order[0]]=coords[coord_order[1]];
-		coords[coord_order[1]]=old_x;
-	}
-        /*  Now compose the output string */
+	/*  Now compose the output string */
 	current_pos=buf;
 	current_pos_out=buf_out;
 	coords_found=0;
 	while(*current_pos){
 		if (coords_found<coords_to_find && current_pos==coord_positions[2*coords_found]){
 			
-			if (coords_found!=coord_order[2] || IS_3D(trf->proj_out)){
+			if (coords_found!=output_order[2] || (IS_3D(trf->proj_out) && found_z) || IS_CARTESIC(trf->proj_out)){ /* some test to determine if we should write output z, i.e. whether it was 'lazily' not included even when ouput is 3d...*/
 				char coord_buf[256];
 				tmp1=coord_buf;
-				if (coords_found!=coord_order[2] || IS_CARTESIC(trf->proj_out)) /*if x,y or cartesic z*/
-					sputg(coord_buf,coords[coords_found],&type_out,"");
+				if (coords_found!=output_order[2] || IS_CARTESIC(trf->proj_out)) /*if x,y or cartesic z*/
+					sputg(coord_buf,coords[output_order[coords_found]],&type_out,"");
 				else
-					sputg(coord_buf,coords[coords_found],p_type_h,"");
+					sputg(coord_buf,coords[output_order[coords_found]],p_type_h,"");
 				/* if not kms format - trim the output*/
 				if (!frmt.is_kms_format){
 					while(isspace(*tmp1))
@@ -465,7 +479,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				}
 				current_pos_out+=sprintf(current_pos_out,tmp1);
 				if (append_unit){
-					if (coords_found!=coord_order[2]) /*if not z*/
+					if (coords_found!=output_order[2]) /*if not z*/
 						current_pos_out+=sprintf(current_pos_out,"%s",unit_out);
 					else
 						current_pos_out+=sprintf(current_pos_out,"m");

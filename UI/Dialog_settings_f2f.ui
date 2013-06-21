@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>980</width>
-    <height>615</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -147,6 +147,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="chb_output_units">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Append units, e.g. dg, sx, nt, rad or m, to output coordinates.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Append units to output coordinates</string>
         </property>
@@ -289,13 +292,48 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="chb_invert_xy">
-        <property name="toolTip">
-         <string>Swap the order of x and y columns in output.</string>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="title">
+         <string>Output coordinate order</string>
         </property>
-        <property name="text">
-         <string>Invert output x/y column order</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QCheckBox" name="chb_invert_xy">
+           <property name="toolTip">
+            <string>Swap the order of x and y columns in output.</string>
+           </property>
+           <property name="text">
+            <string>Invert output x/y column order</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chb_crt_xyz">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Default behaviour is to set output coordinate order x,y,z for cartesian output systems. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Automatically set output order x,y,z for cartesian (crt_dtm) output systems</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>

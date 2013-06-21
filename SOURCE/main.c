@@ -102,12 +102,14 @@ void Usage(int help){
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
 	printf("-flipxy Invert order of x and y columns in output.\n");
+	printf("-naxyz Do NOT automatically set output coordinate order x,y,z for cartesian output systems.\n");
 	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
 	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
 	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
 	printf("-geoout <unit> (sx, nt or rad) to use a special output format for geographic coordinates (default dg)\n");
 	printf("-geoin <unit> (sx, nt or rad) to use a special interpretation of input geographic coordinates (default dg)\n");
 	printf("-cpbad Copy uninterpretable lines to output file.\n");
+	printf("-lazyh Silently set height=0 and do not emit an error if input system is 3D and height is NOT found.\n"); 
 	printf("-prc <n_decimals> Specify (metric) precision of coordinate output.\n");
 	printf("-nounits To turn off units in output for 'KMS' format.\n"); 
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
@@ -210,10 +212,11 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;alog;ounits;flipxy;cpbad;nounits;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;alog;ounits;flipxy;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
     char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
+    /* defaults here */
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0, n_decimals=4, kms_no_unit=0;
+    int copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -342,11 +345,14 @@ int main(int argc, char *argv[])
 			kms_no_unit=1;
 		else if (!strcmp(key,"flipxy"))
 			flip_xy=1;
+		else if (!strcmp(key,"naxyz"))
+			crt_xyz=0;
 		else if (!strcmp(key,"cpbad"))
 			copy_bad=1;
-		
+		else if (!strcmp(key,"lazyh"))
+			zlazy=1;
 		else{
-			printf ("?? getopt returned unknown option %s\n", key);
+			printf ("?? my_getopt returned unknown option %s\n", key);
 			goto usage;
 		}
         }
@@ -516,6 +522,8 @@ int main(int argc, char *argv[])
         }
 	if (flip_xy)
 		Report(REP_INFO,0,VERB_LOW,"Flipping output x/y columns.");
+	if (zlazy)
+		Report(REP_INFO,0,VERB_LOW,"'Lazy h' mode - will silently set h=0 if input height is not found.");
 	Report(REP_INFO,0,VERB_LOW,"Precision of output coordinates: 1e-%d m",n_decimals); 
 	if (comments)
 		unescape(comments);
@@ -535,6 +543,8 @@ int main(int argc, char *argv[])
 	frmt.col_y=col_y;
 	frmt.col_z=col_z;
 	frmt.flip_xy=flip_xy;
+	frmt.crt_xyz=crt_xyz;
+	frmt.zlazy=zlazy;
 	frmt.set_output_projection=set_output_projection;
 	frmt.sep_char=sep_char;
 	frmt.units_in_output=units_in_output;

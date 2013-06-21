@@ -56,7 +56,8 @@ class F2F_Settings(object):
 		self.col_y=None
 		self.col_z=None
 		self.n_decimals=4
-		self.flip_xy=False
+		self.flip_xy=False   #Flip output xy?
+		self.crt_xyz=True   #Automatically set output order x,y,z for cartesian output.
 		self.set_projection=True
 		self.be_verbose=False
 		self.ds_in=None
@@ -210,6 +211,8 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-sep', options.sep_char]
 		if options.flip_xy:
 			args+=['-flipxy']
+		if not options.crt_xyz:
+			args+=['-naxyz']
 		if options.units_in_output:
 			args+=['-ounits']
 		if options.comments is not None:

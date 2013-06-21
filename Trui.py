@@ -303,7 +303,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		QtGui.QDialog.__init__(self,parent)
 		self.setupUi(self)
 		self.chbs=[self.chb_whitespace,self.chb_space,self.chb_tab,self.chb_semicolon,self.chb_comma,self.chb_pattern,
-		self.chb_output_units,self.chb_has_z,self.chb_invert_xy,self.chb_copy_bad,self.chb_kms_no_units]
+		self.chb_output_units,self.chb_has_z,self.chb_invert_xy,self.chb_crt_xyz,self.chb_copy_bad,self.chb_kms_no_units]
 		self.rdbs=[self.rdb_dg,self.rdb_sx,self.rdb_nt,self.rdb_rad,self.rdb_dg_in,self.rdb_sx_in,self.rdb_nt_in,self.rdb_rad_in]
 		self.text_fields=[self.txt_pattern,self.txt_comments]
 		self.spbs=[self.spb_col_x,self.spb_col_y,self.spb_col_z]
@@ -378,6 +378,7 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 		self.settings.units_in_output=bool(self.chb_output_units.isChecked())
 		self.settings.kms_no_units= bool(self.chb_kms_no_units.isChecked())
 		self.settings.flip_xy=bool(self.chb_invert_xy.isChecked())
+		self.settings.crt_xyz=bool(self.chb_crt_xyz.isChecked())
 		self.settings.copy_bad_lines=bool(self.chb_copy_bad.isChecked())
 		self.settings.output_geo_unit="dg"
 		if self.rdb_sx.isChecked():
