@@ -56,9 +56,12 @@ class F2F_Settings(object):
 		self.col_y=None
 		self.col_z=None
 		self.n_decimals=4
-		self.flip_xy=False
+		self.flip_xy=False   #Flip output xy?
+		self.crt_xyz=True   #Automatically set output order x,y,z for cartesian output.
+		self.lazyh=False   #accept no heights in 3D...
 		self.set_projection=True
 		self.be_verbose=False
+		self.debug=False
 		self.ds_in=None
 		self.ds_out=None
 		self.input_layers=[]
@@ -67,7 +70,9 @@ class F2F_Settings(object):
 		self.comments=None
 		self.copy_bad_lines=False
 		self.units_in_output=False
+		self.kms_no_units=False
 		self.output_geo_unit="dg"
+		self.input_geo_unit="dg"
 		self.log_file=None
 		self.is_done=False
 		self.is_started=False
@@ -180,6 +185,8 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-nop']
 	if options.be_verbose:
 		args+=['-verb']
+	if options.debug:
+		args+=['-debug']
 	if options.mlb_in is not None:
 		args+=['-pin',options.mlb_in]
 	if options.driver=="OGR":
@@ -208,6 +215,8 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-sep', options.sep_char]
 		if options.flip_xy:
 			args+=['-flipxy']
+		if not options.crt_xyz:
+			args+=['-naxyz']
 		if options.units_in_output:
 			args+=['-ounits']
 		if options.comments is not None:
@@ -221,14 +230,16 @@ def TransformDatasource(options,log_method,post_method):
 		if os.path.isdir(options.ds_in):
 			return False,"For the 'KMS' driver you can batch several files using the * expansion char."
 		args+=['-drv','KMS']
+		if options.kms_no_units:
+			args+=['-nounits']
 		#TODO: implement extra options for KMS-driver#
 	if options.driver=="KMS" or options.driver=="TEXT":
-		if options.output_geo_unit=="sx":
-			args+=['-sx']
-		elif options.output_geo_unit=="nt":
-			args+=['-nt']
-		elif options.output_geo_unit=="rad":
-			args+=['-rad']
+		if options.output_geo_unit!="dg":
+			args+=['-geoout',options.output_geo_unit]
+		if options.input_geo_unit!="dg":
+			args+=['-geoin',options.input_geo_unit]
+		if options.lazyh:
+			args+=['-lazyh']
 		if options.copy_bad_lines:
 			args+=['-cpbad']
 		args+=['-prc','%d'%options.n_decimals]
@@ -292,7 +303,6 @@ class WorkerThread(threading.Thread):
 			last_log=time.clock()
 			lastline=0 #hack to not send a lot of empty lines.... dont know where they come from... possibly a 'bug' in Report.c
 			while (not self.kill_flag.isSet()) and self.prc.poll() is None: #short circuit when kill flag isSet -> prc=None
-				
 				try:
 					line=self.prc.stdout.readline().rstrip()
 				except:

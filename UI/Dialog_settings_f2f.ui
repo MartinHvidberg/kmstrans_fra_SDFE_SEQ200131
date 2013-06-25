@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>825</width>
-    <height>587</height>
+    <width>980</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format: field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Coordinates may have units (m, km, dg, sx, nt or rad). &lt;/p&gt;&lt;p&gt;If no units are found they are considered as either &lt;span style=&quot; font-weight:600;&quot;&gt;meters or degrees&lt;/span&gt; (for geographic coordinates).&lt;/p&gt;&lt;p&gt;If the column separators inlcude a blank/space (' '), remember to &lt;span style=&quot; font-weight:600;&quot;&gt;NOT&lt;/span&gt; include a space between a coordinate and it's unit:&lt;/p&gt;&lt;p&gt;Use &lt;span style=&quot; font-weight:600;&quot;&gt;500000m&lt;/span&gt;, NOT &lt;span style=&quot; font-weight:600;&quot;&gt;500000 m&lt;/span&gt;. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format: field1 &amp;lt;sep_char&amp;gt; field2 &amp;lt;sep_char&amp;gt; field3 &amp;lt;sep_char&amp;gt; .....&lt;/p&gt;&lt;p&gt;Coordinates may have units (m, km, dg, sx, nt or rad). If no units are found they are considered as &lt;span style=&quot; font-weight:600;&quot;&gt;meters &lt;/span&gt;(except for geographic coordinates).&lt;/p&gt;&lt;p&gt;If the column separators inlcude a blank/space (' '), remember to &lt;span style=&quot; font-weight:600;&quot;&gt;NOT&lt;/span&gt; include a space between a coordinate and its unit.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -147,6 +147,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="chb_output_units">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Append units, e.g. dg, sx, nt, rad or m, to output coordinates.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Append units to output coordinates</string>
         </property>
@@ -261,7 +264,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Z column</string>
+             <string>Z/ height column</string>
             </property>
            </widget>
           </item>
@@ -289,13 +292,48 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="chb_invert_xy">
-        <property name="toolTip">
-         <string>Swap the order of x and y columns in output.</string>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="title">
+         <string>Output coordinate order</string>
         </property>
-        <property name="text">
-         <string>Invert output x/y column order</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QCheckBox" name="chb_invert_xy">
+           <property name="toolTip">
+            <string>Swap the order of x and y columns in output.</string>
+           </property>
+           <property name="text">
+            <string>Invert output x/y column order</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chb_crt_xyz">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Default behaviour is to set output coordinate order x,y,z for cartesian output systems. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Automatically set output order x,y,z for cartesian (crt_dtm) output systems</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -307,6 +345,16 @@
       <string>Options common to KMS and TEXT formats</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="chb_lazyh">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Silently set h=0 if height column is NOT found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>'Lazy h' -mode: Silently set height=0 if input system has heights but height column  is not found (no output height-column  is produced).</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="chb_copy_bad">
         <property name="toolTip">
@@ -355,6 +403,62 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string>Interpretation of  input geographic coordinates without units</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QRadioButton" name="rdb_dg_in">
+           <property name="text">
+            <string>Degrees (dg: ddd.ddd...)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_sx_in">
+           <property name="text">
+            <string>Sexagesimal (sx: dddmmss.sss...)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_nt_in">
+           <property name="text">
+            <string>Nautical units (nt: ddd mm.mmm...)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdb_rad_in">
+           <property name="text">
+            <string>Radians (rad: rr.rrrr...)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="title">
+      <string>KMS format</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="chb_kms_no_units">
+        <property name="text">
+         <string>Do not append units for KMS format output</string>
+        </property>
        </widget>
       </item>
      </layout>

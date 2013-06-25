@@ -30,11 +30,12 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.05 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.06 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
 static void unescape(char*);
+static int validate_geo_unit(char*);
 static char *INPUT_DRIVERS[]={"DSFL","TEXT","KMS","OGR",0};
 
 /* quick and dirty unescaper - can be hard to enter literal tabs,newlines etc in some shells*/
@@ -65,6 +66,14 @@ static void unescape(char *text){
 	*out='\0';
 }
 
+int validate_geo_unit(char *unit){
+	if (!strcmp(unit,"dg") || !strcmp(unit,"sx") || !strcmp(unit,"nt") || !strcmp(unit,"rad"))
+		return 1;
+	else
+		return 0;
+}
+	
+
 void Usage(int help){
 	printf("To run:\n");
 	printf("%s ..options.. <mlb_out> <fname_out> <fname_in> <layer_name1> <layer_name2> ...\n",PROG_NAME);
@@ -87,20 +96,23 @@ void Usage(int help){
 	if (help>1)
 		printf("Useful for some drivers which fail to create layers unless projection metadata satisfy striqt requirements.\n");
 	printf("-verb Be verbose - i.e. enable info and debug messages.\n");
+	printf("-debug  Turn on debug info (mainly relevant for developers)\n");
 	printf("\nOptions specific for the 'TEXT' driver:\n");
 	printf("-sep <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
 	printf("-flipxy Invert order of x and y columns in output.\n");
+	printf("-naxyz Do NOT automatically set output coordinate order x,y,z for cartesian output systems.\n");
 	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
 	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
 	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
-	printf("-sx  Use sexagesimal format for output of geographic coordinates.\n");
-	printf("-nt Use nautical units for output of geographic coordinates.\n");
-	printf("-rad Use radians for output of geographic coordinates.\n");
+	printf("-geoout <unit> (sx, nt or rad) to use a special output format for geographic coordinates (default dg)\n");
+	printf("-geoin <unit> (sx, nt or rad) to use a special interpretation of input geographic coordinates (default dg)\n");
 	printf("-cpbad Copy uninterpretable lines to output file.\n");
+	printf("-lazyh Silently set height=0 and do not emit an error if input system is 3D and height is NOT found.\n"); 
 	printf("-prc <n_decimals> Specify (metric) precision of coordinate output.\n");
+	printf("-nounits To turn off units in output for 'KMS' format.\n"); 
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
 	if (help<2)
@@ -201,10 +213,11 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:nop;verb;alog;sx;nt;rad;ounits;flipxy;cpbad;"; /*for processing command line options*/
-    char *output_geo_unit="dg",*comments=NULL;
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
+    char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
+    /* defaults here */
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0, n_decimals=4;
+    int copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0,debug=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -309,33 +322,57 @@ int main(int argc, char *argv[])
 			else
 				goto usage;
 		}
+		else if (!strcmp(key,"geoin")){
+			if (val)
+				input_geo_unit=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"geoout")){
+			if (val)
+				output_geo_unit=val;
+			else
+				goto usage;
+		}
 		else if (!strcmp(key,"verb"))
 			be_verbose=1;
+		else if (!strcmp(key,"debug"))
+			debug=1;
 		else if (!strcmp(key,"nop"))
 			set_output_projection=0;
 		else if (!strcmp(key,"alog"))
 			append_to_log=1;
 		else if (!strcmp(key,"ounits"))
 			units_in_output=1;
-		else if (!strcmp(key,"sx"))
-			output_geo_unit="sx";
-		else if (!strcmp(key,"nt"))
-			output_geo_unit="nt";
-		else if (!strcmp(key,"rad"))
-			output_geo_unit="rad";
+		else if (!strcmp(key,"nounits"))
+			kms_no_unit=1;
 		else if (!strcmp(key,"flipxy"))
 			flip_xy=1;
+		else if (!strcmp(key,"naxyz"))
+			crt_xyz=0;
 		else if (!strcmp(key,"cpbad"))
 			copy_bad=1;
-		
+		else if (!strcmp(key,"lazyh"))
+			zlazy=1;
 		else{
-			printf ("?? getopt returned unknown option %s\n", key);
+			printf ("?? my_getopt returned unknown option %s\n", key);
 			goto usage;
 		}
         }
    } /*end do*/
     while (n_opts == 0 && key); 
-	
+   /*validate some choices...*/
+   if (drv_in && (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT"))){
+	   if (!validate_geo_unit(input_geo_unit) || !validate_geo_unit(output_geo_unit)){
+		fprintf(stderr,"Geograhic unit: %s not supported. Only 'dg','sx','nt' or 'rad' allowed.\n");
+		goto usage;
+	   }
+	   if (!strcmp(drv_in,"TEXT") && (col_x==col_y || col_z==col_y || col_x==col_z || col_x<0 || col_y<0 || (col_z<0 && col_z!=-1))){
+		fprintf(stderr,"Invalid geometry column specification - column numbers must differ and be at least 1.\n");
+		goto usage;
+	   }
+			
+   }
    /*if not enough args*/
    if (n_opts<3){
 	fprintf(stderr,"At least three no-switch arguments needed: <mlb_out> <ds_out> <ds_in>\n");
@@ -353,7 +390,8 @@ int main(int argc, char *argv[])
     mlb_out=argv[1];
     outname=argv[2];
     inname=argv[3];
-    
+    if (debug)
+	    ReportDebugMessages(1);
     /* check if layers specified*/
     if (n_opts>3){
 	    int i;
@@ -495,6 +533,8 @@ int main(int argc, char *argv[])
         }
 	if (flip_xy)
 		Report(REP_INFO,0,VERB_LOW,"Flipping output x/y columns.");
+	if (zlazy)
+		Report(REP_INFO,0,VERB_LOW,"'Lazy h' mode - will silently set h=0 if input height is not found.");
 	Report(REP_INFO,0,VERB_LOW,"Precision of output coordinates: 1e-%d m",n_decimals); 
 	if (comments)
 		unescape(comments);
@@ -514,11 +554,15 @@ int main(int argc, char *argv[])
 	frmt.col_y=col_y;
 	frmt.col_z=col_z;
 	frmt.flip_xy=flip_xy;
+	frmt.crt_xyz=crt_xyz;
+	frmt.zlazy=zlazy;
 	frmt.set_output_projection=set_output_projection;
 	frmt.sep_char=sep_char;
 	frmt.units_in_output=units_in_output;
 	frmt.n_decimals=n_decimals;
 	frmt.output_geo_unit=output_geo_unit;
+	frmt.input_geo_unit=input_geo_unit;
+	frmt.kms_no_unit=kms_no_unit;
 	frmt.comments=comments;
 	frmt.copy_bad=copy_bad;
 	frmt.units_in_output=units_in_output;
@@ -538,6 +582,7 @@ int main(int argc, char *argv[])
 	    Report(REP_WARNING,err,VERB_LOW,"Abnormal return code from transformation: %d",err);
     
     if (GetErrors()>0){
+	    err=(err==TR_OK)? (GetErrors()) : err;
 	    Report(REP_WARNING,0,VERB_LOW,"Errors occured...");
 	    if (fp_log!=NULL)
 		    fprintf(stdout,"See log file for details..\n");
