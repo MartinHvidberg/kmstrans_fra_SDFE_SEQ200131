@@ -96,6 +96,7 @@ void Usage(int help){
 	if (help>1)
 		printf("Useful for some drivers which fail to create layers unless projection metadata satisfy striqt requirements.\n");
 	printf("-verb Be verbose - i.e. enable info and debug messages.\n");
+	printf("-debug  Turn on debug info (mainly relevant for developers)\n");
 	printf("\nOptions specific for the 'TEXT' driver:\n");
 	printf("-sep <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
@@ -212,11 +213,11 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;alog;ounits;flipxy;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
     char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
     /* defaults here */
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0;
+    int copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0,debug=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -335,6 +336,8 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(key,"verb"))
 			be_verbose=1;
+		else if (!strcmp(key,"debug"))
+			debug=1;
 		else if (!strcmp(key,"nop"))
 			set_output_projection=0;
 		else if (!strcmp(key,"alog"))
@@ -380,7 +383,8 @@ int main(int argc, char *argv[])
     mlb_out=argv[1];
     outname=argv[2];
     inname=argv[3];
-    
+    if (debug)
+	    ReportDebugMessages(1);
     /* check if layers specified*/
     if (n_opts>3){
 	    int i;
@@ -571,6 +575,7 @@ int main(int argc, char *argv[])
 	    Report(REP_WARNING,err,VERB_LOW,"Abnormal return code from transformation: %d",err);
     
     if (GetErrors()>0){
+	    err=(err==TR_OK)? (GetErrors()) : err;
 	    Report(REP_WARNING,0,VERB_LOW,"Errors occured...");
 	    if (fp_log!=NULL)
 		    fprintf(stdout,"See log file for details..\n");

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>980</width>
-    <height>650</height>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -264,7 +264,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Z column</string>
+             <string>Z/ height column</string>
             </property>
            </widget>
           </item>
@@ -345,6 +345,16 @@
       <string>Options common to KMS and TEXT formats</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="chb_lazyh">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Silently set h=0 if height column is NOT found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>'Lazy h' -mode: Silently set height=0 if input system has heights but height column  is not found (no output height-column  is produced).</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="chb_copy_bad">
         <property name="toolTip">

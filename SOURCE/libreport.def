@@ -8,3 +8,4 @@ EXPORTS
     AppendGeoid
     LogGeoids
     SetIgnoreMessages
+    ReportDebugMessages

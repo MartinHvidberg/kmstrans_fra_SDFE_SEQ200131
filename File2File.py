@@ -58,8 +58,10 @@ class F2F_Settings(object):
 		self.n_decimals=4
 		self.flip_xy=False   #Flip output xy?
 		self.crt_xyz=True   #Automatically set output order x,y,z for cartesian output.
+		self.lazyh=False   #accept no heights in 3D...
 		self.set_projection=True
 		self.be_verbose=False
+		self.debug=False
 		self.ds_in=None
 		self.ds_out=None
 		self.input_layers=[]
@@ -183,6 +185,8 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-nop']
 	if options.be_verbose:
 		args+=['-verb']
+	if options.debug:
+		args+=['-debug']
 	if options.mlb_in is not None:
 		args+=['-pin',options.mlb_in]
 	if options.driver=="OGR":
@@ -234,6 +238,8 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-geoout',options.output_geo_unit]
 		if options.input_geo_unit!="dg":
 			args+=['-geoin',options.input_geo_unit]
+		if options.lazyh:
+			args+=['-lazyh']
 		if options.copy_bad_lines:
 			args+=['-cpbad']
 		args+=['-prc','%d'%options.n_decimals]

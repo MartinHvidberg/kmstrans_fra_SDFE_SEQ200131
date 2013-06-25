@@ -46,7 +46,9 @@
 #undef MAX
 #define MAX(a,b) ((a>b)?a:b)
 
-static char *next_column(char *current_pos, char *sep_char, char *sep_char_found, int is_kms_format);
+static int next_column(char **current_pos, char **end, char *sep_char, char **buf_out, int is_kms_format);
+static char *next_sep(char *current_pos, char *sep_char, char **buf_out, int is_kms_format);
+static char *next_non_sep(char *current_pos, char *sep_char, char **buf_out, int is_kms_format, int *end_reached);
 static int set_coordinate_order(TR *trf, int *output_order, struct format_options *frmt);
 
 static struct typ_dec type_metric= {4,1,6,4};  /*metric output with 4 decimals */
@@ -57,30 +59,70 @@ static struct typ_dec type_sx       ={1,1,6,4};
 static struct typ_dec type_rad      ={2,3,1,10};
 
 
-static char *next_column(char *current_pos, char *sep_char, char *sep_char_found, int is_kms_format){
-	/*keep on going until we reach a separator - then go one past that*/
+static char *next_sep(char *current_pos, char *sep_char, char **buf_out, int is_kms_format){
+	/*keep on going until we reach a separator or a newline*/
 	char sep_found='\0',*current_test_char;
 	while (*current_pos && (!sep_found)){
 		/* tab or two spaces*/
 		if (is_kms_format){
 			if (*current_pos=='\t' || (*current_pos==' ' && *(current_pos+1)==' '))
 				sep_found='\t'; /*dummy value*/
+			
 		}
 		else{
-			for(current_test_char=sep_char; *current_test_char; current_test_char++){
-				if (*current_pos==*current_test_char){
-					sep_found=*current_test_char;
-					break;
-				}
-			}
+			if (current_test_char=strchr(sep_char,*current_pos))
+				sep_found=*current_test_char;
 		}
-		/*dont go to far - just point to the sep_char_found*/
-		if (*current_pos && !sep_found)
+		if (*current_pos=='\r' || *current_pos=='\n'){
+			sep_found='\n';
+		}
+		if (buf_out && !sep_found){
+			**buf_out=*current_pos;
+			(*buf_out)++;
+		}
+		/*dont go too far - just point to the first sep_char_found*/
+		if (!sep_found)
 			current_pos++;
-		/*printf("Found sep_char: %d\n",sep_found);*/
+		
 	}/*end spool to next col*/
-	*sep_char_found=sep_found;
+	
 	return current_pos;
+}
+
+static char *next_non_sep(char *current_pos, char *sep_char, char **buf_out, int is_kms_format, int *end_reached){
+	int found=0;
+	*end_reached=0;
+	while (*current_pos && !found){
+		if ((is_kms_format && !isspace(*current_pos)) || (!is_kms_format && !strchr(sep_char,*current_pos)))
+			found=1;
+		if (*current_pos=='\r' || *current_pos=='\n'){
+			found=1;
+			*end_reached=1;
+		}
+		if (buf_out && !found){
+			**buf_out=*current_pos;
+			(*buf_out)++;
+		}
+		if (!found)
+			current_pos++;
+	}
+	return current_pos;
+}
+
+static int next_column(char **current_pos, char **end, char *sep_char, char **buf_out, int is_kms_format){
+	int end_reached=0;
+	*current_pos=next_sep(*current_pos,sep_char, buf_out, is_kms_format);
+	if (!**current_pos || **current_pos=='\r' || **current_pos=='\n'){
+		*end=*current_pos;
+		return 0;
+	}
+	*current_pos=next_non_sep(*current_pos,sep_char,buf_out,is_kms_format, &end_reached);
+	if (!**current_pos || end_reached){ /*emtpty last field*/
+		*end=*current_pos;
+		return 0;
+	}
+	*end=next_sep(*current_pos,sep_char, buf_out, is_kms_format);
+	return 1;
 }
 
 static int set_coordinate_order(TR *trf, int *output_order, struct format_options *frmt){
@@ -143,6 +185,7 @@ static int set_coordinate_order(TR *trf, int *output_order, struct format_option
 				output_order[1]=store;
 			}
 		}
+		Report(REP_DEBUG,0,VERB_LOW,"Ouput order: xyz: %d%d%d, min_col: %d, max_col: %d",output_order[0],output_order[1],output_order[2],min_col,max_col);
 		if (IS_CARTESIC(trf->proj_out) && (output_order[0]!=0 || output_order[1]!=1))
 			Report(REP_WARNING,0,VERB_LOW,"Warning: Output projection is cartesian, but output coordinate order is not x,y,z. ");
 		return IS_3D(trf->proj_in) ? (max_col) : MAX(frmt->col_x,frmt->col_y);
@@ -228,6 +271,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
      if (frmt.is_kms_format){
 		append_unit=!frmt.kms_no_unit; 
 		space_in_sep=0;
+		frmt.sep_char="\t";
 	    
      }    /*end kms_format*/
      else{
@@ -274,9 +318,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     while (0!= fgets(buf, BUFSIZE, f_in)) {
         int    argc, err;
         double coords[3]={NAN,NAN,NAN},store,x,y,z;
-	char *current_pos,*current_pos_out,sep_char_found='\0';
+	char *current_pos,*current_pos_out,*col_end;
 	char *coord_positions[6]={NULL,NULL,NULL,NULL,NULL,NULL};
-	int current_col=0, coords_found=0, found_z=0,found_next_col=0;
+	int current_col=0, coords_found=0, found_z=0,found_next_col=0,write_z=0,keep_going=1,end_reached=0;
 	/*struct typ_dec type_out;*/
 	lines_read++;
 	
@@ -332,7 +376,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		fputs(buf,f_out);
 		continue;
 	}
-	while (coords_found<coords_to_find && *current_pos && current_col<=max_col){
+	col_end=next_sep(current_pos,frmt.sep_char,NULL,frmt.is_kms_format);
+	while (coords_found<coords_to_find && *current_pos && current_col<=max_col && keep_going){
 		/*printf("Current_col: %d\n",current_col);*/
 		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
 			int is_number=0;
@@ -343,43 +388,47 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				udt=frmt.input_geo_unit;
 			else
 				udt="m";
+			while(isspace(*current_pos) && current_pos<col_end)
+				current_pos++;
 			/*sgetg will skip non-numeric chars - we dont want that. Right now we should be pointing to the beginning of a number!*/
 			if (!isdigit(*current_pos) && *current_pos!='+' && *current_pos!='-'){
 				Report(REP_ERROR,1,VERB_HIGH,"Line: %d, non numeric input in column: %d",lines_read,current_col+1);
-				break;
+				if (!(current_col==frmt.col_z && frmt.zlazy))
+					break; /*no need to continue then*/
 			}
-			/* it is always safe to use sgetg - IF we insert a stop where it's not allowed to go further!*/
-			tmp=next_column(current_pos,frmt.sep_char,&tmp_sep,frmt.is_kms_format);
-			tmp_sep=*tmp; /*well - this is also returned above - except for KMS format. Hence we repeat ourselves a bit....*/
-			*tmp='\0'; /*insert a stop here to not let sgetg go too far*/
-			store=sgetg(current_pos,&type_in,&used,udt);
-			is_number=(type_in.gf>0);
-			*tmp=tmp_sep; /*restore*/	
-			if (is_number){
-				coord_positions[coords_found*2]=current_pos;
-				current_pos+=used;
-				coord_positions[coords_found*2+1]=current_pos;
-				coords_found++;
-				/*printf("pos after: %s",current_pos);*/
-				if (current_col==frmt.col_z){
-					coords[2]=store;
-					found_z=1;
-					if (!IS_CARTESIC(trf->proj_in)){ /*if it's a real height (including E) */
-						type_h=type_in;
-						type_h.tf=1; /*always m in ouput -TODO: transform number of decimals if input is not in m*/
-						p_type_h=&type_h;
+			else{
+				/* it is always safe to use sgetg - IF we insert a stop where it's not allowed to go further!*/
+				tmp_sep=*col_end;
+				*col_end='\0';
+				store=sgetg(current_pos,&type_in,&used,udt);
+				is_number=(type_in.gf>0);
+				*col_end=tmp_sep; /*restore*/	
+				if (is_number){
+					current_pos+=used;
+					coords_found++;
+					if (current_col==frmt.col_z){
+						coords[2]=store;
+						found_z=1;
+						if (!IS_CARTESIC(trf->proj_in)){ /*if it's a real height (including E) */
+							type_h=type_in;
+							type_h.tf=1; /*always m in ouput -TODO: transform number of decimals if input is not in m*/
+							p_type_h=&type_h;
+						}
+						else
+							p_type_h=&type_height;
+						
 					}
+					else if (current_col==frmt.col_x)
+						coords[0]=store;
 					else
-						p_type_h=&type_height;
+						coords[1]=store;
 				}
-				else if (current_col==frmt.col_x)
-					coords[0]=store;
-				else
-					coords[1]=store;
-			}
-			else{/*so we failed - no need to scan any further!*/
-				Report(REP_ERROR,1,VERB_HIGH,"Line: %d, sgetg failed to interpret input in column: %d as a number.",lines_read,current_col+1);
-				break;
+				else{/*so we failed - no need to scan any further unless we are in lazy-h mode!*/
+					Report(REP_ERROR,1,VERB_HIGH,"Line: %d, sgetg failed to interpret input in column: %d as a number.",lines_read,current_col+1);
+					if (!(current_col==frmt.col_z && frmt.zlazy))
+						break; /*no need to continue then*/
+					
+				}
 			}
 			
 		}
@@ -387,14 +436,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		if (coords_found==coords_to_find)
 			break;
 		/*spool to next col */
-		current_pos=next_column(current_pos,frmt.sep_char,&sep_char_found,frmt.is_kms_format);
-		if (*current_pos) /*if not end reached go one past the sep_char */
-			current_pos++;
+		keep_going=next_column(&current_pos,&col_end,frmt.sep_char,NULL,frmt.is_kms_format);
 		current_col++;
-		/*at the beginning of a column its safe to skip blanks - this will also leave room in the output 'around' coordinates */
-		while (*current_pos && isspace(*current_pos))
-			current_pos++;
-		
 		
 	} /*end scan line (while)*/
 	/* We will no more never, no more never forceably insert a z-column!*/ 
@@ -456,17 +499,28 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	/*  Now compose the output string */
 	current_pos=buf;
 	current_pos_out=buf_out;
+	current_col=0;
 	coords_found=0;
-	while(*current_pos){
-		if (coords_found<coords_to_find && current_pos==coord_positions[2*coords_found]){
-			
-			if (coords_found!=output_order[2] || (IS_3D(trf->proj_out) && found_z) || IS_CARTESIC(trf->proj_out)){ /* some test to determine if we should write output z, i.e. whether it was 'lazily' not included even when ouput is 3d...*/
+	write_z=(IS_3D(trf->proj_out) && found_z) || IS_CARTESIC(trf->proj_out);
+	end_reached=0;
+	col_end=NULL;
+	while(*current_pos && current_col<=max_col && !end_reached){
+		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
+			int coord_index;
+			if (output_order[0]==coords_found)
+				coord_index=0;
+			else if (output_order[1]==coords_found)
+				coord_index=1;
+			else
+				coord_index=2;
+			Report(REP_DEBUG,0,VERB_LOW,"current_col: %d, c-index: %d\n",current_col,coord_index);
+			if (coord_index!=2 || write_z){ /* some test to determine if we should write output z, i.e. whether it was 'lazily' not included even when ouput is 3d...*/
 				char coord_buf[256];
 				tmp1=coord_buf;
-				if (coords_found!=output_order[2] || IS_CARTESIC(trf->proj_out)) /*if x,y or cartesic z*/
-					sputg(coord_buf,coords[output_order[coords_found]],&type_out,"");
+				if (coord_index!=2 || IS_CARTESIC(trf->proj_out)) /*if x,y or cartesic z*/
+					sputg(coord_buf,coords[coord_index],&type_out,"");
 				else
-					sputg(coord_buf,coords[output_order[coords_found]],p_type_h,"");
+					sputg(coord_buf,coords[coord_index],p_type_h,"");
 				/* if not kms format - trim the output*/
 				if (!frmt.is_kms_format){
 					while(isspace(*tmp1))
@@ -479,23 +533,39 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				}
 				current_pos_out+=sprintf(current_pos_out,tmp1);
 				if (append_unit){
-					if (coords_found!=output_order[2]) /*if not z*/
+					if (coord_index!=2) /*if not z*/
 						current_pos_out+=sprintf(current_pos_out,"%s",unit_out);
 					else
 						current_pos_out+=sprintf(current_pos_out,"m");
 				}
+				current_pos=next_sep(current_pos,frmt.sep_char,NULL,frmt.is_kms_format);
+				col_end=current_pos_out;
+				/*write sep*/
+				current_pos=next_non_sep(current_pos,frmt.sep_char,&current_pos_out,frmt.is_kms_format,&end_reached);
+				
 			}
-			
-			current_pos=coord_positions[2*coords_found+1];
+			else{
+				current_pos=next_sep(current_pos,frmt.sep_char,NULL,frmt.is_kms_format);
+				/*never write the sep*/
+				current_pos=next_non_sep(current_pos,frmt.sep_char,NULL,frmt.is_kms_format,&end_reached);
+				if (end_reached && col_end) /*end reached?*/
+					current_pos_out=col_end; /*eat last sep*/
+			}
+			current_col++;
 			coords_found++;
+			Report(REP_DEBUG,0,VERB_LOW,"Current pos: %s",current_pos);
 		}
-		else{ /*copy char*/
-			*(current_pos_out++)=*(current_pos++); 
+		else{ /*copy columns*/
+			current_pos=next_sep(current_pos,frmt.sep_char,&current_pos_out,frmt.is_kms_format);
+			col_end=current_pos_out;
+			current_pos=next_non_sep(current_pos,frmt.sep_char,&current_pos_out,frmt.is_kms_format,&end_reached);
+			current_col++;
+			Report(REP_DEBUG,0,VERB_LOW,"Current pos: %s",current_pos);
 		}
-		
-		
-		
 	} /*end compose output */
+	/*finally copy any remaining stuff - better performance*/
+	while (*current_pos)
+		*(current_pos_out++)=*(current_pos++);
 	*current_pos_out='\0';
 	fputs(buf_out,f_out);
 	
