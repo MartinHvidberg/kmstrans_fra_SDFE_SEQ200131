@@ -205,7 +205,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     int ERR = 0,is_geo_in=0,is_geo_out=0;
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
     int look_for_label,log_geoids=0;
-    int lines_read=0, mlbs_found=0, max_col,min_col, coords_to_find=2,is_stdout,is_stdin;
+    int lines_read=0, mlbs_found=0, max_col, coords_to_find=2,is_stdout,is_stdin;
     int  output_order[3]={0,1,2};
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
@@ -386,7 +386,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 			int is_number=0;
 			int used=0; /* wont read more than an int can hold!*/
 			struct typ_dec type_in;
-			char *udt,*tmp,tmp_sep;
+			char *udt,tmp_sep;
 			if (is_geo_in && current_col!=frmt.col_z)
 				udt=frmt.input_geo_unit;
 			else

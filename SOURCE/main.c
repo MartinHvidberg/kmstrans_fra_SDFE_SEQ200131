@@ -362,9 +362,16 @@ int main(int argc, char *argv[])
    } /*end do*/
     while (n_opts == 0 && key); 
    /*validate some choices...*/
-   if (drv_in && (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT")) && (!validate_geo_unit(input_geo_unit) || !validate_geo_unit(output_geo_unit))){
-	   fprintf(stderr,"Geograhic unit: %s not supported. Only 'dg','sx','nt' or 'rad' allowed.\n");
-	   goto usage;
+   if (drv_in && (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT"))){
+	   if (!validate_geo_unit(input_geo_unit) || !validate_geo_unit(output_geo_unit)){
+		fprintf(stderr,"Geograhic unit: %s not supported. Only 'dg','sx','nt' or 'rad' allowed.\n");
+		goto usage;
+	   }
+	   if (!strcmp(drv_in,"TEXT") && (col_x==col_y || col_z==col_y || col_x==col_z || col_x<0 || col_y<0 || (col_z<0 && col_z!=-1))){
+		fprintf(stderr,"Invalid geometry column specification - column numbers must differ and be at least 1.\n");
+		goto usage;
+	   }
+			
    }
    /*if not enough args*/
    if (n_opts<3){

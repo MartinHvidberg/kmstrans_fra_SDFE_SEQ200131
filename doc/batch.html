@@ -99,9 +99,10 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
         <br>
         NOTE:</b> Coordinates can have units like <b>m</b> or <b>km</b>
       and for geographic coordinates <b>dg, sx, nt </b>or <b>rad</b>.
-      If <b>no units</b> are found KMSTrans2 expects geographical input
-      coordinates to be in <b>decimal degrees</b> and <b>meters</b>
-      for other systems. If you use <b>space</b> ' ' as a column
+      You can control the interpretation of geographic coordinates if <b>no
+        units</b> are found in the settings dialog. For all other types
+      of input systems, coordinates will be interpreted as <b>meters</b>
+      if no units are found. If you use <b>space</b> ' ' as a column
       separator, remember <b>NOT </b>to include spaces between
       coordinates and units or spaces in coordinates, e.g.:<br>
       Use<b> 6143200.1m</b> rather than <b>6 143 200.1 m</b><br>
@@ -121,6 +122,22 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       started after finding the first space or tab character, and will
       the skip all subsequent white space until the first regular
       character is found (or the line is terminated).<br>
+      <br>
+      Likewise, repeated separation chars like e.g ';;;;' will have the
+      same significance as a single separation character ';'. Thus, a
+      field is only "empty" if it consists of white space enclosed
+      between non-white space separation chars, e.g.: ';&nbsp; ;'.<br>
+      <br>
+      So the interpretation of e.g.<br>
+      <br>
+      CITY&nbsp;&nbsp; 551020.00sx&nbsp;&nbsp; 113540.21sx<br>
+      <br>
+      will be the same as:<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      CITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      551020.00sx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      113540.21sx<br>
       <br>
     </blockquote>
     <ul>
@@ -182,6 +199,7 @@ WFS:http://kortforsyningen.kms.dk/service?servicename=dagi_gml2&amp;service=WFS&
       m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       63.79041 m&nbsp; *<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
       ;&nbsp;&nbsp;&nbsp;&nbsp; 1997 01 17,
