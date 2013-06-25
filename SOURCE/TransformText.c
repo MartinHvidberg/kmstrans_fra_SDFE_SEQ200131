@@ -376,9 +376,12 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		fputs(buf,f_out);
 		continue;
 	}
+	
 	col_end=next_sep(current_pos,frmt.sep_char,NULL,frmt.is_kms_format);
+	
 	while (coords_found<coords_to_find && *current_pos && current_col<=max_col && keep_going){
-		/*printf("Current_col: %d\n",current_col);*/
+		Report(REP_DEBUG,0,VERB_LOW,"We are now at:%s, col: %d",current_pos,current_col);
+		Report(REP_DEBUG,0,VERB_LOW,"Col end is:%s",col_end);
 		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
 			int is_number=0;
 			int used=0; /* wont read more than an int can hold!*/
@@ -504,6 +507,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	write_z=(IS_3D(trf->proj_out) && found_z) || IS_CARTESIC(trf->proj_out);
 	end_reached=0;
 	col_end=NULL;
+	/*spool to first column - left whitespace means nothing*/ 
+	while (*current_pos && isspace(*current_pos))
+		*(current_pos_out++)=*(current_pos++);
 	while(*current_pos && current_col<=max_col && !end_reached){
 		if (current_col==frmt.col_x || current_col==frmt.col_y || (current_col==frmt.col_z && coords_to_find==3)){
 			int coord_index;
