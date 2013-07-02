@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_settings_f2f.ui'
 #
-# Created: Fri Jun 21 15:13:36 2013
+# Created: Tue Jul 02 13:15:44 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(980, 650)
+        Dialog.resize(980, 673)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.groupBox = QtGui.QGroupBox(Dialog)
@@ -217,11 +217,17 @@ class Ui_Dialog(object):
         self.verticalLayout.addWidget(self.groupBox_3)
         self.groupBox_5 = QtGui.QGroupBox(Dialog)
         self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
-        self.verticalLayout_4 = QtGui.QVBoxLayout(self.groupBox_5)
-        self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
+        self.horizontalLayout_7 = QtGui.QHBoxLayout(self.groupBox_5)
+        self.horizontalLayout_7.setObjectName(_fromUtf8("horizontalLayout_7"))
         self.chb_kms_no_units = QtGui.QCheckBox(self.groupBox_5)
         self.chb_kms_no_units.setObjectName(_fromUtf8("chb_kms_no_units"))
-        self.verticalLayout_4.addWidget(self.chb_kms_no_units)
+        self.horizontalLayout_7.addWidget(self.chb_kms_no_units)
+        self.chb_kms_flip_input = QtGui.QCheckBox(self.groupBox_5)
+        self.chb_kms_flip_input.setObjectName(_fromUtf8("chb_kms_flip_input"))
+        self.horizontalLayout_7.addWidget(self.chb_kms_flip_input)
+        self.chb_kms_flip_output = QtGui.QCheckBox(self.groupBox_5)
+        self.chb_kms_flip_output.setObjectName(_fromUtf8("chb_kms_flip_output"))
+        self.horizontalLayout_7.addWidget(self.chb_kms_flip_output)
         self.verticalLayout.addWidget(self.groupBox_5)
         spacerItem5 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem5)
@@ -275,14 +281,15 @@ class Ui_Dialog(object):
         self.label_5.setText(_translate("Dialog", "Y column", None))
         self.chb_has_z.setText(_translate("Dialog", "Has z", None))
         self.label_3.setText(_translate("Dialog", "X column", None))
-        self.label_4.setText(_translate("Dialog", "Z column", None))
+        self.label_4.setText(_translate("Dialog", "Z/ height column", None))
         self.groupBox_6.setTitle(_translate("Dialog", "Output coordinate order", None))
         self.chb_invert_xy.setToolTip(_translate("Dialog", "Swap the order of x and y columns in output.", None))
         self.chb_invert_xy.setText(_translate("Dialog", "Invert output x/y column order", None))
         self.chb_crt_xyz.setToolTip(_translate("Dialog", "<html><head/><body><p>Default behaviour is to set output coordinate order x,y,z for cartesian output systems. </p></body></html>", None))
         self.chb_crt_xyz.setText(_translate("Dialog", "Automatically set output order x,y,z for cartesian (crt_dtm) output systems", None))
         self.groupBox_3.setTitle(_translate("Dialog", "Options common to KMS and TEXT formats", None))
-        self.chb_lazyh.setText(_translate("Dialog", "\'Lazy h\' -mode: Silently set height=0 if input system has heights but height information is not found (no output height-column  is produced).", None))
+        self.chb_lazyh.setToolTip(_translate("Dialog", "<html><head/><body><p>Silently set h=0 if height column is NOT found.</p></body></html>", None))
+        self.chb_lazyh.setText(_translate("Dialog", "\'Lazy h\' -mode: Silently set height=0 if input system has heights but height column  is not found (no output height-column  is produced).", None))
         self.chb_copy_bad.setToolTip(_translate("Dialog", "Copy lines where proper coordinates cannot be read to output file.", None))
         self.chb_copy_bad.setText(_translate("Dialog", "Copy uniterpretable/erroneous lines to output", None))
         self.groupBox_2.setTitle(_translate("Dialog", "Ouput format for geographic coordinates. ", None))
@@ -295,8 +302,10 @@ class Ui_Dialog(object):
         self.rdb_sx_in.setText(_translate("Dialog", "Sexagesimal (sx: dddmmss.sss...)", None))
         self.rdb_nt_in.setText(_translate("Dialog", "Nautical units (nt: ddd mm.mmm...)", None))
         self.rdb_rad_in.setText(_translate("Dialog", "Radians (rad: rr.rrrr...)", None))
-        self.groupBox_5.setTitle(_translate("Dialog", "KMS format", None))
+        self.groupBox_5.setTitle(_translate("Dialog", "KMS format (override default behaviour)", None))
         self.chb_kms_no_units.setText(_translate("Dialog", "Do not append units for KMS format output", None))
+        self.chb_kms_flip_input.setText(_translate("Dialog", "Input x/y column order is  inverted relative to default", None))
+        self.chb_kms_flip_output.setText(_translate("Dialog", "Invert default output x/y column order", None))
         self.bt_apply.setToolTip(_translate("Dialog", "Click to apply changes", None))
         self.bt_apply.setText(_translate("Dialog", "OK", None))
         self.bt_close.setToolTip(_translate("Dialog", "Cancel changes and close", None))

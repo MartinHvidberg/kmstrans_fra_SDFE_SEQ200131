@@ -150,7 +150,16 @@ static int set_coordinate_order(TR *trf, int *output_order, struct format_option
 			output_order[0]=1;
 			output_order[1]=0;
 		}
-		
+		if (frmt->flip_xy){
+			int store=output_order[0];
+			output_order[0]=output_order[1];
+			output_order[1]=store;
+		}
+		if (frmt->flip_xy_in){
+			int store=frmt->col_x;
+			frmt->col_x=frmt->col_y;
+			frmt->col_y=store;
+		}
 		return IS_3D(trf->proj_in)?3:2;
 		
 	}

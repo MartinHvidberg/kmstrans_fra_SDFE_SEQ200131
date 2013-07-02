@@ -71,6 +71,8 @@ class F2F_Settings(object):
 		self.copy_bad_lines=False
 		self.units_in_output=False
 		self.kms_no_units=False
+		self.kms_flip_xy_in=False
+		self.kms_flip_xy_out=False
 		self.output_geo_unit="dg"
 		self.input_geo_unit="dg"
 		self.log_file=None
@@ -232,6 +234,10 @@ def TransformDatasource(options,log_method,post_method):
 		args+=['-drv','KMS']
 		if options.kms_no_units:
 			args+=['-nounits']
+		if options.kms_flip_xy_in:
+			args+=['-flipxyin']
+		if options.kms_flip_xy_out:
+			args+=['-flipxy']
 		#TODO: implement extra options for KMS-driver#
 	if options.driver=="KMS" or options.driver=="TEXT":
 		if options.output_geo_unit!="dg":

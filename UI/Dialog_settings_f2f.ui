@@ -451,13 +451,27 @@
    <item>
     <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
-      <string>KMS format</string>
+      <string>KMS format (override default behaviour)</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
       <item>
        <widget class="QCheckBox" name="chb_kms_no_units">
         <property name="text">
          <string>Do not append units for KMS format output</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chb_kms_flip_input">
+        <property name="text">
+         <string>Input x/y column order is  inverted relative to default</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chb_kms_flip_output">
+        <property name="text">
+         <string>Invert default output x/y column order</string>
         </property>
        </widget>
       </item>

@@ -102,17 +102,19 @@ void Usage(int help){
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
 	printf("-y <int> Specify y-column for 'TEXT' driver (default: second column).\n");
 	printf("-z <int> Specify z-column for 'TEXT' driver (default: third column).\n");
-	printf("-flipxy Invert order of x and y columns in output.\n");
 	printf("-naxyz Do NOT automatically set output coordinate order x,y,z for cartesian output systems.\n");
 	printf("-ounits Append units to output coordinates (default 'm' and 'dg').\n");
 	printf("-comments <comment_marker>  Skip, but copy, lines starting with <comment_marker>\n");
 	printf("\nOptions which apply to both 'TEXT' and 'KMS' formats\n");
+	printf("-flipxy Invert order of x and y columns in output (for KMS format relative to DEFAULT order).\n");
 	printf("-geoout <unit> (sx, nt or rad) to use a special output format for geographic coordinates (default dg)\n");
 	printf("-geoin <unit> (sx, nt or rad) to use a special interpretation of input geographic coordinates (default dg)\n");
 	printf("-cpbad Copy uninterpretable lines to output file.\n");
 	printf("-lazyh Silently set height=0 and do not emit an error if input system is 3D and height is NOT found.\n"); 
 	printf("-prc <n_decimals> Specify (metric) precision of coordinate output.\n");
+	printf("\nOptions specific to the 'KMS' format:\n");
 	printf("-nounits To turn off units in output for 'KMS' format.\n"); 
+	printf("-flipxyin Input x/y column order is inverted relative to the default order.\n");
 	printf("Use %s --formats to list available drivers.\n",PROG_NAME);
 	printf("Use %s --version to print version info.\n",PROG_NAME);
 	if (help<2)
@@ -213,11 +215,11 @@ int main(int argc, char *argv[])
 {  
     char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;flipxyin;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
     char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
     /* defaults here */
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
-    int copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0,debug=0;
+    int flip_xy_in=0,copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0,debug=0;
     struct format_options frmt;
     time_t rawtime;
     struct tm * timeinfo;
@@ -348,6 +350,8 @@ int main(int argc, char *argv[])
 			kms_no_unit=1;
 		else if (!strcmp(key,"flipxy"))
 			flip_xy=1;
+		else if (!strcmp(key,"flipxyin"))
+			flip_xy_in=1;
 		else if (!strcmp(key,"naxyz"))
 			crt_xyz=0;
 		else if (!strcmp(key,"cpbad"))
@@ -531,6 +535,8 @@ int main(int argc, char *argv[])
 	    else
 		Report(REP_INFO,0,VERB_LOW,"Using (all) whitespace as default column separator.");
         }
+	else if (flip_xy_in)
+		Report(REP_INFO,0,VERB_LOW,"Assuming that input x/y columns are inverted reletive to DEFAULT KMS format.");
 	if (flip_xy)
 		Report(REP_INFO,0,VERB_LOW,"Flipping output x/y columns.");
 	if (zlazy)
@@ -554,6 +560,7 @@ int main(int argc, char *argv[])
 	frmt.col_y=col_y;
 	frmt.col_z=col_z;
 	frmt.flip_xy=flip_xy;
+	frmt.flip_xy_in=flip_xy_in;
 	frmt.crt_xyz=crt_xyz;
 	frmt.zlazy=zlazy;
 	frmt.set_output_projection=set_output_projection;
