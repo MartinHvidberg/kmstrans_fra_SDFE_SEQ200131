@@ -23,7 +23,7 @@ import subprocess
 import glob
 import threading
 import time
-from TrLib_constants import OGRLIB
+from TrLib_constants import LIBTRUI
 from OGR_drivers import *
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
@@ -106,15 +106,7 @@ class SettingsStruct(ctypes.Structure):
 	("input_geo_unit",C_CHAR_P),
 	("comments",C_CHAR_P)]
 
-def SettingsToStruct(s):
-	col_x=s.col_x-1
-	col_y=s.col_y-1
-	if col_z is None:
-		col_z=-1
-	else:
-		col_z=s.col_z-1
-	struct=SettingsStruct(s.is_kms_format,col_x,col_y,col_z,s.flip_xy,s.kms_flip_xy_in,s.kms_flip_xy_out,s.crt_xyz,s.lazyh,s.set_projection,s.copy_bad_lines,s.n_decimals,
-	s.units_in_output,s.kms_no_units)
+
 
 def SetCommand(prog_path):
 	global TROGR
@@ -122,7 +114,7 @@ def SetCommand(prog_path):
 
 
 #LOAD LIBRARY#
-def InitOGR(prefix,lib_name=OGRLIB):
+def InitOGR(prefix,lib_name=LIBTRUI):
 	global libtrui
 	path=os.path.join(prefix,lib_name)
 	#SETUP HEADER#

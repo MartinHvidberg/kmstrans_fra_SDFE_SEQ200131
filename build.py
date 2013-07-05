@@ -21,7 +21,7 @@
 #Use -cc compiler, e.g. -cc gcc to specify which compiler to use to build trogr.
 #should be compatible with tip of trlib repo
 import os, sys, shutil
-from TrLib_constants import OGRLIB,TRLIB,TROGRNAME
+from TrLib_constants import LIBTRUI,TRLIB,TROGRNAME
 
 def Usage():
 	print("To run:")
@@ -47,11 +47,9 @@ outdir=curdir #use this dir as output....
 #Paths
 BIN_DIR=os.path.join(outdir,"bin")
 SRC_DIR=os.path.join(curdir,"SOURCE")
-SRC_LIBREPORT=[os.path.join(SRC_DIR,"Report.c")]
-SRC_LIBOGR=[os.path.join(SRC_DIR,"ogrTRogr.c")]
-DEF_LIBREPORT=os.path.join(SRC_DIR,"libreport.def")
-DEF_LIBOGR=os.path.join(SRC_DIR,"libtrogr.def")
-SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","TransformText.c","TransformDSFL.c","tr_DSFL.c","my_get_opt.c"]]
+SRC_LIBTRUI=[os.path.join(SRC_DIR,fname) for fname in ("ogrTRogr.c","Report.c","TransformText.c","TransformDSFL.c","tr_DSFL.c")]
+DEF_LIBTRUI=os.path.join(SRC_DIR,"libtrui.def")
+SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","my_get_opt.c"]]
 INC_TRLIB=[os.path.join(trlib,"TR_INC")]
 #Import build system
 sys.path.insert(0,os.path.join(trlib,"TR_BUILD"))
@@ -61,30 +59,10 @@ import py_build
 #Check options
 IS_MSVC="-msvc" in args
 DEBUG="-debug" in args
-
+compiler=core.SelectCompiler(args)
 if (not "-gdal" in args) or (not (core.IS_WINDOWS) and IS_MSVC):
 	Usage()
 	sys.exit()
-
-if IS_MSVC:
-	if "-x64" in args:
-		compiler=cc.msvc64()
-	else:
-		compiler=cc.msvc32()
-else:
-	if "-x64" in args:
-		compiler=cc.mingw64()
-	elif core.IS_WINDOWS:
-		compiler=cc.mingw32()
-	elif core.IS_MAC:
-		compiler=cc.gcc_mac()
-	else:
-		compiler=cc.gcc_nix()
-#arg which should not be removed
-if "-cc" in args:
-	index=args.index("-cc")+1
-	override=args[index]
-	compiler.overrideCompiler(override)
 
 #pop this arg and its value...
 if "-gdal" in args:
@@ -109,11 +87,9 @@ try:
 	os.mkdir(BIN_DIR)
 except:
 	pass
-libogr=os.path.join(BIN_DIR,OGRLIB)
-libreport=os.path.join(BIN_DIR,"libreport")+core.DLL
+libtrui=os.path.join(BIN_DIR,LIBTRUI)
 libtr=os.path.join(BIN_DIR,TRLIB) #.DLL already appended
 trogr=os.path.join(BIN_DIR,TROGRNAME)+core.EXE #.EXE already appended?
-buildtrlib=os.path.join(trlib,"TR_BUILD","py_build.py")
 #BUILD C-source#
 if not "-notrlib" in args:
 	print "Building TrLib"
@@ -132,22 +108,18 @@ try:
 	os.mkdir(BUILD_DIR)
 except:
 	pass
-#build libreport
-ok=core.Build(compiler,libreport,SRC_LIBREPORT,is_debug=DEBUG,link_libraries=compiler.LINK_LIBRARIES,def_file=DEF_LIBREPORT,build_dir=BUILD_DIR,link_all=False)
-#build libogr
-if (not ok):
-	sys.exit(1)
+#build libtrui
 if core.IS_WINDOWS:
-	link_libraries=compiler.LINK_LIBRARIES+[gdal_lib,libtr,libreport]
+	link_libraries=compiler.LINK_LIBRARIES+[gdal_lib,libtr]
 else:
-	link_libraries=compiler.LINK_LIBRARIES+link_gdal+[libtr,libreport]
+	link_libraries=compiler.LINK_LIBRARIES+link_gdal+[libtr]
 
 include=INC_TRLIB+[gdal_include]
-ok=core.Build(compiler,libogr,SRC_LIBOGR,include,is_debug=DEBUG,link_libraries=link_libraries,def_file=DEF_LIBOGR,build_dir=BUILD_DIR,link_all=False)
+ok=core.Build(compiler,libtrui,SRC_LIBTRUI,include,is_debug=DEBUG,link_libraries=link_libraries,def_file=DEF_LIBTRUI,build_dir=BUILD_DIR,link_all=False)
 #build trogr
 if (not ok):
 	sys.exit(1)
-link_libraries=compiler.LINK_LIBRARIES+[libtr,libreport,libogr]
+link_libraries=compiler.LINK_LIBRARIES+[libtr,libtrui]
 ok=core.Build(compiler,trogr,SRC_MAIN,include,is_library=False,is_debug=DEBUG,link_libraries=link_libraries,build_dir=BUILD_DIR,link_all=False)
 if (not ok):
 	sys.exit(1)

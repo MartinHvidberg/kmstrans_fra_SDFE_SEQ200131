@@ -1,0 +1,24 @@
+EXPORTS
+   TransformOGR
+   GetOGRDrivers
+   Close
+   Open
+   GetLayer
+   GetLayerCount
+   GetLayerName
+   GetNextGeometry
+   GetCoords
+   RedirectOGRErrors
+   GetGDALVersion
+   Report
+   SetCallBack
+   InitialiseReport
+   TerminateReport
+   SetLogFile
+   GetErrors
+   AppendGeoid
+   LogGeoids
+   SetIgnoreMessages
+   ReportDebugMessages
+   TransformText
+   TransformDSFL

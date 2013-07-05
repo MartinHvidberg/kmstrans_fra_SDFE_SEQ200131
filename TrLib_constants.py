@@ -22,14 +22,14 @@ IS_WINDOWS=sys.platform.startswith("win")
 #LIBRARYNAMES
 #PATH TO TRLIB, OGRLIB#
 if IS_WINDOWS:
-	TRLIB="libtrui.dll"
-	OGRLIB="libtrogr.dll"
+	TRLIB="libtr.dll"
+	LIBTRUI="libtrui.dll"
 elif "darwin" in sys.platform:
-	TRLIB="libtrui.dylib"
-	OGRLIB="libtrogr.dylib"
+	TRLIB="libtr.dylib"
+	LIBTRUI="libtrui.dylib"
 else:
-	TRLIB="libtrui.so"
-	OGRLIB="libtrogr.so"
+	TRLIB="libtr.so"
+	LIBTRUI="libtrui.so"
 TROGRNAME="trogr"
 
 #CONSTANTS RELEVANT TO KMSTRLIB
