@@ -52,9 +52,9 @@ class F2F_Settings(object):
 		self.format_out=None
 		self.mlb_in=None
 		self.mlb_out=None
-		self.col_x=0
-		self.col_y=1
-		self.col_z=-1
+		self.col_x=None
+		self.col_y=None
+		self.col_z=None
 		self.n_decimals=4
 		self.flip_xy=False   #Flip output xy?
 		self.crt_xyz=True   #Automatically set output order x,y,z for cartesian output.
@@ -86,7 +86,7 @@ class F2F_Settings(object):
 		self.saved_state_spbs=[] #spin boxes
 		
 
-#a reflection of the struct defined in libtrui.h
+#a reflection of the struct defined in libtrui.h - not complete - field order must match then order defined in header!!!
 class SettingsStruct(ctypes.Structure):
 	_fields_=[("is_kms_format",C_INT),
 	("col_x",C_INT),
@@ -292,18 +292,6 @@ def TransformDatasource(options,log_method,post_method):
 	thread.start()
 	return True,"Thread started..."
 
-class WorkerThread2(threading.Thread):
-	def __init__(self,log_method,post_method,files_in,settings):
-		self.log_method=log_method
-		self.post_method=post_method
-		self.files_in=files_in
-		self.settings=settings
-		self.kill_flag=threading.Event()
-	def kill(self):
-		self.kill_flag.set()
-	def run(self):
-		arr=ctypes.c_double()*1000
-		settings_struct=SettingsStruct()
 
 class WorkerThread(threading.Thread):
 	def __init__(self,log_method,post_method,args,files_in,files_out,layers):

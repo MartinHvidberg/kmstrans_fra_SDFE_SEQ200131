@@ -608,6 +608,7 @@ int main(int argc, char *argv[])
 	free(dscos);
     return err;
     usage:
+	fprintf(stderr,"Invalid specification of options...\n");
 	Usage(0);
 	exit(1);
 }

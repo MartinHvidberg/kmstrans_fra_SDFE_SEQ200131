@@ -488,8 +488,15 @@ class TextViewer(QDialog):
 		if txt is not None:
 			txt_field.setText(txt)
 		elif fname is not None:
-			n=os.path.getsize(fname)
-			if n==os.error:
+			fok=False
+			if os.path.exists(fname):
+				try:
+					n=os.path.getsize(fname)
+				except:
+					pass
+				else:
+					fok=True
+			if not fok:
 				txt_field.setText("Failed to open %s" %fname)
 			else:
 				txt_field.setText("Contents of %s:" %fname)

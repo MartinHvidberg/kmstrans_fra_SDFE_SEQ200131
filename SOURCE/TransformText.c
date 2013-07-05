@@ -45,6 +45,7 @@
 #define GET_COORD_POSITION(a,b,c) ((a==c) ? 2 : ((a==b) ? 0 : 1))
 #undef MAX
 #define MAX(a,b) ((a>b)?a:b)
+#define MIN(a,b)  ((a<b)?a:b)
 
 static int next_column(char **current_pos, char **end, char *sep_char, char **buf_out, int is_kms_format);
 static char *next_sep(char *current_pos, char *sep_char, char **buf_out, int is_kms_format);
@@ -221,7 +222,8 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     char mlb_in_file[128],geoid_name[128],*tmp1,*tmp2;
     char *unit_out;
     struct typ_dec type_out, type_h, *p_type_h;
-    int in_comment=0, is_comment=0, flip_xy=0, append_unit=0, space_in_sep=0; /*flag to determine if we should 'eat' a space before appending unit*/
+    int flip_xy=0, append_unit=0, space_in_sep=0,is_comment; /*flag to determine if we should 'eat' a space before appending unit*/
+    double extent[6];
     /*test if in and out are stdin and stdout*/
     tmp2=buf;
     tmp1=inname;
@@ -504,10 +506,29 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	else{
 		n_trans_bad++;
 		ERR = err;
-		/*write to err log here because \n is in front of err msg - will look bad if output==stdout */
 		Report(REP_ERROR,err,VERB_HIGH,"Error: %d, In: %.5f %.5f %.5f ",TR_GetLastError(),x,y,z);
 	}
 	/*continue even after an error?*/
+	
+	/*calculate extent */
+	if (n_trans_ok>1 || n_trans_bad>1){
+			
+		extent[0]=MIN(coords[0],extent[0]);
+		extent[1]=MAX(coords[0],extent[1]);
+		extent[2]=MIN(coords[1],extent[2]);
+		extent[3]=MAX(coords[1],extent[3]);
+		extent[4]=MIN(coords[2],extent[4]);
+		extent[5]=MAX(coords[2],extent[5]);
+	}
+	else{
+		
+		extent[0]=coords[0];
+		extent[1]=coords[0];
+		extent[2]=coords[1];
+		extent[3]=coords[1];
+		extent[4]=coords[2];
+		extent[5]=coords[2];
+	}
 	/*  Now compose the output string */
 	current_pos=buf;
 	current_pos_out=buf_out;
@@ -602,6 +623,22 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    Report(REP_INFO,0,VERB_LOW,"%-23s: %d","#Transformation errors",n_trans_bad);
     if (n_trans_ok==0)
 	    Report(REP_WARNING,0,VERB_LOW,"No transformations performed - did you set a proper column separator?");
+    else{
+	    Report(REP_INFO,0,VERB_LOW,"Calculated extent in output system:");
+	    sputg(buf,extent[0],&type_out,"");
+	    Report(REP_INFO,0,VERB_LOW,"xmin:%s%s",buf,unit_out);
+	    sputg(buf,extent[1],&type_out,"");
+	    Report(REP_INFO,0,VERB_LOW,"xmax:%s%s",buf,unit_out);
+	    sputg(buf,extent[2],&type_out,"");
+	    Report(REP_INFO,0,VERB_LOW,"ymin:%s%s",buf,unit_out);
+	    sputg(buf,extent[3],&type_out,"");
+	    Report(REP_INFO,0,VERB_LOW,"ymax:%s%s",buf,unit_out);
+	    if (IS_3D(trf->proj_out)){
+		    Report(REP_INFO,0,VERB_LOW,"zmin: %.3f m",extent[4]);
+		    Report(REP_INFO,0,VERB_LOW,"zmax: %.3f m",extent[5]);
+	    }
+	    Report(REP_INFO,0,VERB_LOW,"Is this what you would expect from input data? Otherwise you should perhaps adjsut the column order.");
+    }
     LogGeoids();
     TerminateReport();
     return ERR? TR_ERROR: TR_OK;
