@@ -1604,12 +1604,15 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		QMainWindow.closeEvent(self, event)
 		
 
-if __name__=="__main__":
+def main():
 	global app
 	global MainWindow
 	app = QtGui.QApplication(sys.argv)
 	MainWindow = TRUI()
 	sys.exit(app.exec_())
+
+if __name__=="__main__":
+	main()
 	
 	
 		

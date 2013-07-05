@@ -61,7 +61,7 @@ class PythonWidget(WidgetBase,Ui_tab_python):
 		self.python_console.ClearCache()
 		self.txt_python_in.setWhatsThis("Enter/edit input python code here")
 	def addModule(self,module,name):
-		self.python_console.python_locals[name]=module
+		self.python_console.UpdateNameSpace(name,module)
 		self.log_python("Adding plugin: %s" %name,color="brown")
 	#TAB PYTHON#
 	@pyqtSignature('') #prevents actions being handled twice

@@ -42,8 +42,8 @@ C_CHAR_P=ctypes.c_char_p
 C_INT=ctypes.c_int
 LP_c_double=ctypes.POINTER(ctypes.c_double)
 LP_c_int=ctypes.POINTER(ctypes.c_int)
-#pointers to ogrlib and the TROGR program
-ogrlib=None
+#pointers to libtrui and the TROGR program
+libtrui=None
 TROGR=None
 
 class F2F_Settings(object):
@@ -52,9 +52,9 @@ class F2F_Settings(object):
 		self.format_out=None
 		self.mlb_in=None
 		self.mlb_out=None
-		self.col_x=None
-		self.col_y=None
-		self.col_z=None
+		self.col_x=0
+		self.col_y=1
+		self.col_z=-1
 		self.n_decimals=4
 		self.flip_xy=False   #Flip output xy?
 		self.crt_xyz=True   #Automatically set output order x,y,z for cartesian output.
@@ -86,6 +86,35 @@ class F2F_Settings(object):
 		self.saved_state_spbs=[] #spin boxes
 		
 
+#a reflection of the struct defined in libtrui.h
+class SettingsStruct(ctypes.Structure):
+	_fields_=[("is_kms_format",C_INT),
+	("col_x",C_INT),
+	("col_y,",C_INT),
+	("col_z",C_INT),
+	("flip_xy",C_INT),
+	("flip_xy_in",C_INT),
+	("crt_xyz",C_INT),
+	("zlazy",C_INT),
+	("set_output_projection",C_INT),
+	("copy_bad",C_INT),
+	("n_decimals",C_INT),
+	("units_in_output",C_INT),
+	("kms_no_units",C_INT),
+	("sep_char",C_CHAR_P),
+	("output_geo_unit",C_CHAR_P),
+	("input_geo_unit",C_CHAR_P),
+	("comments",C_CHAR_P)]
+
+def SettingsToStruct(s):
+	col_x=s.col_x-1
+	col_y=s.col_y-1
+	if col_z is None:
+		col_z=-1
+	else:
+		col_z=s.col_z-1
+	struct=SettingsStruct(s.is_kms_format,col_x,col_y,col_z,s.flip_xy,s.kms_flip_xy_in,s.kms_flip_xy_out,s.crt_xyz,s.lazyh,s.set_projection,s.copy_bad_lines,s.n_decimals,
+	s.units_in_output,s.kms_no_units)
 
 def SetCommand(prog_path):
 	global TROGR
@@ -94,27 +123,29 @@ def SetCommand(prog_path):
 
 #LOAD LIBRARY#
 def InitOGR(prefix,lib_name=OGRLIB):
-	global ogrlib
+	global libtrui
 	path=os.path.join(prefix,lib_name)
 	#SETUP HEADER#
 	try:
-		ogrlib=ctypes.cdll.LoadLibrary(path)
-		ogrlib.GetOGRDrivers.argtypes=[C_INT,C_INT] #reset reading, is_output
-		ogrlib.GetOGRDrivers.restype=C_CHAR_P
-		ogrlib.GetLayer.restype=ctypes.c_void_p
-		ogrlib.GetLayer.argtypes=[ctypes.c_void_p,C_INT]
-		ogrlib.GetLayerCount.restype=C_INT
-		ogrlib.GetLayerCount.argtypes=[ctypes.c_void_p]
-		ogrlib.GetLayerName.restype=C_CHAR_P
-		ogrlib.GetLayerName.argtypes=[ctypes.c_void_p]
-		ogrlib.GetNextGeometry.restype=ctypes.c_void_p
-		ogrlib.GetNextGeometry.argtypes=[ctypes.c_void_p,LP_c_int]
-		ogrlib.Close.restype=None
-		ogrlib.Close.argtypes=[ctypes.c_void_p]
-		ogrlib.Open.restype=ctypes.c_void_p
-		ogrlib.Open.argtypes=[C_CHAR_P]
-		ogrlib.GetCoords.argtypes=[ctypes.c_void_p,LP_c_double,LP_c_double,C_INT]
-		ogrlib.GetCoords.restype=None
+		libtrui=ctypes.cdll.LoadLibrary(path)
+		libtrui.GetOGRDrivers.argtypes=[C_INT,C_INT] #reset reading, is_output
+		libtrui.GetOGRDrivers.restype=C_CHAR_P
+		libtrui.GetLayer.restype=ctypes.c_void_p
+		libtrui.GetLayer.argtypes=[ctypes.c_void_p,C_INT]
+		libtrui.GetLayerCount.restype=C_INT
+		libtrui.GetLayerCount.argtypes=[ctypes.c_void_p]
+		libtrui.GetLayerName.restype=C_CHAR_P
+		libtrui.GetLayerName.argtypes=[ctypes.c_void_p]
+		libtrui.GetNextGeometry.restype=ctypes.c_void_p
+		libtrui.GetNextGeometry.argtypes=[ctypes.c_void_p,LP_c_int]
+		libtrui.Close.restype=None
+		libtrui.Close.argtypes=[ctypes.c_void_p]
+		libtrui.Open.restype=ctypes.c_void_p
+		libtrui.Open.argtypes=[C_CHAR_P]
+		libtrui.GetCoords.argtypes=[ctypes.c_void_p,LP_c_double,LP_c_double,C_INT]
+		libtrui.GetCoords.restype=None
+		#libtrui.TransformText.argtypes=[C_CHAR_P,C_CHAR_P,ctypes.c_void_p,SettingsStruct,LP_c_double,C_INT]
+		#libtrui.TransformText.restype=C_INT
 	#END HEADER#
 	except Exception,e:
 		#print repr(msg),path
@@ -269,6 +300,19 @@ def TransformDatasource(options,log_method,post_method):
 	thread.start()
 	return True,"Thread started..."
 
+class WorkerThread2(threading.Thread):
+	def __init__(self,log_method,post_method,files_in,settings):
+		self.log_method=log_method
+		self.post_method=post_method
+		self.files_in=files_in
+		self.settings=settings
+		self.kill_flag=threading.Event()
+	def kill(self):
+		self.kill_flag.set()
+	def run(self):
+		arr=ctypes.c_double()*1000
+		settings_struct=SettingsStruct()
+
 class WorkerThread(threading.Thread):
 	def __init__(self,log_method,post_method,args,files_in,files_out,layers):
 		threading.Thread.__init__(self)
@@ -337,36 +381,36 @@ class WorkerThread(threading.Thread):
 
 
 def GetOGRFormats(is_output=True):
-	ogrlib.GetOGRDrivers(1,0)
+	libtrui.GetOGRDrivers(1,0)
 	drivers=[]
-	drv=ogrlib.GetOGRDrivers(0,1)
+	drv=libtrui.GetOGRDrivers(0,1)
 	while drv is not None:
 		if drv in OGR_SHORT_TO_LONG:
 			drivers.extend(OGR_SHORT_TO_LONG[drv])
 		else:
 			drivers.append(drv)
-		drv=ogrlib.GetOGRDrivers(0,int(is_output)) #should make a copy into python managed memory.... 1 signals output
+		drv=libtrui.GetOGRDrivers(0,int(is_output)) #should make a copy into python managed memory.... 1 signals output
 	return drivers
 
 def GetLayer(ds,layer_num=0):
-	return ogrlib.GetLayer(ds,layer_num)
+	return libtrui.GetLayer(ds,layer_num)
 
 def GetNextGeometry(hLayer):
 	nump=ctypes.c_int(0)
-	geom=ogrlib.GetNextGeometry(hLayer,ctypes.byref(nump))
+	geom=libtrui.GetNextGeometry(hLayer,ctypes.byref(nump))
 	return geom,nump.value
 
 def Close(ds):
-	ogrlib.Close(ds)
+	libtrui.Close(ds)
 
 def Open(inname):
-	return ogrlib.Open(inname)
+	return libtrui.Open(inname)
 
 def GetCoords(geom,n):
 	arr=ctypes.c_double*n
 	x=arr()
 	y=arr()
-	ogrlib.GetCoords(geom,ctypes.cast(x,LP_c_double),ctypes.cast(y,LP_c_double),n)
+	libtrui.GetCoords(geom,ctypes.cast(x,LP_c_double),ctypes.cast(y,LP_c_double),n)
 	return zip(x,y)
 	
 def GetLines(inname):
@@ -398,9 +442,9 @@ def GetLines(inname):
 def GetLayerNames(ds):
 	layers=[]
 	if ds is not None:
-		n=ogrlib.GetLayerCount(ds)
+		n=libtrui.GetLayerCount(ds)
 		for i in range(n):
-			layers.append(ogrlib.GetLayerName(ogrlib.GetLayer(ds,i)))
+			layers.append(libtrui.GetLayerName(libtrui.GetLayer(ds,i)))
 	return layers
 
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Thu Jun 20 13:34:46 2013
+# Created: Fri Jul 05 10:05:43 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
