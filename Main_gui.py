@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Fri Jul 05 10:05:43 2013
+# Created: Mon Jul 08 13:22:50 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -938,7 +938,7 @@ class Ui_Trui(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(Trui)
-        self.main_tab_host.setCurrentIndex(0)
+        self.main_tab_host.setCurrentIndex(1)
         QtCore.QObject.connect(self.chb_f2f_label_in_file, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cb_f2f_input_system.setDisabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_scale.setEnabled)
         QtCore.QObject.connect(self.chb_show_scale, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.txt_meridian_convergence.setEnabled)
@@ -1021,7 +1021,7 @@ class Ui_Trui(object):
         self.rdobt_f2f_ogr.setText(_translate("Trui", "OGR", None))
         self.rdobt_f2f_simple_text.setText(_translate("Trui", "TEXT", None))
         self.rdobt_f2f_dsfl.setText(_translate("Trui", "DSFL", None))
-        self.rdobt_f2f_kmsformat.setText(_translate("Trui", "KMSformat", None))
+        self.rdobt_f2f_kmsformat.setText(_translate("Trui", "KMS format", None))
         self.groupBox_3.setTitle(_translate("Trui", "Source", None))
         self.lbl_f2f_input_file.setText(_translate("Trui", "Input path or connection string: ", None))
         self.txt_f2f_input_file.setWhatsThis(_translate("Trui", "<html><head/><body><p>A simple file name or, if using OGR, a connection string to e.g. a database. Use * wildcards for globbing over several input files in a directory.</p></body></html>", None))

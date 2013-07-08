@@ -562,7 +562,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="main_tab_host">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_interactive">
        <attribute name="title">
@@ -1455,7 +1455,7 @@
              <item>
               <widget class="QRadioButton" name="rdobt_f2f_kmsformat">
                <property name="text">
-                <string>KMSformat</string>
+                <string>KMS format</string>
                </property>
               </widget>
              </item>

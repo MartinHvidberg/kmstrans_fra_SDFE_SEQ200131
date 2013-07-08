@@ -93,7 +93,7 @@ else:
 
 
 
-VERSION="KMSTrans2 v2.1b2"
+VERSION="KMSTrans2 v2.1b3"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -817,8 +817,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		try:
 			x,y,z=self.map_transformation.TransformPoint(x,y,z)
 		except:
-			self.log_interactive("Error in map transformation - failed to move point")
+			self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 90)))
+			self.log_interactive("Error in map transformation - failed to draw map point","red")
 		else:
+			self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 200)))
 			r=2**(-self.map_zoom)*10
 			self.map_point.setPos(x-r*0.5,-y-r*0.5)
 			self.map_coords=(x,y)
@@ -1028,7 +1030,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					if (self.output_cache.mlb!=self.numeric_scale_transf.mlb_in):
 						self.numeric_scale_transf.Insert(self.output_cache.mlb,True)
 					sc,m=GetNumericScale(self.output_cache.coords[0],self.output_cache.coords[1],self.numeric_scale_transf,self.fallback_ellipsoid[1],self.fallback_ellipsoid[2])
-					self.log_interactive("INFO: calculating scale and convergence numerically relative to ETRS89 datum")
+					self.log_interactive("INFO: calculating scale and convergence numerically relative to ETRS89 datum","blue")
 				else:
 					sc,m=self.coordinate_transformation.GetLocalGeometry(self.output_cache.coords[0],self.output_cache.coords[1])
 				self.output_cache.scale=sc
@@ -1085,7 +1087,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.output_cache.proj_weakly_defined=Minilabel.IsProjWeaklyDefined(mlb_out)
 		coords=self.getInteractiveInput(mlb_in)
 		if len(coords)!=3:
-			self.log_interactive("Input coordinate in field %d not OK!" %(len(coords)+1))
+			self.log_interactive("Input coordinate in field %d not OK!" %(len(coords)+1),"red")
 			self.setInteractiveOutput([])
 			self.onShowScale()
 			self.input[len(coords)].setFocus()
@@ -1103,7 +1105,9 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					self._handle_system_change=True
 				self.setInteractiveOutput([])
 				self.log_interactive("Input label not OK!\n%s" %repr(msg),color="red")
-				return 
+				return
+		#at this point mbl in and input coords are validated and we can attempt to draw the map point
+		self.drawPoint(x_in,y_in,z_in,mlb_in)
 		if mlb_out!=self.coordinate_transformation.mlb_out:	
 			try:
 				self.coordinate_transformation.Insert(mlb_out,False)
@@ -1137,7 +1141,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if DEBUG:
 			self.log_interactive("Geoid: %s" %geoid_name)
 		self.txt_geoid_name.setText(geoid_name)
-		self.drawPoint(x_in,y_in,z_in,mlb_in)
+		
 	#TAB  File2File#
 	def initF2FTab(self):
 		#Auto completion - dont do it for now as input might not be a *file*
@@ -1342,7 +1346,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		else:
 			log_name=None
 			self.f2f_settings.be_verbose=False
-		#encode filenames in file system encoding since we need to pass on to another  executable#
+		#encode filenames in file system encoding since we need to pass on to another executable - done just in time in File2File#
 		self.f2f_settings.log_file=log_name
 		self.f2f_settings.ds_in=file_in
 		self.f2f_settings.ds_out=file_out
