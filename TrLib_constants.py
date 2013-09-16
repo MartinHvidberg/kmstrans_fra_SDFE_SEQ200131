@@ -38,7 +38,7 @@ DATUM_ALLOWED_H_SYSTEMS={"feh10":["E","fcsvr10","_"],"detrs89":["E","dhhn92","_"
 #DK
 SYSTEMS_DK=["utm32Hetrs89_h_dvr90","utm33Hetrs89_h_dvr90",
 "geoHetrs89_h_dvr90","crt_etrs89","dktm1H_h_dvr90","dktm2H_h_dvr90","dktm3H_h_dvr90","dktm4H_h_dvr90",
-"utm32Hed50_h_dvr90","fcsH_h_fcsvr10"]
+"utm32Hed50_h_dvr90","fcsH_h_fcsvr10","kp2000jH_h_dvr90","kp2000sH_h_dvr90","kp2000bH_h_dvr90","s34jH_h_dvr90","s34sH_h_dvr90","s34bH_h_dvr90"]
 H_SYSTEMS_DK=["E","dvr90","dnn","_"]
 #Fehmarn
 SYSTEMS_FEHMARN=["fcsH_h_fcsvr10","geoHfeh10_h_fcsvr10","crt_feh10","DE_utm32Hdetrs89_h_dhhn92","DE_geoHdetrs89_h_dhhn92","DE_crt_detrs89",
