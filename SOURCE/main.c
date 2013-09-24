@@ -30,7 +30,7 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.06 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.07 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
     }
     /* check unconsumed args - safe to modify argc here as it's not used below*/
     while( argc-1>3){
-	    if (argv[argc-1]){
+	    if (argv[argc-1] && *argv[argc-1]=='-'){
 		    fprintf(stderr,"Unrecognized option key: %s\n",argv[argc-1]);
 		    /*fprintf(stderr,"len: %d argc: %d mem: %d\n",strlen(argv[argc-1]),argc,argv[argc-1]);*/
 		    goto usage;
