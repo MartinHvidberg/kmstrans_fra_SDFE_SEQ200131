@@ -99,7 +99,16 @@ VERSION="KMSTrans2 v2.1"
 ABOUT=VERSION+"""
 \nWritten in PyQt4. Report bugs to simlk@gst.dk.
 """
+MSG_GEOID_DIR="""
+Select a valid geoid directory. 
 
+The directory MUST contain: 
+def_lab.txt    (definition file for transformation system),
+manager.tab (definition file for geoids),
+AND the binary grid files defined in manager.tab
+
+A valid geoid library is distributed by GST and should be downloadable e.g. from https://bitbucket.org/KMS/kmstrans/downloads
+"""
 #Custom events and threads# 
 RENDER_COMPLETE=1234 #must be in betweeen MIN_USER and MAX_USER
 FILE_LOG_EVENT=1235
@@ -704,17 +713,17 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				try:
 					ok=TrLib.InitLibrary(self.geoids,None,None)
 				except Exception, e_value:
-					self.message("Failed to initialise TrLib:\n%s" %(str(e_value)))
+					QMessageBox.warning(self,"Failed to set geoid directory","Error:\n%s" %(str(e_value)))
 				tries+=1
 			if not ok:
-				self.message("Geoid dir is not set - please select a valid geoid directory.")
+				QMessageBox.information(self,"Geoid directory is not set",MSG_GEOID_DIR)
 				self.geoids=self.selectTabDir()
 				if len(self.geoids)==0: #means a cancel in select geoid dir
 					self.geoids=None
 					break
 				
 		if not ok:
-			self.message("Unable to set geoid dir - exiting...")
+			self.message("Unable to set geoid directory - exiting...")
 			self.close()
 			sys.exit(1)
 		TrLib.SetThreadMode(False)
@@ -1535,7 +1544,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if len(caught)>0:
 			self.message("Errors during loadSettings:\n%s" %caught)
 	def selectTabDir(self):
-		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a geoid directory",self.dir))
+		my_file = unicode(QFileDialog.getExistingDirectory(self, "Select a valid geoid directory",self.dir))
 		return my_file
 	
 	def changeTabDir(self):
