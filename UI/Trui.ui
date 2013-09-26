@@ -444,10 +444,6 @@
   <property name="windowTitle">
    <string>TRUI</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>icon.png</normaloff>icon.png</iconset>
-  </property>
   <property name="whatsThis">
    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Main window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
   </property>

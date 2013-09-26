@@ -23,10 +23,12 @@ from PyQt4.QtGui import *
 from Main_gui import Ui_Trui
 from BesselHelmert import BshlmWidget
 from PythonConsole import PythonWidget
+from Launcher import  Ui_LauncherWindow
 from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_settings_gdal import Ui_Dialog as Ui_Dialog_gdal
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 from Dialog_creation_options import Ui_Dialog as Ui_Dialog_creation_options
+import resources
 import Minilabel
 import TrLib
 from TrLib_constants import *
@@ -89,8 +91,8 @@ elif "HOMEPATH" in os.environ:
 else:
 	DEFAULT_DIR="/"
 
-
-
+#REQUIRED FILES IN GEOID DIR
+REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
 VERSION="KMSTrans2 v2.1"
@@ -100,9 +102,7 @@ ABOUT=VERSION+"""
 \nWritten in PyQt4. Report bugs to simlk@gst.dk.
 """
 MSG_GEOID_DIR="""
-Select a valid geoid directory. 
-
-The directory MUST contain: 
+The selected directory MUST contain: 
 def_lab.txt    (definition file for transformation system),
 manager.tab (definition file for geoids),
 AND the binary grid files defined in manager.tab
@@ -569,15 +569,120 @@ class RedirectOutput(object):
 		self.buffer=""
 		
 
-	
+def InitTransformationLibrary():
+	#init TrLib and load settings#
+	ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
+	if not ok:
+		if not os.path.exists(BIN_PREFIX):
+			msg+="\nDid you build binaries?"
+		else:
+			msg+="\nYou may need to rebuild libraries..."
+		return False,msg
+	TrLib.SetMessageHandler(LordCallback)
+	TrLib.SetMaxMessages(-1)
+	TrLib.SetThreadMode(False)
+	#Will still need to set geoid library before  TrLib is fully initialised!
+	return True,msg
 
-class TRUI(QtGui.QMainWindow,Ui_Trui):
+class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
 	def __init__(self,parent=None):
 		QtGui.QMainWindow.__init__(self,parent) 
 		self.setupUi(self)
+		self.setWindowIcon(QIcon(":/UI/icon.png"))
+		self.log("Launcher window for %s" %VERSION,"blue")
+		ok,msg=InitTransformationLibrary()
+		self.geoids=None
+		if not ok:
+			self.log("Unable to load transformation library!","red")
+			self.log(msg,"red")
+			self.log("KMSTrans2 will not be able to start...","red")
+			self.log("See https://bitbucket.org/KMS/kmstrans/wiki/Home for build instructions...","blue")
+			self.bt_launch.setEnabled(False)
+			self.bt_geoids.setEnabled(False)
+			self.show()
+		else:	
+			self.log("Transformation library loaded...","blue")
+			self.log("Version: %s" %TrLib.GetVersion(),"blue")
+			self.log("Loading settings...","blue")
+			settings = QSettings(COMPANY_NAME,PROG_NAME)
+			settings.beginGroup('data')
+			geoids=settings.value('geoids')
+			if geoids.isValid():
+				try:
+					self.geoids=unicode(geoids.toString())
+				except:
+					self.log("Encoding error for stored geoid dir.\n","red")
+					
+			if self.geoids is None and "TR_TABDIR" in os.environ:
+				self.geoids=os.environ["TR_TABDIR"]
+			if self.geoids is None:
+				self.log("Geoid library not set.","red")
+				self.log("Please select a valid geoid library.","blue")
+				self.log(MSG_GEOID_DIR,"brown")
+				self.bt_launch.setEnabled(False)
+				self.show()
+			else:
+				self.log("Geoid directory currently set to: %s" %self.geoids,"blue")
+				ok=self.setGeoidLibrary()
+				if ok:
+					self.launch()
+				else:
+					self.show()
+	def launch(self):
+		global MainWindow
+		MainWindow=TRUI(geoids=self.geoids)
+		self.close() #hmm this only closes the window - its not deleted. Seems to be sufficient for the app to shut down though...
+	def log(self,text,color="black",clear=False):
+		self.txt_log.setTextColor(QColor(color))
+		if clear:
+			self.txt_log.setText(text)
+		else:
+			self.txt_log.append(text)
+		self.txt_log.ensureCursorVisible()
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_launch_clicked(self):
+		self.launch()
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_geoids_clicked(self):
+		gdir = unicode(QFileDialog.getExistingDirectory(self, "Select a valid geoid directory","/"))
+		if (gdir is None or len(gdir)==0):
+			return
+		for name in REQUIRED_FILES:
+			if not os.path.exists(os.path.join(gdir,name)):
+				self.log("Required file %s not found in %s" %(name,gdir),"red")
+				return
+		self.geoids=gdir
+		ok=self.setGeoidLibrary()
+		if ok:
+			self.log("Successfull initialisation using geoid library from %s" %gdir,"blue")
+			self.bt_launch.setEnabled(True)
+			self.log("KMSTrans2 is ready to be launched!","blue")
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_close_clicked(self):
+		self.close()
+		#sys.exit()
+	def setGeoidLibrary(self):
+		try:
+			ok=TrLib.InitLibrary(self.geoids,None,None)
+		except Exception, e_value:
+			self.log("Failed to initialise with selected geoid directory\nError:\n%s" %(str(e_value)))
+		else:
+			if ok:
+				return True
+		return False
+			
+		
+		
+
+class TRUI(QtGui.QMainWindow,Ui_Trui):
+	def __init__(self,parent=None,geoids=None):
+		QtGui.QMainWindow.__init__(self,parent) 
+		self.setupUi(self)
+		self.geoids=geoids
 		self._save_settings=False #flag which signals whether to save settings - only do it if initialisation succeded!
 		self._clear_log=False #flag to signal whether to clear interactive log before each transformation
 		#APPEARANCE#
+		self.setWindowIcon(QIcon(":/UI/icon.png"))
 		self.setWindowTitle(VERSION)
 		#Set log methods - tabs work as general plugins do#
 		self.tab_interactive.handleStdOut=self.log_interactive_StdOut
@@ -640,8 +745,6 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.f2f_settings.n_decimals=self.coord_precision
-		#self.dialog_f2f_settings=DialogFile2FileSettings(self,self.f2f_settings)
-		self.showing_gdal_dialog=False #not used yet
 		self.output_cache=PointData()
 		self.mlb_in=None #New attribute - used to test whether we should upodate system info....
 		self.geo_unit=ANGULAR_UNIT_DEGREES
@@ -690,48 +793,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.initMap()
 		#load OGR dependent things...
 		self.loadOGR()
-		#init TrLib and load settings#
-		ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
-		if not ok:
-			if not os.path.exists(BIN_PREFIX):
-				msg+="\nDid you build binaries?"
-			msg+="\nYou may need to rebuild libraries..."
-			self.message("Failed to load transformation library:\n%s" %msg)
-			self.close()
-			sys.exit(1)
-		TrLib.SetMessageHandler(LordCallback)
-		TrLib.SetMaxMessages(-1)
-		
-		
-		if self.geoids is None and "TR_TABDIR" in os.environ:
-			self.geoids=os.environ["TR_TABDIR"]
-		tries=0
-		max_tries=2 #only try twice....
-		ok=False
-		while (not ok) and tries<max_tries:
-			if self.geoids is not None:
-				try:
-					ok=TrLib.InitLibrary(self.geoids,None,None)
-				except Exception, e_value:
-					QMessageBox.warning(self,"Failed to set geoid directory","Error:\n%s" %(str(e_value)))
-				tries+=1
-			if not ok:
-				QMessageBox.information(self,"Geoid directory is not set",MSG_GEOID_DIR)
-				self.geoids=self.selectTabDir()
-				if len(self.geoids)==0: #means a cancel in select geoid dir
-					self.geoids=None
-					break
-				
-		if not ok:
-			self.message("Unable to set geoid directory - exiting...")
-			self.close()
-			sys.exit(1)
-		TrLib.SetThreadMode(False)
 		#important to set this var which will be passed on to trogr when running batch mode 
 		os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
 		#Now that trlib is initlialised we can define these tranformation objects#
 		self.initTransformations()
-		
 		self.lbl_geoid_dir_value.setText(os.path.realpath(self.geoids))
 		#Setup BSHLM tab#
 		self.tab_bshlm=BshlmWidget(self)
@@ -780,12 +845,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		QMessageBox.about(self,"About "+PROG_NAME,msg)
 	def openFile2FileSettings(self):
 		dlg=DialogFile2FileSettings(self,self.f2f_settings)
-		dlg.setModal(True)
-		dlg.show()
+		dlg.exec_()
 	def openGDALSettings(self):
 		dlg=DialogGDALSettings(self,self.gdal_settings)
-		dlg.setModal(True)
-		dlg.show()
+		dlg.exec_()
 	def onNewKMSTrans(self):
 		subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
 		self.log_interactive("Starting new process")
@@ -1218,7 +1281,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if ok:
 			fname=unicode(fname)
 			dlg=TextViewer(self,fname=fname)
-			dlg.show()
+			dlg._exec()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_view_log_clicked(self):
 		if not (self.f2f_settings.is_started and self.f2f_settings.is_done):
@@ -1229,7 +1292,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			return
 		fname=self.f2f_settings.log_file
 		dlg=TextViewer(self,fname=fname)
-		dlg.show()
+		dlg._exec()
 	#Event handlers for various buttons in f2f-tab#
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_in_clicked(self):
@@ -1284,14 +1347,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				layers=File2File.GetLayerNames(ds)
 				File2File.Close(ds)
 				dlg=LayerSelector(self,layers,self.txt_f2f_layers_in)
-				dlg.show()
+				dlg.exec_()
 			else:
 				self.message("Failed to open %s" %inname)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_creation_options_clicked(self):
 		drv=str(self.cb_f2f_ogr_driver.currentText())
 		dlg=DialogCreationOptions(self,drv,File2File.OGR_LONG_TO_SHORT)
-		dlg.show()
+		dlg.exec_()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_list_formats_clicked(self):
 		text=File2File.ListFormats()
@@ -1512,15 +1575,15 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.enable_plugins=True
 		settings.endGroup()
 		settings.beginGroup('data')
-		geoids=settings.value('geoids')
-		if geoids.isValid():
-			try:
-				self.geoids=unicode(geoids.toString())
-			except:
-				caught+="Encoding error for stored geoid dir.\n"
-				self.geoids=None
-		else:
-			self.geoids=None
+		#geoids=settings.value('geoids')
+		#if geoids.isValid():
+		#	try:
+		#		self.geoids=unicode(geoids.toString())
+		#	except:
+		#		caught+="Encoding error for stored geoid dir.\n"
+		#		self.geoids=None
+		#else:
+		#	self.geoids=None
 		dir=settings.value('path',DEFAULT_DIR)
 		try:
 			self.dir=unicode(dir.toString())
@@ -1626,9 +1689,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 
 def main():
 	global app
-	global MainWindow
 	app = QtGui.QApplication(sys.argv)
-	MainWindow = TRUI()
+	launcher=LauncherWindow()
 	sys.exit(app.exec_())
 
 if __name__=="__main__":

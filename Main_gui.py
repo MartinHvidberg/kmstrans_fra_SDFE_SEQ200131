@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Mon Jul 08 13:22:50 2013
+# Created: Thu Sep 26 21:36:47 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -171,9 +171,6 @@ class Ui_Trui(object):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
         Trui.setPalette(palette)
         Trui.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        Trui.setWindowIcon(icon)
         Trui.setDocumentMode(False)
         self.centralwidget = QtGui.QWidget(Trui)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
