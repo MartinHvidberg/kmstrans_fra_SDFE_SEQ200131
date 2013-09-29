@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include "gdal.h"
 #include "geo_constants.h"
 #include "geo_lab.h"
@@ -240,7 +241,8 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	OGRLayerH sqlLayer;
 	const char *layer_def; 
 	char *pos1,*pos2;
-	int l=0,slashes_found=0;
+	ptrdiff_t l=0;
+	int slashes_found=0;
 	char sql_request[128]="GetLayerDefinition ";
 	strcat(sql_request,layer_name);
 	sqlLayer=OGR_DS_ExecuteSQL(hDS,sql_request,NULL,NULL);
