@@ -3,1463 +3,326 @@
   <head>
     <meta content="text/html; charset=windows-1252"
       http-equiv="Content-Type">
-    <title>MiniLabels</title>
+    <title>KMSTrans2 aka TRUI help pages</title>
+    <meta content="simlk" name="author">
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-    <h1>Coordinate MiniLabels </h1>
-    <p>MiniLabels are short text strings used by the transformation
-      library as metadata description of projections and datums.
-      Internally at GST (formely KMS) MiniLabels are used generally as
-      metadata description for other types of data. The MiniLabels that
-      are relevant for a user of the transformation library and
-      transformation programs are called <strong>coordinate MiniLabels</strong>.</p>
-    <p>Coordinate MiniLabels come in two types:</p>
-    <h3 id="!coordinate-minilabels-of-type-1">Coordinate MiniLabels of
-      type 1:</h3>
-    <p>A string consisting of three components: &lt;coordinate
-      system&gt;&lt;separator&gt;&lt;datum&gt;[_&lt;height
-      MiniLabel&gt;].</p>
-    <p>The coordinate system is mostly also human readable: the string
-      "geo" indicates geographical coordinates, "utm33" represents UTM
-      zone 33. In some of the other cases, the translation may not be
-      quite obvious. Below you'll find lists and examples further
-      describing MiniLabel components.</p>
-    <p>The separator is used in two ways:</p>
-    <ol>
-      <li>Separate the coordinate system and the datum </li>
-      <li>Contain information on the height system (and possibly the
-        height MiniLabel) </li>
-    </ol>
-    <p>Note: that an extra separator char ‘_’ is placed before the
-      height MiniLabel.</p>
-    <p>The separator consists of just one character having one of the
-      values: </p>
-    <ul>
-      <li><strong>‘H’: Vertical Reference Frame:</strong> A height
-        MiniLabel is required after “datum”. </li>
-    </ul>
-    <ul>
-      <li><strong>'E':</strong> Ellipsoidal Heights. </li>
-    </ul>
-    <ul>
-      <li><strong>‘_’:</strong> No Heights. </li>
-    </ul>
-    <ul>
-      <li><strong>'N':</strong> Normal Heights (i.e. the same as H and
-        _h_msl). </li>
-    </ul>
-    <p>The datum is the name of the datum (for coordinates) in small
-      letters. For example:</p>
-    <p>wgs84, etrs89, nad83g, qornoq.</p>
-    <p>For some systems, the three components already described are not
-      sufficient - extra parameters are needed. Such parameters
-      (identifying for example the scale, a central meridian,
-      translation of the coordinates etc) are placed after the "main"
-      (3-component) part of the MiniLabel. Having identified the "Main
-      Part", the program knows how to read the extra parameters.</p>
-    <p>Below you will find lists and examples further describing
-      MiniLabel components.</p>
-    <h3 id="!a-few-type-1-coordinate-minilabels">A few type 1 coordinate
-      MiniLabels:</h3>
-    <ul>
-      <li>geo_wgs84 : Geographic coordinates, Datum WGS84. No heights </li>
-      <li>utm32_etrs89 : UTM Zone 32, Datum ETRS89. No heights </li>
-      <li>crt_nad83g : Cartesian Coordinates, Datum NAD83g. No heights </li>
-    </ul>
-    <h3 id="!coordinate-minilabels-of-type-2">Coordinate MiniLabels of
-      type 2:</h3>
-    <p>A string consisting of three components:</p>
-    <ul>
-      <li>&lt;coordinate system&gt;[&lt;separator&gt;[_&lt;height
-        MiniLabel&gt;]]. </li>
-    </ul>
-    <p>The second type of MiniLabels is mostly used to identify
-      "regional" coordinate systems. For this type, the MiniLabel string
-      consists of only a few letters, forming an (abbreviated) name of
-      the system. Having identified a MiniLabel of this type, the
-      program knows the values of the implicit parameters needed for the
-      transformation. These "implicit parameters" may include
-      coefficients for the transformation routine. </p>
-    <h3 id="!a-few-type-2-coordinate-minilabels">A few type 2 coordinate
-      Minilabels:</h3>
-    <ul>
-      <li>dktm1 : DK TM Zone 1 EUREF89 </li>
-      <li>dktm2 : DK TM Zone 2 EUREF89 </li>
-      <li>dktm3E : DK TM Zone 3 EUREF89 and ellipsoid height </li>
-      <li>dktm4 : DK TM Zone 4 EUREF89 </li>
-      <li>kp2000j : System 2000 Jylland </li>
-      <li>kp2000s : System 2000 Sjælland </li>
-      <li>kp2000b : System 2000 Bornholm </li>
-      <li>sbH_h_dvr90 : Great Belt and DVR90 heights </li>
-    </ul>
-    <h3 id="!height-minilabels">Height MiniLabels:</h3>
-    <p>A string consisting of three components:</p>
-    <ul>
-      <li>&lt;height system&gt;_&lt;datum&gt;. </li>
-    </ul>
-    <p>The only legal separator is ‘_’.</p>
-    <p>A list of height systems and (height) datums is given below. </p>
-    <h3 id="!prefixes-indicating-region">Prefixes indicating Region:</h3>
-    <p>In order to avoid confusion when different stations in the same
-      file are having the same station identification (station number),
-      it is possible to apply a region prefix to the MiniLabel (and to
-      the station identification as well). - this situation often occurs
-      when stations from separate regions (countries) are mixed in the
-      same file. This is utilized in the 'KMS' file format used
-      internally at GST / KMS - when the MiniLabel for a coordinate
-      block contains a region prefix, this prefix applies to all
-      stations in the block, except stations having their own region
-      prefix in the ID. </p>
-    <p>The region prefix does not affect the actual transformation. It
-      is an extra piece of metadata information, which transformation
-      programs can use to handle special cases - for example in input
-      and output of point names, or to display a predefined list of
-      systems in a graphical user interface.</p>
-    <h3 id="!possible-region-prefixes">Possible Region Prefixes:</h3>
-    <table>
-      <tbody>
-        <tr>
-          <th>PREFIX</th>
-          <th>REGION</th>
-        </tr>
-        <tr>
-          <td>DK</td>
-          <td>Denmark</td>
-        </tr>
-        <tr>
-          <td>FO</td>
-          <td>Faroe Islands</td>
-        </tr>
-        <tr>
-          <td>FE</td>
-          <td>Faroe Islands (not used any longer)</td>
-        </tr>
-        <tr>
-          <td>GR</td>
-          <td>Greenland</td>
-        </tr>
-        <tr>
-          <td>SJ</td>
-          <td>Southern Jylland</td>
-        </tr>
-        <tr>
-          <td>IS</td>
-          <td>Iceland</td>
-        </tr>
-        <tr>
-          <td>NO</td>
-          <td>Norway</td>
-        </tr>
-        <tr>
-          <td>SF</td>
-          <td>Finland</td>
-        </tr>
-        <tr>
-          <td>SE</td>
-          <td>Sweden</td>
-        </tr>
-        <tr>
-          <td>SV</td>
-          <td>Sweden (not used any longer)</td>
-        </tr>
-        <tr>
-          <td>BE</td>
-          <td>Belgium</td>
-        </tr>
-        <tr>
-          <td>CA</td>
-          <td>Canada</td>
-        </tr>
-        <tr>
-          <td>DE</td>
-          <td>Germany</td>
-        </tr>
-        <tr>
-          <td>EE</td>
-          <td>Estonia</td>
-        </tr>
-        <tr>
-          <td>FR</td>
-          <td>France</td>
-        </tr>
-        <tr>
-          <td>LE</td>
-          <td>Latvia</td>
-        </tr>
-        <tr>
-          <td>LT</td>
-          <td>Lithuania</td>
-        </tr>
-        <tr>
-          <td>LI</td>
-          <td>Lithuania</td>
-        </tr>
-        <tr>
-          <td>NL</td>
-          <td>Netherlands</td>
-        </tr>
-        <tr>
-          <td>PL</td>
-          <td>Poland</td>
-        </tr>
-        <tr>
-          <td>UK</td>
-          <td>England</td>
-        </tr>
-        <tr>
-          <td>US</td>
-          <td>USA</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Example of a coordinate minilabel with region prefix: <strong>DK_utm33_etrs89</strong></p>
-    <h3 id="!list-of-coordinate-systems">List of Coordinate Systems.</h3>
-    <p>The following list is a compilation of the sub strings used in
-      MiniLabels to indicate Coordinate System.</p>
-    <p>In the column marked 'Suppl Params' you will find the extra
-      parameters needed to define the system. Coordinate Systems marked
-      "P.D." has predefined datum; - such systems are fully defined via
-      the name of the coordinate system and therefore neither datum nor
-      extra parameters are needed in the label.</p>
-    <p>Other elements contained in the "Suppl param" column indicate
-      which extra parameters are needed for definition of the system. In
-      the transformation program, such parameters can't be selected
-      directly via drop down lists or buttons, but must be supplied by
-      the user.</p>
-    <p>The character '?' found in some of the coordinate system names
-      below are place holders for ciphers.</p>
-    <p>For example, in the UTM systems, they indicate where to put the
-      zone number. In the Conical Systems used in Greenland, the zones
-      are called cones (numbered from 1 to 8) and the '?' character
-      tells where to put the 'cone number’. </p>
-    <p><strong>NOTE - coordinate sequence: </strong></p>
-    <p>Generally the transfomation library will expect the coordinate
-      order to be <strong>easting, northing, height</strong> - and for
-      geographic coordinates <strong>longitude, latitude, height.</strong>
-      However, for the special 'KMS' file format usually the assumption
-      is made that the coordinate sequence in the file is <strong>northing,
-
-        easting, height.</strong> Some MiniLabels have an extra variant
-      with an 'i' appended to the projection, e.g. utmi32_etrs89. This
-      is an extra metadata information <strong>ONLY</strong> relevant
-      when reading and writing files in the 'KMS' format, which tells
-      the program to expect planar coordinates in <strong>reversed</strong>
-      order, e.g. <strong>easting, northing, height.</strong></p>
-    <p>The last column in the table below indicates what the expected
-      coordinate order is for the 'KMS' format. No indication means,
-      that the sequence is the usual (N,E)=(northing,easting).</p>
-    <table>
-      <tbody>
-        <tr>
-          <th>MiniName</th>
-          <th>Suppl Param</th>
-          <th>Description</th>
-          <th>Coord. sequence for 'KMS' format</th>
-        </tr>
-        <tr>
-          <td><strong>Global Systems</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>crt</td>
-          <td><br>
-          </td>
-          <td>Cartesian 3-d coord</td>
-          <td>(X,Y,Z)</td>
-        </tr>
-        <tr>
-          <td>geo</td>
-          <td><br>
-          </td>
-          <td>Geographical coord</td>
-          <td>(Lat, Lon)</td>
-        </tr>
-        <tr>
-          <td>geoi</td>
-          <td><br>
-          </td>
-          <td>Geographical coord</td>
-          <td>(Lon, Lat)</td>
-        </tr>
-        <tr>
-          <td>utm**</td>
-          <td><br>
-          </td>
-          <td>UTM zone ?? (?? = 2 digits)</td>
-          <td>(N,E)</td>
-        </tr>
-        <tr>
-          <td>utmi??</td>
-          <td><br>
-          </td>
-          <td>UTM zone ?? (?? = 2 digits)</td>
-          <td>(E,N)</td>
-        </tr>
-        <tr>
-          <td>utm??n</td>
-          <td><br>
-          </td>
-          <td>UTM zone ??, North. LAT</td>
-          <td>(N,E)</td>
-        </tr>
-        <tr>
-          <td>utmi??n</td>
-          <td><br>
-          </td>
-          <td>UTM zone ??, North. LAT</td>
-          <td>(E,N)</td>
-        </tr>
-        <tr>
-          <td>utm??s</td>
-          <td><br>
-          </td>
-          <td>UTM zone ??, South. LAT</td>
-          <td>(S,E)</td>
-        </tr>
-        <tr>
-          <td>utmi??s</td>
-          <td><br>
-          </td>
-          <td>UTM zone ??, South. LAT</td>
-          <td>(E,S)</td>
-        </tr>
-        <tr>
-          <td>itm</td>
-          <td>B0 N0 Lc Ec Scale</td>
-          <td>TM, general GAUSS-KR</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>itmi</td>
-          <td>B0 N0 Lc Ec Scale</td>
-          <td>TM, general GAUSS-KR</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>tm??</td>
-          <td><br>
-          </td>
-          <td>GAUSS-KR ?? dg 3dg.z scale 1.0</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>mrc</td>
-          <td>B0 N0 Lc Ec</td>
-          <td>Mercator projection</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>mrc0</td>
-          <td><br>
-          </td>
-          <td>Mercator Std Projection</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>webmrc</td>
-          <td>WEB Mercator projection zero</td>
-          <td>(N,E)</td>
-        </tr>
-        <tr>
-          <td>lmb</td>
-          <td>B0 N0 Lc Ec Bc</td>
-          <td>Lambert conf. con.</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>dlmb</td>
-          <td>B0 N0 Lc Ec B1 B2</td>
-          <td>Lambert 2 par. c. con.</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>elmb</td>
-          <td>B0 N0 Lc Ec B1 B2</td>
-          <td>Lambert eql. c. con.</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>npstg</td>
-          <td><br>
-          </td>
-          <td>North polar stereographic</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>spstg</td>
-          <td><br>
-          </td>
-          <td>South polar stereographic</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>upsn</td>
-          <td><br>
-          </td>
-          <td>Universal polar stereogr N</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>upss</td>
-          <td><br>
-          </td>
-          <td>Universal polar stereogr S</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>stg</td>
-          <td>Bc Nc Lc Ec scale</td>
-          <td>Stereogr. projection</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>estg</td>
-          <td>Bc Nc Lc Ec B1 B2</td>
-          <td>Eql. Stereogr. projection</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>bnstg</td>
-          <td>B1 scale</td>
-          <td>NP. Stereogr. scale at B1</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>bsstg</td>
-          <td>B1 scale</td>
-          <td>SP. Stereogr. scale at B1</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>safle</td>
-          <td><br>
-          </td>
-          <td>Sansom-Flamsteed eq.pr., ell.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>safl</td>
-          <td><br>
-          </td>
-          <td>Sansom-Flamsteed equiv. proj.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>lmbac</td>
-          <td><br>
-          </td>
-          <td>Lambert equiv. cyl. proj.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>lmbap</td>
-          <td><br>
-          </td>
-          <td>Lambert equiv. pol. proj. (N)</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>lmbaps</td>
-          <td><br>
-          </td>
-          <td>Lambert equiv. pol. proj. (S)</td>
-          <td>(S, E)</td>
-        </tr>
-        <tr>
-          <td>lmblap</td>
-          <td>Lc</td>
-          <td>Lambert equiv. pol. proj. (N)</td>
-          <td>(N, E)</td>
-        </tr>
-        <tr>
-          <td>lmblaps</td>
-          <td>Lc</td>
-          <td>Lambert equiv. pol. proj. (S)</td>
-          <td>(S, E)</td>
-        </tr>
-        <tr>
-          <td>auth</td>
-          <td><br>
-          </td>
-          <td>Authalic geogr. Crd.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Europe</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>etrs-tm??</td>
-          <td>P.D.</td>
-          <td>etrs89 tm zone ??</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>ETRS-TM??</td>
-          <td>P.D.</td>
-          <td>etrs89 tm zone ??</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>etrs-lcc??</td>
-          <td>P.D.</td>
-          <td>etrs89 Lambert conf. con</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>ETRS-LCC??</td>
-          <td>P.D.</td>
-          <td>etrs89 Lambert conf. con</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>etrs-laea</td>
-          <td>P.D.</td>
-          <td>etrs89 Lmb Azimuthal Equal Area</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>ETRS-LAEAP.D.</td>
-          <td><br>
-          </td>
-          <td>etrs89 Lmb Azimuthal Equal Area</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Denmark</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>dktm1</td>
-          <td>P.D.</td>
-          <td>DK TM1 etrs89</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>dktm2</td>
-          <td>P.D.</td>
-          <td>DK TM2 etrs89</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>dktm3</td>
-          <td>P.D.</td>
-          <td>DK TM3 etrs89</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>dktm4</td>
-          <td>P.D.</td>
-          <td>DK TM4 etrs89</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>kfmr</td>
-          <td>P.D.</td>
-          <td>Kbh Frb Metroring, etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>kp2000j</td>
-          <td>P.D.</td>
-          <td>System 2000 Jylland, etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>kp2000s</td>
-          <td>P.D.</td>
-          <td>System 2000 Sjælland, etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>kp2000b</td>
-          <td>P.D.</td>
-          <td>System 2000 Bornholm, etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>dmrc</td>
-          <td>P.D.</td>
-          <td>Dansk Merkator etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fcs</td>
-          <td>P.D.</td>
-          <td>Fehmarn Coordinate System</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>s34j</td>
-          <td>P.D.</td>
-          <td>System 1934 Jylland</td>
-          <td>(N,W)</td>
-        </tr>
-        <tr>
-          <td>s34s</td>
-          <td>P.D.</td>
-          <td>System 1934 Sjælland</td>
-          <td>(N,W)</td>
-        </tr>
-        <tr>
-          <td>s45b</td>
-          <td>P.D.</td>
-          <td>System 1945 Bornholm</td>
-          <td>(N,W)</td>
-        </tr>
-        <tr>
-          <td>s34b</td>
-          <td>P.D.</td>
-          <td>System 1945 Bornholm</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>dm</td>
-          <td>P.D.</td>
-          <td>Dansk Merkator ed50</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gsgeo</td>
-          <td>P.D.</td>
-          <td>geogr. crd, gs</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gsbgeo</td>
-          <td>P.D.</td>
-          <td>geogr. crd, gsb</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gs</td>
-          <td>P.D.</td>
-          <td>GS conf. con. DK</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gsb</td>
-          <td>P.D.</td>
-          <td>GS conf. con. Bornholm</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>kk</td>
-          <td>P.D.</td>
-          <td>Kbh. komm. system</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>os</td>
-          <td>P.D.</td>
-          <td>Ostenfeldt system</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>asb</td>
-          <td>P.D.</td>
-          <td>Øresund bridge proj.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>Dks</td>
-          <td>P.D.</td>
-          <td>Øresund bridge proj, special</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>Sb</td>
-          <td>P.D.</td>
-          <td>SB bridge proj.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>Sbf</td>
-          <td>P.D.</td>
-          <td>SB bridge proj., inverted</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Faroe Islands</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fotm</td>
-          <td>P.D.</td>
-          <td>Faroe TM etrs89</td>
-          <td>(E, N)</td>
-        </tr>
-        <tr>
-          <td>fke</td>
-          <td>P.D.</td>
-          <td>Conf. con. FO, etrs89</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fg50</td>
-          <td>P.D.</td>
-          <td>FO geogr. crd, ed50</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fu50</td>
-          <td>P.D.</td>
-          <td>utm zone 29, top_ed50</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fg54</td>
-          <td>P.D.</td>
-          <td>FO geogr. crd, fd54</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fk54</td>
-          <td>P.D.</td>
-          <td>Conf. con. FO, fd 54</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>fk89</td>
-          <td>P.D.</td>
-          <td>Conf. con. FO, fd 54a</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Greenland</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gk?w</td>
-          <td>P.D.</td>
-          <td>conf. con, W-GR, qornoq</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>gk?e</td>
-          <td>P.D.</td>
-          <td>conf. con, E-GR, qornoq</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Estonia</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eel2p</td>
-          <td>P.D.</td>
-          <td>Estonian Lambert, 2 std par.</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eetm??</td>
-          <td>P.D.</td>
-          <td>Estonian Gauss-Kr ??, 3dg.z</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eetm?</td>
-          <td>P.D.</td>
-          <td>Estonian Gauss-Kr ?, 3dg.z</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eebm</td>
-          <td>P.D.</td>
-          <td>Estonian Basic Map</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eegeo</td>
-          <td>P.D.</td>
-          <td>geogr. crd, Pulkovo 1942</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eecrt</td>
-          <td>P.D.</td>
-          <td>Cartesic crd, Pulkovo 1942</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eelmne</td>
-          <td>P.D.</td>
-          <td>Estonian Lmb 2 par., epv37</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>eelmse</td>
-          <td>P.D.</td>
-          <td>Estonian Lmb 2 par., epv37</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Sweden</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>rt38g</td>
-          <td>P.D.</td>
-          <td>RT38g, 2.5 gon vest</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>rt90g</td>
-          <td><br>
-          </td>
-          <td>RT90g, 2.5 gon vest</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>rt90v</td>
-          <td>P.D.</td>
-          <td>RT90v, spec. for dks</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>rt38v</td>
-          <td>P.D.</td>
-          <td>RT38v, spec. for dks</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td><strong>Region Iceland</strong></td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>lmbhjo</td>
-          <td>P.D.</td>
-          <td>Lambert Conf. Con Hjørsey</td>
-          <td><br>
-          </td>
-        </tr>
-        <tr>
-          <td>islmb</td>
-          <td>P.D.</td>
-          <td>Lambert Conf. Con wgs84 IS</td>
-          <td><br>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Where in the supplementary parameters column, the following
-      abbreviations are used: </p>
-    <table>
-      <tbody>
-        <tr>
-          <th>Abbrv.</th>
-          <th>Meaning</th>
-        </tr>
-        <tr>
-          <td>P.D.</td>
-          <td>Predefined Datum</td>
-        </tr>
-        <tr>
-          <td>B0, Bc</td>
-          <td>Latitude Constant</td>
-        </tr>
-        <tr>
-          <td>Nc</td>
-          <td>Northing Constant</td>
-        </tr>
-        <tr>
-          <td>L0, Lc</td>
-          <td>Longitude Constant</td>
-        </tr>
-        <tr>
-          <td>Ec</td>
-          <td>Easting Constant</td>
-        </tr>
-        <tr>
-          <td>Scale</td>
-          <td>Scale (close to 1 usually)</td>
-        </tr>
-        <tr>
-          <td>B1, B2</td>
-          <td>Latitude parallels for definition of scale.</td>
-        </tr>
-        <tr>
-          <td>N,E,S,W</td>
-          <td>Northing, Easting, Southing, Westing</td>
-        </tr>
-      </tbody>
-    </table>
-    <h3 id="!list-of-separators">List of Separators:</h3>
-    <p>The Separator in a coordinate MiniLabel determines the type of
-      height information / height datum:</p>
-    <ul>
-      <li>H Height described in height minilabel </li>
-      <li>E Ellipsoid Heights </li>
-      <li>_ No Heights </li>
-      <li>N Normal Heights: short for: H … _h_msl </li>
-    </ul>
-    <p>This separator is written in the MiniLabel right after the
-      coordinate system sub string. It provides:</p>
-    <ol>
-      <li>A 'real' separation between the sub strings indicating
-        coordinate system and datum respectively. </li>
-      <li>Information on presence of height system. </li>
-    </ol>
-    <p>(See also a list of vertical datums below).</p>
-    <p>For the systems having a predefined datum (P.D.), the datum
-      should not be explicitly written in the label, here the separator
-      is placed as an appendix to the coordinate system sub string.</p>
-    <p>Accordingly, a MiniLabel indicating the following list to contain
-      dktm1 coordinates - and DVR90 heights will look like:</p>
-    <ul>
-      <li>dktm1H_h_dvr90 </li>
-    </ul>
-    <h3 id="!list-of-datums">List of Datums</h3>
-    <p>The following list contains the datums supported by the KMS
-      transformation software.</p>
-    <p>Parent datum indicates the structure in the datum-hierarchy used
-      internally by the transformation system.</p>
-    <p>The character '@' at the start of some descriptions marks that
-      this datum is only used in connection with one of the projection
-      systems having a predefined datum.</p>
-    <table>
-      <tbody>
-        <tr>
-          <th>Coordinate Datum</th>
-          <th>Description</th>
-          <th>Parent datum</th>
-          <th>Ellipsoid</th>
-        </tr>
-        <tr>
-          <td>wgs84</td>
-          <td>World Geodetic System 1984</td>
-          <td>ed50</td>
-          <td>WGS84</td>
-        </tr>
-        <tr>
-          <td>etff89</td>
-          <td>EUREF 89</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>etrs89</td>
-          <td>EUREF 89</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>euref89</td>
-          <td>EUREF 89</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>gr96</td>
-          <td>Greenland Reference Frame 1996</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>ed50</td>
-          <td>European Datum 1950</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>nad83g</td>
-          <td>North American D.1983 Greenland</td>
-          <td>nwl9d</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>qornoq</td>
-          <td>Qornok Datum 1927 (til WGS84)</td>
-          <td>nwl9d</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>scosd</td>
-          <td>Scoresbysund datum</td>
-          <td>nwl9d</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>ammlk</td>
-          <td>Ammassalik datum</td>
-          <td>nwl9d</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>feh10</td>
-          <td>Fehmarn Datum 2010</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>s34j</td>
-          <td>@ System 1934 Jylland</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>s34s</td>
-          <td>@ System 1934 Sjælland</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>s45b</td>
-          <td>@ System 1945 Bornholm</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>gs</td>
-          <td>@ Generalst. Sys., Jyl. + Sjl</td>
-          <td>ed50</td>
-          <td>GS</td>
-        </tr>
-        <tr>
-          <td>gsb</td>
-          <td>@ Generalst. System, Bornholm</td>
-          <td>ed50</td>
-          <td>GS</td>
-        </tr>
-        <tr>
-          <td>os</td>
-          <td>@ Ostenfeldt System</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>kk</td>
-          <td>@ Københavns Komm. System</td>
-          <td>ed50</td>
-          <td>Dansk</td>
-        </tr>
-        <tr>
-          <td>sb</td>
-          <td>@ Storebælts System</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>sbi</td>
-          <td>@ Storebælts System inv.</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>dks</td>
-          <td>@ DKS</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>asb</td>
-          <td>@ ASB</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fd54</td>
-          <td>Færø Datum 1954</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fg54</td>
-          <td>@ Geogr. FD 1954</td>
-          <td>etrf89</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fg50</td>
-          <td>@ Færø, Geogr. ED 1950</td>
-          <td>etrf89</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fk54</td>
-          <td>@ Konf. con. FD 1954</td>
-          <td>etrf89</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fu50</td>
-          <td>@ UTM 29, Topogr. grid, ED 50</td>
-          <td>etrf89</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>fk89</td>
-          <td>@ Konf. con. FD 1989 (NOT ETRF89)</td>
-          <td>etrf89</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>srt90g</td>
-          <td>SRT90, Sverige</td>
-          <td>wgs84</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>rt90g</td>
-          <td>RT90, Sverige</td>
-          <td>wgs84</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>rt90v</td>
-          <td>@ RT90v</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>rt38v</td>
-          <td>@ RT38v</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>rt38g</td>
-          <td>@ RT38g</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>ed87</td>
-          <td>European Datum 1987</td>
-          <td>ed50</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>wgs72</td>
-          <td>World Geodetic system 1972</td>
-          <td>nwl9d</td>
-          <td>WGS72</td>
-        </tr>
-        <tr>
-          <td>nad83</td>
-          <td>North American Datum 1983</td>
-          <td>wgs84</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>nad27</td>
-          <td>North American D.1927, Conus</td>
-          <td>wgs84</td>
-          <td>Clarke66</td>
-        </tr>
-        <tr>
-          <td>nad27c</td>
-          <td>North American D.1927, Canada</td>
-          <td>wgs84</td>
-          <td>Clarke66</td>
-        </tr>
-        <tr>
-          <td>pu42</td>
-          <td>Pulkowo 1942, temporary</td>
-          <td>wgs84</td>
-          <td>Krassovsky</td>
-        </tr>
-        <tr>
-          <td>island</td>
-          <td>Hjørsey datum 1955</td>
-          <td>wgs84</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>nwl9d</td>
-          <td>Naval Weapons Laboratory</td>
-          <td>wgs84</td>
-          <td>NWL9D</td>
-        </tr>
-        <tr>
-          <td>ed79</td>
-          <td>European Datum 1979</td>
-          <td>wgs84</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>dhdn</td>
-          <td>Deutsches Hauptdreiecksnetz</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>dhdnd</td>
-          <td>Deutsches Hauptdreiecksnetz</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>dhdn1</td>
-          <td>Deutsches Hauptdrnetz, DOEDOC</td>
-          <td>etrf89</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>dhdn2</td>
-          <td>Deutsches Hauptdrnetz, DOEDOC5p</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>dhdn3</td>
-          <td>Deutsches Hauptdrnetz, DOEDOC7p</td>
-          <td>ed50</td>
-          <td>Bessel</td>
-        </tr>
-        <tr>
-          <td>eesti42</td>
-          <td>@ EESTI 1942</td>
-          <td>etrf89</td>
-          <td>Krassovsky</td>
-        </tr>
-        <tr>
-          <td>ain1970</td>
-          <td>@ Ain El Abd 1970</td>
-          <td>wgs84</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>nahrwan</td>
-          <td>@ Nahrwan 1967</td>
-          <td>wgs84</td>
-          <td>Clarke80</td>
-        </tr>
-        <tr>
-          <td>qng24</td>
-          <td>@ Qatar National Grid System 1924</td>
-          <td>wgs84</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>qbc2001</td>
-          <td>@ Qatar Bahrain Causeway (COWI)</td>
-          <td>wgs84</td>
-          <td>WGS84</td>
-        </tr>
-        <tr>
-          <td>qnd1995</td>
-          <td>@ Qatar National Datum 1995</td>
-          <td>wgs84</td>
-          <td>Hayford</td>
-        </tr>
-      </tbody>
-    </table>
-    <h3 id="!vertical-datums">Vertical Datums</h3>
-    <table>
-      <tbody>
-        <tr>
-          <th>Vertical Datum</th>
-          <th>Description</th>
-          <th>Ellipsoid</th>
-        </tr>
-        <tr>
-          <td>dvr90</td>
-          <td>@ Danish Vertical Ref Frame 1990</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>evrf2000</td>
-          <td>@ Eropean Vertical Ref Frame 2000</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>evrf2007</td>
-          <td>@ Eropean Vertical Ref Frame 2007</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>fvr09</td>
-          <td>@ Faroe Vertical Ref Frame 2009</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>msl</td>
-          <td>@ Mean Sea Level Frame</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>fscvr10</td>
-          <td>@ Fehmarn Vertical Reference 2010</td>
-          <td>GRS80</td>
-        </tr>
-        <tr>
-          <td>dnn</td>
-          <td>@ DNN: gm91/gi44/h_msl</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>gm91</td>
-          <td>@ Gradmålingen 1891 height</td>
-          <td>GS</td>
-        </tr>
-        <tr>
-          <td>gi44</td>
-          <td>@ G.I. 1944 Height system</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>kn44</td>
-          <td>@ Kbh. Nul 1944 kotesys.</td>
-          <td>Hayford</td>
-        </tr>
-        <tr>
-          <td>ee1940</td>
-          <td>@ ESTONIA 1940 Vertical Frame</td>
-          <td>Krassovsky</td>
-        </tr>
-        <tr>
-          <td>ee1948</td>
-          <td>@ ESTONIA 1948 Vertical Frame</td>
-          <td>Krassovsky</td>
-        </tr>
-        <tr>
-          <td>ee1977</td>
-          <td>@ ESTONIA 1977 Vertical Frame</td>
-          <td>Krassovsky</td>
-        </tr>
-        <tr>
-          <td>qnhd</td>
-          <td>@ Qatar National Height Datum</td>
-          <td>Hayford</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>As an example of a system / projection demanding supplementary
-      parameters we can use the ITM system. This system is (like the
-      UTM) a transversal Mercator system. For the ITM projection, you
-      can via the extra parameters select the scale, central meridian
-      and offsets for the coordinates.</p>
-    <p>For ITM the suppementary parameters (and the order in which they
-      should appear) is found in the coordinate system list:</p>
-    <p>B0 N0 Lc Ec Scale </p>
-    <p>The content of an ITM label could be:</p>
-    <ul>
-      <li>itmHetrf89_h_dvr90&nbsp; 0 sx&nbsp; 0 m&nbsp; 9 00 00 sx&nbsp;
-        500000.0 m&nbsp; 0.9996 or using other units: </li>
-      <li>itmHetrf89_h_dvr90&nbsp; 0 dg&nbsp; 0 m&nbsp; 9 dg&nbsp; 500
-        km&nbsp; 0.9996 </li>
-    </ul>
-    <p>Note that the separation between two fields /entities must be at
-      least two spaces!</p>
-    <p>The ITM label above actually provides the UTM zone 32 system also
-      given by the MiniLabel: </p>
-    <ul>
-      <li>utm32Hetrf89_h_dvr90 </li>
-    </ul>
-    <h3 id="!more-examples-of-minilabels">More Examples of MiniLabels:</h3>
-    <p>geo_etrs89: </p>
-    <p>Geographical coordinates, Datum etrs89, No Heights. </p>
-    <p>geoEetrs89: </p>
-    <p>Geographical coordinates, Datum etrs89. Ellipsoidal Heights </p>
-    <p>utm32_etrs89: </p>
-    <p>UTM coordinates zone 32, Datum etrs89. No Heights. </p>
-    <p>dktm1E: </p>
-    <p>Dansk TM zone 1, Ellipsoidal Heights. </p>
-    <p>dktm2: </p>
-    <p>Dansk TM zone 1, No Heights. The '_' character may be omitted in
-      the 'P.D.' systems. </p>
-    <p>crt_etrs89: </p>
-    <p>Cartesian coordinates, Datum ETRS89. </p>
-    <p>In Cartesian systems, the Height component of the MiniLabel is
-      just the '_' character as no Heights are accepted.</p>
-  </body>
+<h1 id="!coordinate-minilabels">Coordinate MiniLabels</h1>
+<p>MiniLabels are short text strings used by the transformation library as metadata description of projections and datums.
+Internally at GST (formely KMS) MiniLabels are used generally as metadata description for other types of data. The MiniLabels that are relevant for a user of the transformation library and transformation programs are called <strong>coordinate MiniLabels</strong>.</p>
+<p>Coordinate MiniLabels come in two types:</p>
+<h3 id="!coordinate-minilabels-of-type-1">Coordinate MiniLabels of type 1:</h3>
+<p>A string consisting of three components: &lt;coordinate system&gt;&lt;separator&gt;&lt;datum&gt;[_&lt;height MiniLabel&gt;].</p>
+<p>The coordinate system is mostly also human readable: the string "geo" indicates geographical coordinates, "utm33" represents UTM zone 33. In some of the other cases, the translation may not be quite obvious. Below you'll find lists and examples further describing MiniLabel components.</p>
+<p>The separator is used in two ways:</p>
+<ol><li>Separate the coordinate system and the datum
+</li><li>Contain information on the height system (and possibly the height MiniLabel)
+</li></ol>
+<p>Note: that an extra separator char ‘_’ is placed before the height MiniLabel.</p>
+<p>The separator consists of just one character having one of the values: </p>
+<ul><li><strong>‘H’: Vertical Reference Frame:</strong> A height MiniLabel is required after “datum”. 
+</li></ul>
+<ul><li><strong>'E':</strong> Ellipsoidal Heights.
+</li></ul>
+<ul><li><strong>‘_’:</strong> No Heights.
+</li></ul>
+<ul><li><strong>'N':</strong> Normal Heights (i.e. the same as H and _h_msl).
+</li></ul>
+<p>The datum is the name of the datum (for coordinates) in small letters. For example:</p>
+<p>wgs84, etrs89, nad83g, qornoq.</p>
+<p>For some systems, the three components already described are not sufficient - extra parameters are needed. Such parameters (identifying for example the scale, a central meridian, translation of the coordinates etc) are placed after the "main" (3-component) part of the MiniLabel. Having identified the "Main Part", the program knows how to read the extra parameters.</p>
+<p>Below you will find lists and examples further describing MiniLabel components.</p>
+<h3 id="!a-few-type-1-coordinate-minilabels">A few type 1 coordinate MiniLabels:</h3>
+<ul><li>geo_wgs84	: Geographic coordinates, Datum WGS84. No heights
+</li><li>utm32_etrs89	: UTM Zone 32, Datum ETRS89. No heights
+</li><li>crt_nad83g	: Cartesian Coordinates, Datum NAD83g. No heights
+</li></ul>
+<h3 id="!coordinate-minilabels-of-type-2">Coordinate MiniLabels of type 2:</h3>
+<p>A string consisting of three components:</p>
+<ul><li>&lt;coordinate system&gt;[&lt;separator&gt;[_&lt;height MiniLabel&gt;]].
+</li></ul>
+<p>The second type of MiniLabels is mostly used to identify "regional" coordinate systems. For this type, the MiniLabel string consists of only a few letters, forming an (abbreviated) name of the system. Having identified a MiniLabel of this type, the program knows the values of the implicit parameters needed for the transformation. These "implicit parameters" may include coefficients for the transformation routine. </p>
+<h3 id="!a-few-type-2-coordinate-minilabels">A few type 2 coordinate Minilabels:</h3>
+<ul><li>dktm1		: DK TM Zone 1 EUREF89 
+</li><li>dktm2		: DK TM Zone 2 EUREF89 
+</li><li>dktm3E	: DK TM Zone 3 EUREF89 and ellipsoid height
+</li><li>dktm4		: DK TM Zone 4 EUREF89 
+</li><li>kp2000j	: System 2000 Jylland
+</li><li>kp2000s	: System 2000 Sjælland
+</li><li>kp2000b	: System 2000 Bornholm
+</li><li>sbH_h_dvr90	: Great Belt and DVR90 heights
+</li></ul>
+<h3 id="!height-minilabels">Height MiniLabels:</h3>
+<p>A string consisting of three components:</p>
+<ul><li>&lt;height system&gt;_&lt;datum&gt;.
+</li></ul>
+<p>The only legal separator is ‘_’.</p>
+<p>A list of height systems and (height) datums is given below. </p>
+<h3 id="!prefixes-indicating-region">Prefixes indicating Region:</h3>
+<p>In order to avoid confusion when different stations in the same file are having the same station identification (station number), it is possible to apply a region prefix to the MiniLabel (and to the station identification as well). - this situation often occurs when stations from separate regions (countries) are mixed in the same file. This is utilized in the 'KMS' file format used internally at GST / KMS - when the MiniLabel for a coordinate block contains a region prefix, this prefix applies to all stations in the block, except stations having their own region prefix in the ID. </p>
+<p>The region prefix does not affect the actual transformation. It is an extra piece of metadata information, which transformation programs can use to handle special cases - for example in input and output of point names, or to display a predefined list of systems in a graphical user interface.</p>
+<h3 id="!possible-region-prefixes">Possible Region Prefixes:</h3>
+<table><tr><th>PREFIX</th><th>REGION</th></tr>
+<tr><td>DK</td><td>Denmark</td></tr>
+<tr><td>FO</td><td>Faroe Islands</td></tr>
+<tr><td>FE</td><td>Faroe Islands (not used any longer)</td></tr>
+<tr><td>GR</td><td>Greenland</td></tr>
+<tr><td>SJ</td><td>Southern Jylland</td></tr>
+<tr><td>IS</td><td>Iceland</td></tr>
+<tr><td>NO</td><td>Norway</td></tr>
+<tr><td>SF</td><td>Finland</td></tr>
+<tr><td>SE</td><td>Sweden</td></tr>
+<tr><td>SV</td><td>Sweden  (not used any longer)</td></tr>
+<tr><td>BE</td><td>Belgium</td></tr>
+<tr><td>CA</td><td>Canada</td></tr>
+<tr><td>DE</td><td>Germany</td></tr>
+<tr><td>EE</td><td>Estonia</td></tr>
+<tr><td>FR</td><td>France</td></tr>
+<tr><td>LE</td><td>Latvia</td></tr>
+<tr><td>LT</td><td>Lithuania</td></tr>
+<tr><td>LI</td><td>Lithuania</td></tr>
+<tr><td>NL</td><td>Netherlands</td></tr>
+<tr><td>PL</td><td>Poland</td></tr>
+<tr><td>UK</td><td>England</td></tr>
+<tr><td>US</td><td>USA</td></tr>
+</table>
+<p>Example of a coordinate minilabel with region prefix:  <strong>DK_utm33_etrs89</strong></p>
+<h3 id="!list-of-coordinate-systems">List of Coordinate Systems.</h3>
+<p>The following list is a compilation of the sub strings used in MiniLabels to indicate Coordinate System.</p>
+<p>In the column marked 'Suppl Params' you will find the extra parameters needed to define the system. Coordinate Systems marked "P.D." has predefined datum; - such systems are fully defined via the name of the coordinate system and therefore neither datum nor extra parameters are needed in the label.</p>
+<p>Other elements contained in the "Suppl param" column indicate which extra parameters are needed for definition of the system. In the transformation program, such parameters can't be selected directly via drop down lists or buttons, but must be supplied by the user.</p>
+<p>The character '?' found in some of the coordinate system names below are place holders for ciphers.</p>
+<p>For example, in the UTM systems, they indicate where to put the zone number. In the Conical Systems used in Greenland, the zones are called cones (numbered from 1 to 8) and the '?' character tells where to put the 'cone number’. </p>
+<p><strong>NOTE - coordinate sequence: </strong></p>
+<p>Generally the transfomation library will expect the coordinate order to be <strong>easting, northing, height</strong> - and for geographic coordinates <strong>longitude, latitude, height.</strong> However, for the special 'KMS' file format usually the assumption is made that the coordinate sequence in the file is <strong>northing, easting, height.</strong> Some MiniLabels have an extra variant with an 'i' appended to the projection, e.g. utmi32_etrs89. This is an extra metadata information <strong>ONLY</strong> relevant when reading and writing files in the 'KMS' format, which tells the program to expect planar coordinates in <strong>reversed</strong> order, e.g. <strong>easting, northing, height.</strong></p>
+<p>The last column in the table below indicates what the expected coordinate order is for the 'KMS' format. No indication means, that the sequence is the usual (N,E)=(northing,easting).</p>
+<table><tr><th>MiniName</th><th>Suppl Param</th><th>Description</th><th>Coord. sequence for 'KMS' format</th></tr>
+<tr><td><strong>Global Systems</strong></td><td></td><td></td><td></td></tr>
+<tr><td>crt</td><td></td><td>Cartesian 3-d coord</td><td>(X,Y,Z)</td></tr>
+<tr><td>geo</td><td></td><td>Geographical coord</td><td>(Lat, Lon)</td></tr>
+<tr><td>geoi</td><td></td><td>Geographical coord</td><td>(Lon, Lat)</td></tr>
+<tr><td>utm??</td><td></td><td>UTM zone ?? (?? = 2 digits)</td><td>(N,E)</td></tr>
+<tr><td>utmi??</td><td></td><td>UTM zone ?? (?? = 2 digits)</td><td>(E,N)</td></tr>
+<tr><td>utm??n</td><td></td><td>UTM zone ??, North. LAT</td><td>(N,E)</td></tr>
+<tr><td>utmi??n</td><td></td><td>UTM zone ??, North. LAT</td><td>(E,N)</td></tr>
+<tr><td>utm??s</td><td></td><td>UTM zone ??, South. LAT</td><td>(S,E)</td></tr>
+<tr><td>utmi??s</td><td></td><td>UTM zone ??, South. LAT</td><td>(E,S)</td></tr>
+<tr><td>itm</td><td>B0 N0 Lc Ec Scale</td><td>TM, general GAUSS-KR</td><td>(N, E)</td></tr>
+<tr><td>itmi</td><td>B0 N0 Lc Ec Scale</td><td>TM, general GAUSS-KR</td><td>(E, N)</td></tr>
+<tr><td>tm??</td><td></td><td>GAUSS-KR ?? dg 3dg.z scale 1.0</td><td>(N, E)</td></tr>
+<tr><td>mrc</td><td>B0 N0 Lc Ec</td><td>Mercator projection</td><td>(N, E)</td></tr>
+<tr><td>mrc0</td><td></td><td>Mercator Std Projection</td><td>(N, E)</td></tr>
+<tr><td>webmrc</td><td>WEB Mercator projection zero</td><td>(N,E)</td></tr>
+<tr><td>lmb</td><td>B0 N0 Lc Ec Bc</td><td>Lambert conf. con.</td><td>(N, E)</td></tr>
+<tr><td>dlmb</td><td>B0 N0 Lc Ec B1 B2</td><td>Lambert 2 par. c. con.</td><td>(N, E)</td></tr>
+<tr><td>elmb</td><td>B0 N0 Lc Ec B1 B2</td><td>Lambert eql. c. con.</td><td>(N, E)</td></tr>
+<tr><td>npstg</td><td></td><td>North polar stereographic</td><td></td></tr>
+<tr><td>spstg</td><td></td><td>South polar stereographic</td><td></td></tr>
+<tr><td>upsn</td><td></td><td>Universal polar stereogr N</td><td></td></tr>
+<tr><td>upss</td><td></td><td>Universal polar stereogr S</td><td></td></tr>
+<tr><td>stg</td><td>Bc Nc Lc Ec scale</td><td>Stereogr. projection</td><td></td></tr>
+<tr><td>estg</td><td>Bc Nc Lc Ec B1 B2</td><td>Eql. Stereogr. projection</td><td></td></tr>
+<tr><td>bnstg</td><td>B1 scale</td><td>NP. Stereogr. scale at B1</td><td></td></tr>
+<tr><td>bsstg</td><td>B1 scale</td><td>SP. Stereogr. scale at B1</td><td></td></tr>
+<tr><td>safle</td><td></td><td>Sansom-Flamsteed eq.pr., ell.</td><td></td></tr>
+<tr><td>safl</td><td></td><td>Sansom-Flamsteed equiv. proj.</td><td></td></tr>
+<tr><td>lmbac</td><td></td><td>Lambert equiv. cyl. proj.</td><td></td></tr>
+<tr><td>lmbap</td><td></td><td>Lambert equiv. pol. proj. (N)</td><td></td></tr>
+<tr><td>lmbaps</td><td></td><td>Lambert equiv. pol. proj. (S)</td><td>(S, E)</td></tr>
+<tr><td>lmblap</td><td>Lc</td><td>Lambert equiv. pol. proj. (N)</td><td>(N, E)</td></tr>
+<tr><td>lmblaps</td><td>Lc</td><td>Lambert equiv. pol. proj. (S)</td><td>(S, E)</td></tr>
+<tr><td>auth</td><td></td><td>Authalic geogr. Crd.</td><td></td></tr>
+<tr><td><strong>Region Europe</strong></td><td></td><td></td><td></td></tr>
+<tr><td>etrs-tm??</td><td>P.D.</td><td>etrs89 tm zone ??</td><td></td></tr>
+<tr><td>ETRS-TM??</td><td>P.D.</td><td>etrs89 tm zone ??</td><td></td></tr>
+<tr><td>etrs-lcc??</td><td>P.D.</td><td>etrs89 Lambert conf. con</td><td></td></tr>
+<tr><td>ETRS-LCC??</td><td>P.D.</td><td>etrs89 Lambert conf. con</td><td></td></tr>
+<tr><td>etrs-laea</td><td>P.D.</td><td>etrs89 Lmb Azimuthal Equal Area</td><td></td></tr>
+<tr><td>ETRS-LAEAP.D.</td><td></td><td>etrs89 Lmb Azimuthal Equal Area</td><td></td></tr>
+<tr><td><strong>Region Denmark</strong></td><td></td><td></td><td></td></tr>
+<tr><td>dktm1</td><td>P.D.</td><td>DK TM1 etrs89</td><td>(E, N)</td></tr>
+<tr><td>dktm2</td><td>P.D.</td><td>DK TM2 etrs89</td><td>(E, N)</td></tr>
+<tr><td>dktm3</td><td>P.D.</td><td>DK TM3 etrs89</td><td>(E, N)</td></tr>
+<tr><td>dktm4</td><td>P.D.</td><td>DK TM4 etrs89</td><td>(E, N)</td></tr>
+<tr><td>kfmr</td><td>P.D.</td><td>Kbh Frb Metroring, etrs89</td><td></td></tr>
+<tr><td>kp2000j</td><td>P.D.</td><td>System 2000 Jylland, etrs89</td><td></td></tr>
+<tr><td>kp2000s</td><td>P.D.</td><td>System 2000 Sjælland, etrs89</td><td></td></tr>
+<tr><td>kp2000b</td><td>P.D.</td><td>System 2000 Bornholm, etrs89</td><td></td></tr>
+<tr><td>dmrc</td><td>P.D.</td><td>Dansk Merkator etrs89</td><td></td></tr>
+<tr><td>fcs</td><td>P.D.</td><td>Fehmarn Coordinate System</td><td></td></tr>
+<tr><td>s34j</td><td>P.D.</td><td>System 1934 Jylland</td><td>(N,W)</td></tr>
+<tr><td>s34s</td><td>P.D.</td><td>System 1934 Sjælland</td><td>(N,W)</td></tr>
+<tr><td>s45b</td><td>P.D.</td><td>System 1945 Bornholm</td><td>(N,W)</td></tr>
+<tr><td>s34b</td><td>P.D.</td><td>System 1945 Bornholm</td><td></td></tr>
+<tr><td>dm</td><td>P.D.</td><td>Dansk Merkator ed50</td><td></td></tr>
+<tr><td>gsgeo</td><td>P.D.</td><td>geogr. crd, gs</td><td></td></tr>
+<tr><td>gsbgeo</td><td>P.D.</td><td>geogr. crd, gsb</td><td>/td></tr>
+<tr><td>gs</td><td>P.D.</td><td>GS conf. con. DK</td><td></td></tr>
+<tr><td>gsb</td><td>P.D.</td><td>GS conf. con. Bornholm</td><td></td></tr>
+<tr><td>kk</td><td>P.D.</td><td>Kbh. komm. system</td><td></td></tr>
+<tr><td>os</td><td>P.D.</td><td>Ostenfeldt system</td><td></td></tr>
+<tr><td>asb</td><td>P.D.</td><td>Øresund bridge proj.</td><td></td></tr>
+<tr><td>Dks</td><td>P.D.</td><td>Øresund bridge proj, special</td><td></td></tr>
+<tr><td>Sb</td><td>P.D.</td><td>SB bridge proj.</td><td></td></tr>
+<tr><td>Sbf</td><td>P.D.</td><td>SB bridge proj., inverted</td><td></td></tr>
+<tr><td><strong>Region Faroe Islands</strong></td><td></td><td></td><td></td></tr>
+<tr><td>fotm</td><td>P.D.</td><td>Faroe TM etrs89</td><td>(E, N)</td></tr>
+<tr><td>fke</td><td>P.D.</td><td>Conf. con. FO, etrs89</td><td></td></tr>
+<tr><td>fg50</td><td>P.D.</td><td>FO geogr. crd, ed50</td><td></td></tr>
+<tr><td>fu50</td><td>P.D.</td><td>utm zone 29, top_ed50</td><td></td></tr>
+<tr><td>fg54</td><td>P.D.</td><td>FO geogr. crd, fd54</td><td></td></tr>
+<tr><td>fk54</td><td>P.D.</td><td>Conf. con. FO, fd 54</td><td></td></tr>
+<tr><td>fk89</td><td>P.D.</td><td>Conf. con. FO, fd 54a</td><td></td></tr>
+<tr><td><strong>Region Greenland</strong></td><td></td><td></td><td></td></tr>
+<tr><td>gk?w</td><td>P.D.</td><td>conf. con, W-GR, qornoq</td><td></td></tr>
+<tr><td>gk?e</td><td>P.D.</td><td>conf. con, E-GR, qornoq</td><td></td></tr>
+<tr><td><strong>Region Estonia</strong></td><td></td><td></td><td></td></tr>
+<tr><td>eel2p</td><td>P.D.</td><td>Estonian Lambert, 2 std par.</td><td></td></tr>
+<tr><td>eetm??</td><td>P.D.</td><td>Estonian Gauss-Kr ??, 3dg.z</td><td></td></tr>
+<tr><td>eetm?</td><td>P.D.</td><td>Estonian Gauss-Kr ?, 3dg.z</td><td></td></tr>
+<tr><td>eebm</td><td>P.D.</td><td>Estonian Basic Map</td><td></td></tr>
+<tr><td>eegeo</td><td>P.D.</td><td>geogr. crd, Pulkovo 1942</td><td></td></tr>
+<tr><td>eecrt</td><td>P.D.</td><td>Cartesic crd, Pulkovo 1942</td><td></td></tr>
+<tr><td>eelmne</td><td>P.D.</td><td>Estonian Lmb 2 par., epv37</td><td></td></tr>
+<tr><td>eelmse</td><td>P.D.</td><td>Estonian Lmb 2 par., epv37</td><td></td></tr>
+<tr><td><strong>Region Sweden</strong></td><td></td><td></td><td></td></tr>
+<tr><td>rt38g</td><td>P.D.</td><td>RT38g, 2.5 gon vest</td><td></td></tr>
+<tr><td>rt90g</td><td></td><td>RT90g, 2.5 gon vest</td><td></td></tr>
+<tr><td>rt90v</td><td>P.D.</td><td>RT90v, spec. for dks</td><td></td></tr>
+<tr><td>rt38v</td><td>P.D.</td><td>RT38v, spec. for dks</td><td></td></tr>
+<tr><td><strong>Region Iceland</strong></td><td></td><td></td><td></td></tr>
+<tr><td>lmbhjo</td><td>P.D.</td><td>Lambert Conf. Con Hjørsey</td><td></td></tr>
+<tr><td>islmb</td><td>P.D.</td><td>Lambert Conf. Con wgs84 IS</td><td></td></tr>
+</table>
+<p>Where in the supplementary parameters column, the following abbreviations are used: </p>
+<table><tr><th>Abbrv.</th><th>Meaning</th></tr>
+<tr><td>P.D.</td><td>Predefined Datum</td></tr>
+<tr><td>B0, Bc</td><td>Latitude Constant</td></tr>
+<tr><td>Nc</td><td>Northing Constant</td></tr>
+<tr><td>L0, Lc</td><td>Longitude Constant</td></tr>
+<tr><td>Ec</td><td>Easting Constant</td></tr>
+<tr><td>Scale</td><td>Scale (close to 1 usually)</td></tr>
+<tr><td>B1, B2</td><td>Latitude parallels for definition of scale.</td></tr>
+<tr><td>N,E,S,W</td><td>Northing, Easting, Southing, Westing</td></tr>
+</table>
+<h3 id="!list-of-separators">List of Separators:</h3>
+<p>The Separator in a coordinate MiniLabel determines the type of height information / height datum:</p>
+<ul><li>H		Height described in height minilabel
+</li><li>E		Ellipsoid Heights
+</li><li>_		No Heights
+</li><li>N		Normal Heights: short for: H … _h_msl
+</li></ul>
+<p>This separator is written in the MiniLabel right after the coordinate system sub string. It provides:</p>
+<ol><li>A 'real' separation between the sub strings indicating coordinate system and datum respectively.
+</li><li>Information on presence of height system.
+</li></ol>
+<p>(See also a list of vertical datums below).</p>
+<p>For the systems having a predefined datum (P.D.), the datum should not be explicitly written in the label, here the separator is placed as an appendix to the coordinate system sub string.</p>
+<p>Accordingly, a MiniLabel indicating the following list to contain dktm1 coordinates - and DVR90 heights will look like:</p>
+<ul><li>dktm1H_h_dvr90
+</li></ul>
+<h3 id="!list-of-datums">List of Datums</h3>
+<p>The following list contains the datums supported by the KMS transformation software.</p>
+<p>Parent datum indicates the structure in the datum-hierarchy used internally by the transformation system.</p>
+<p>The character '@' at the start of some descriptions marks that this datum is only used in connection with one of the projection systems having a predefined datum.</p>
+<table><tr><th>Coordinate Datum</th><th>Description</th><th>Parent datum</th><th>Ellipsoid</th></tr>
+<tr><td>wgs84</td><td>World Geodetic System 1984</td><td>ed50</td><td>WGS84</td></tr>
+<tr><td>etff89</td><td>EUREF 89</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>etrs89</td><td>EUREF 89</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>euref89</td><td>EUREF 89</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>gr96</td><td>Greenland Reference Frame 1996</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>ed50</td><td>European Datum 1950</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>nad83g</td><td>North American D.1983 Greenland</td><td>nwl9d</td><td>GRS80</td></tr>
+<tr><td>qornoq</td><td>Qornok Datum 1927 (til WGS84)</td><td>nwl9d</td><td>Hayford</td></tr>
+<tr><td>scosd</td><td>Scoresbysund datum</td><td>nwl9d</td><td>Hayford</td></tr>
+<tr><td>ammlk</td><td>Ammassalik datum</td><td>nwl9d</td><td>Hayford</td></tr>
+<tr><td>feh10</td><td>Fehmarn Datum 2010</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>s34j</td><td>@ System 1934 Jylland</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>s34s</td><td>@ System 1934 Sjælland</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>s45b</td><td>@ System 1945 Bornholm</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>gs</td><td>@ Generalst. Sys., Jyl. + Sjl</td><td>ed50</td><td>GS</td></tr>
+<tr><td>gsb</td><td>@ Generalst. System, Bornholm</td><td>ed50</td><td>GS</td></tr>
+<tr><td>os</td><td>@ Ostenfeldt System</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>kk</td><td>@ Københavns Komm. System</td><td>ed50</td><td>Dansk</td></tr>
+<tr><td>sb</td><td>@ Storebælts System</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>sbi</td><td>@ Storebælts System inv.</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>dks</td><td>@ DKS</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>asb</td><td>@ ASB</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>fd54</td><td>Færø Datum 1954</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>fg54</td><td>@ Geogr. FD 1954</td><td>etrf89</td><td>Hayford</td></tr>
+<tr><td>fg50</td><td>@ Færø, Geogr. ED 1950</td><td>etrf89</td><td>Hayford</td></tr>
+<tr><td>fk54</td><td>@ Konf. con.  FD 1954</td><td>etrf89</td><td>Hayford</td></tr>
+<tr><td>fu50</td><td>@ UTM 29, Topogr. grid, ED 50</td><td>etrf89</td><td>Hayford</td></tr>
+<tr><td>fk89</td><td>@ Konf. con. FD 1989 (NOT ETRF89)</td><td>etrf89</td><td>Hayford</td></tr>
+<tr><td>srt90g</td><td>SRT90, Sverige</td><td>wgs84</td><td>Bessel</td></tr>
+<tr><td>rt90g</td><td>RT90, Sverige</td><td>wgs84</td><td>Bessel</td></tr>
+<tr><td>rt90v</td><td>@ RT90v</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>rt38v</td><td>@ RT38v</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>rt38g</td><td>@ RT38g</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>ed87</td><td>European Datum 1987</td><td>ed50</td><td>Hayford</td></tr>
+<tr><td>wgs72</td><td>World Geodetic system 1972</td><td>nwl9d</td><td>WGS72</td></tr>
+<tr><td>nad83</td><td>North American Datum 1983</td><td>wgs84</td><td>GRS80</td></tr>
+<tr><td>nad27</td><td>North American D.1927, Conus</td><td>wgs84</td><td>Clarke66</td></tr>
+<tr><td>nad27c</td><td>North American D.1927, Canada</td><td>wgs84</td><td>Clarke66</td></tr>
+<tr><td>pu42</td><td>Pulkowo 1942, temporary</td><td>wgs84</td><td>Krassovsky</td></tr>
+<tr><td>island</td><td>Hjørsey datum 1955</td><td>wgs84</td><td>Hayford</td></tr>
+<tr><td>nwl9d</td><td>Naval Weapons Laboratory</td><td>wgs84</td><td>NWL9D</td></tr>
+<tr><td>ed79</td><td>European Datum 1979</td><td>wgs84</td><td>Hayford</td></tr>
+<tr><td>dhdn</td><td>Deutsches Hauptdreiecksnetz</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>dhdnd</td><td>Deutsches Hauptdreiecksnetz</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>dhdn1</td><td>Deutsches Hauptdrnetz, DOEDOC</td><td>etrf89</td><td>Bessel</td></tr>
+<tr><td>dhdn2</td><td>Deutsches Hauptdrnetz, DOEDOC5p</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>dhdn3</td><td>Deutsches Hauptdrnetz, DOEDOC7p</td><td>ed50</td><td>Bessel</td></tr>
+<tr><td>eesti42</td><td>@ EESTI 1942</td><td>etrf89</td><td>Krassovsky</td></tr>
+<tr><td>ain1970</td><td>@ Ain El Abd 1970</td><td>wgs84</td><td>Hayford</td></tr>
+<tr><td>nahrwan</td><td>@ Nahrwan 1967</td><td>wgs84</td><td>Clarke80</td></tr>
+<tr><td>qng24</td><td>@ Qatar National Grid System 1924</td><td>wgs84</td><td>Hayford</td></tr>
+<tr><td>qbc2001</td><td>@ Qatar Bahrain Causeway (COWI)</td><td>wgs84</td><td>WGS84</td></tr>
+<tr><td>qnd1995</td><td>@ Qatar National Datum 1995</td><td>wgs84</td><td>Hayford</td></tr>
+</table>
+<h3 id="!vertical-datums">Vertical Datums</h3>
+<table><tr><th>Vertical Datum</th><th>Description</th><th>Ellipsoid</th></tr>
+<tr><td>dvr90</td><td>@ Danish Vertical Ref Frame 1990</td><td>GRS80</td></tr>
+<tr><td>evrf2000</td><td>@ European Vertical Ref Frame 2000</td><td>GRS80</td></tr>
+<tr><td>evrf2007</td><td>@ European Vertical Ref Frame 2007</td><td>GRS80</td></tr>
+<tr><td>fvr09</td><td>@ Faroe Vertical Ref Frame 2009</td><td>GRS80</td></tr>
+<tr><td>msl</td><td>@ Mean Sea Level Frame</td><td>GRS80</td></tr>
+<tr><td>fscvr10</td><td>@ Fehmarn Vertical Reference 2010</td><td>GRS80</td></tr>
+<tr><td>dnn</td><td>@ DNN: gm91/gi44/h_msl</td><td>Hayford</td></tr>
+<tr><td>gm91</td><td>@ Gradmålingen 1891 height</td><td>GS</td></tr>
+<tr><td>gi44</td><td>@ G.I. 1944 Height system</td><td>Hayford</td></tr>
+<tr><td>kn44</td><td>@ Kbh. Nul 1944 kotesys.</td><td>Hayford</td></tr>
+<tr><td>ee1940</td><td>@ ESTONIA 1940 Vertical Frame</td><td>Krassovsky</td></tr>
+<tr><td>ee1948</td><td>@ ESTONIA 1948 Vertical Frame</td><td>Krassovsky</td></tr>
+<tr><td>ee1977</td><td>@ ESTONIA 1977 Vertical Frame</td><td>Krassovsky</td></tr>
+<tr><td>qnhd</td><td>@ Qatar National Height Datum</td><td>Hayford</td></tr>
+</table>
+<p>As an example of a system / projection demanding supplementary  parameters we can use the ITM system. This system is (like the UTM) a transversal Mercator system. For the ITM projection, you can via the extra parameters select the scale, central meridian and offsets for the coordinates.</p>
+<p>For ITM the suppementary parameters (and the order in which they should appear) is found in the coordinate system list:</p>
+<p>B0 N0 Lc Ec Scale </p>
+<p>The content of an ITM label could be:</p>
+<ul><li>itmHetrf89_h_dvr90  0 sx  0 m  9 00 00 sx  500000.0 m  0.9996
+or using other units:
+</li><li>itmHetrf89_h_dvr90  0 dg  0 m  9 dg  500 km  0.9996
+</li></ul>
+<p>Note that the separation between two fields /entities must be at least two spaces!</p>
+<p>The ITM label above actually provides the UTM zone 32 system also given by the MiniLabel: </p>
+<ul><li>utm32Hetrf89_h_dvr90 
+</li></ul>
+<h3 id="!more-examples-of-minilabels">More Examples of MiniLabels:</h3>
+<p>geo_etrs89: </p>
+<p>Geographical coordinates, Datum etrs89, No Heights. </p>
+<p>geoEetrs89: </p>
+<p>Geographical coordinates, Datum etrs89. Ellipsoidal Heights </p>
+<p>utm32_etrs89: </p>
+<p>UTM coordinates zone 32, Datum etrs89. No Heights. </p>
+<p>dktm1E: </p>
+<p>Dansk TM zone 1, Ellipsoidal Heights. </p>
+<p>dktm2: </p>
+<p>Dansk TM zone 2, No Heights. The '_' character may be omitted in the 'P.D.' systems. </p>
+<p>crt_etrs89: </p>
+<p>Cartesian coordinates, Datum ETRS89. </p>
+<p>In Cartesian systems, the Height component of the MiniLabel is just the '_' character as no Heights are accepted.</p>
+</body>
 </html>
