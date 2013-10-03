@@ -268,6 +268,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 							msg="\n%s" %ERRORS[err]
 						self.log_bshlm("Error in transformation of coords for station2"+msg,"red")
 						self.clearOutput()
+						return 
 				else:
 					x2_out=x2
 					y2_out=y2
