@@ -45,6 +45,17 @@ LP_c_int=ctypes.POINTER(ctypes.c_int)
 #pointers to libtrui and the TROGR program
 libtrui=None
 TROGR=None
+#Call back handling from libtrui
+CALL_BACK=None
+MESSAGE_HANDLER = ctypes.CFUNCTYPE(None,ctypes.c_int, ctypes.c_int, ctypes.c_char_p)
+
+#Use a python function as a callback for messages from libtrui (and hence gdal...)
+def SetMessageHandler(fct):
+	global CALL_BACK #keep this reference ....
+	CALL_BACK=MESSAGE_HANDLER(fct)
+	libtrui.RedirectOGRErrors()
+	libtrui.SetCallBack(CALL_BACK)
+
 
 class F2F_Settings(object):
 	def __init__(self):
@@ -136,8 +147,10 @@ def InitOGR(prefix,lib_name=LIBTRUI):
 		libtrui.Open.argtypes=[C_CHAR_P]
 		libtrui.GetCoords.argtypes=[ctypes.c_void_p,LP_c_double,LP_c_double,C_INT]
 		libtrui.GetCoords.restype=None
-		#libtrui.TransformText.argtypes=[C_CHAR_P,C_CHAR_P,ctypes.c_void_p,SettingsStruct,LP_c_double,C_INT]
-		#libtrui.TransformText.restype=C_INT
+		libtrui.RedirectOGRErrors.restype=None
+		libtrui.SetCallBack.restype=None
+		libtrui.SetCallBack.argtypes=[MESSAGE_HANDLER]
+		
 	#END HEADER#
 	except Exception,e:
 		#print repr(msg),path

@@ -158,7 +158,7 @@ class MapThread(threading.Thread):
 		app.postEvent(self.win,MapEvent(RENDER_COMPLETE))
 
 
-#Very very simple callback handling messages from TrLib# 
+#Very very simple callback handling messages from TrLib and libtrui# 
 def LordCallback(err_class,err_code,msg):
 	try:
 		MainWindow.displayCallbackMessage(msg.strip())
@@ -1247,11 +1247,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.message(dmsg)
 			self.tab_ogr.setEnabled(False)
 			return
+		File2File.SetMessageHandler(LordCallback)
 		self.initF2FTab()
 		#decide if a mapthread should be started#
-		if self.has_ogr: #easier than setting all attrs to none as default
-			self.mapthread=MapThread(self)
-			self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
+		self.mapthread=MapThread(self)
+		self.mapthread.start() #and perhaps in the 'finished event handler we should zoom to the point??
 		
 	def onRdobtOGRToggled(self):
 		checked=self.rdobt_f2f_ogr.isChecked()
