@@ -17,6 +17,7 @@
  * 
  */
  """
+ #simlk, 2012-2013
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
@@ -99,7 +100,7 @@ VERSION="KMSTrans2 v2.1"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
-\nWritten in PyQt4. Report bugs to simlk@gst.dk.
+\nWritten in PyQt4. File bugs at https://bitbucket.org/KMS/kmstrans/issues or send an email to simlk@gst.dk 
 """
 MSG_GEOID_DIR="""
 The selected directory MUST contain: 

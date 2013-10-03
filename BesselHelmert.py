@@ -26,7 +26,8 @@ import Minilabel
 from TrLib_constants import *
 import WidgetUtils
 #Default systems pr. region:
-BSHLM_SYS_DK=["utm32_etrs89","utm33_etrs89","geo_etrs89","fcs","dktm1","dktm2","dktm3"]
+BSHLM_SYS_DK=["utm32_etrs89","utm33_etrs89","geo_etrs89","geo_ed50","fcs","dktm1","dktm2","dktm3","dktm4","kp2000j",
+"kp2000s","kp2000b","s34j","s34s","s34b"]
 BSHLM_SYS_FO=["fotm","fk89","utm28_wgs84","geo_wgs84"]
 BSHLM_SYS_GR=["geo_gr96","utm24_gr96","utm25_gr96","utm26_gr96"]
 BSHLM_SYS_WORLD=["geo_wgs84","mrc0_wgs84","webmrc"]
@@ -44,6 +45,7 @@ class BshlmCache(object):
 		self.geo_mlb=None
 		self.ellipsoid=None
 		self.is_custom=False #flag to turn on when using custom ellipsoid
+		self.valid_label=False #flag to determine if the label is invalid
 		self.axis=-1    #use negative numbers to signal something not valid...
 		self.flattening=-1
 		self.a1=0
@@ -85,6 +87,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			self.lbl_bshlm_description.setText("Custom ellipsoid - geographical coordinates")
 			for i in range(2):
 				self.input_labels_bshlm[i].setText(labels[i])
+			self.clearOutput()
 		else:
 			self.cb_bshlm_system.setEnabled(True)
 			self.txt_bshlm_axis.setEnabled(False)
@@ -94,6 +97,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 	def onBshlmSystemChanged(self,called_by_index_change=True):
 		if not self._handle_system_change:
 			return
+		self.clearOutput()
 		self.cache.is_valid=False #signal no valid output YET!
 		self.cache.valid_label=False #will only be set to true if nothing goes wrong below....
 		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
@@ -165,10 +169,11 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		# Check if we need to update data....
 		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
 		self.cache.is_valid=False
+		self.log_bshlm("",clear=True)
 		if is_custom or str(self.cb_bshlm_system.currentText())!=self.cache.mlb:
 			self.onBshlmSystemChanged(False)
 		if not self.cache.valid_label:
-			self.log_bshlm("Invalid input label...","red",clear=True)
+			self.log_bshlm("Invalid input label...","red")
 			self.clearOutput()
 			return
 		is_mode1=self.rdobt_bshlm_mode1.isChecked()
