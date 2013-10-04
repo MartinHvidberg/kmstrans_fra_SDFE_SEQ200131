@@ -1282,7 +1282,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if ok:
 			fname=unicode(fname)
 			dlg=TextViewer(self,fname=fname)
-			dlg._exec()
+			dlg.exec_()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_view_log_clicked(self):
 		if not (self.f2f_settings.is_started and self.f2f_settings.is_done):
@@ -1293,7 +1293,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			return
 		fname=self.f2f_settings.log_file
 		dlg=TextViewer(self,fname=fname)
-		dlg._exec()
+		dlg.exec_()
 	#Event handlers for various buttons in f2f-tab#
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_in_clicked(self):
