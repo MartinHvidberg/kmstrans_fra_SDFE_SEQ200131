@@ -101,7 +101,8 @@ void ReportDebugMessages(int on){
 }
 
  void AppendGeoid(const char *geoid_name){
-	int i,n;
+	int i;
+	size_t n;
 	unsigned long h;
 	if (N_GEOIDS==MAX_GEOIDS)
 		return;
