@@ -14,7 +14,7 @@ try:
 except:
 	pass
 sys.argv.append("py2exe")
-extra_files=["icon.png","LICENCE.isc","ReadMe.txt"]
+extra_files=["LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
 excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx","numpy"]

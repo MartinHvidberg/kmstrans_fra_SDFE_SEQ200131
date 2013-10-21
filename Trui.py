@@ -301,10 +301,10 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 		if changes: 
 			self.parent.saveSettings()
 			QMessageBox.information(self,"GDAL settings","Changes will take effect after a restart.")
-		self.close()
+		self.accept()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_cancel_clicked(self):
-		self.close()
+		self.reject()
 			
 			
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
@@ -342,12 +342,12 @@ class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 			i+=1
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_close_clicked(self):
-		self.close()
+		self.reject()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_apply_clicked(self):
 		ok=self.apply()
 		if ok:
-			self.close()
+			self.accept()
 	def apply(self):
 		col_x=self.spb_col_x.value()
 		col_y=self.spb_col_y.value()
@@ -467,7 +467,7 @@ class DialogCreationOptions(QDialog,Ui_Dialog_creation_options):
 					return
 			else:
 				self.drivers[self.driver][2]=""
-		self.close()
+		self.done(0)
 	def validate(self,text):
 		cops=text.split(",")
 		for item in cops:
@@ -549,7 +549,7 @@ class LayerSelector(QDialog, Ui_Dialog_layer_selector):
 			if i<len(items)-1:
 				txt+=";"
 		self.txt_field.setText(txt)
-		self.close()
+		self.done(0)
 
 	
 class RedirectOutput(object):
