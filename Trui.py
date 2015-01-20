@@ -779,16 +779,16 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		load_mode=self.gdal_settings.load_mode
 		if IS_WINDOWS:
 			#this is also needed in order to fix the library dependecies in the bin subfolder#
-			path=os.environ["PATH"]
-			path=BIN_PREFIX.encode(sys.getfilesystemencoding())+os.pathsep+path
+			path=os.environ["PATH"] #a mbcs encoded str
+			path=BIN_PREFIX+os.pathsep+path 
 			if (load_mode==1 or load_mode==2):
 				if load_mode==1:
-					paths=self.gdal_settings.predefined_paths
+					paths=self.gdal_settings.predefined_paths #mcbs encoded strs
 				else:
-					paths=self.gdal_settings.paths
-				path=paths[0].encode(sys.getfilesystemencoding())+os.pathsep+path
-				os.environ["GDAL_DATA"]=paths[1].encode(sys.getfilesystemencoding())
-				os.environ["GDAL_DRIVER_PATH"]=paths[2].encode(sys.getfilesystemencoding())
+					paths=[p.encode(sys.getfilesystemencoding()) for p in self.gdal_settings.paths] #unicode objects
+				path=paths[0]+os.pathsep+path
+				os.environ["GDAL_DATA"]=paths[1]
+				os.environ["GDAL_DRIVER_PATH"]=paths[2]
 			os.environ["PATH"]=path
 		#initialise the map#
 		self.initMap()
