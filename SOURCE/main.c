@@ -30,7 +30,7 @@
 #include "lord.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.07 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.08 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);

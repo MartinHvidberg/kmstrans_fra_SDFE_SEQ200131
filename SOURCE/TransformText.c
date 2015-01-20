@@ -338,7 +338,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	
 	/*look for input system label*/
 	if (look_for_label){
-		argc=sscanf(buf,"#%s",mlb_in_file);
+		argc=sscanf(buf," #%s",mlb_in_file); /*skip leading whitespace*/
 		if (argc==1){
 			err=TR_Insert(trf,mlb_in_file,0);
 			if (err==TR_OK){
