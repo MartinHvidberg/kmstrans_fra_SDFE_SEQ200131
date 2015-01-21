@@ -14,11 +14,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
- #include "affine.h"
+
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
  #include <ctype.h>
+  #include "affine.h"
  
  /*parse a comma-separated list of key,value pairs and return params*/
  affine_params *affine_from_string(char *txt){

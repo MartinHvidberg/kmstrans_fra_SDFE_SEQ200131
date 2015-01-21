@@ -14,11 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
- struct s_affine_params{
+#if !defined(__H_AFFINE)
+#define      __H_AFFINE
+ typedef struct affine_parameters
+ {
 	 double R[9];
 	 double T[3];
- };
- typedef struct s_affine_params affine_params;
+ }
+ affine_params;
 
 affine_params *affine_from_string(char *txt);
 void affine_transformation(affine_params *A,double *x, double *y, double *z); 
+#endif

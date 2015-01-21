@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
         err=TransformText(inname,outname,trf,frmt);
     } /* end simple text /KMS */
     else if (!strcmp(drv_in,"OGR")){ /*begin OGR */
-	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos);
+	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos,paffin,paffout);
     }/* end OGR */	     
     
     else {
