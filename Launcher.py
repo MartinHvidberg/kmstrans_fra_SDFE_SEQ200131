@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Launcher.ui'
 #
-# Created: Thu Sep 26 19:45:41 2013
+# Created: Wed Jan 21 10:08:44 2015
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!

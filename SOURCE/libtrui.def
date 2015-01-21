@@ -22,3 +22,5 @@ EXPORTS
    ReportDebugMessages
    TransformText
    TransformDSFL
+   affine_from_string
+   affine_transformation

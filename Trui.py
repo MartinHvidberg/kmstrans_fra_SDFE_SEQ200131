@@ -29,6 +29,8 @@ from Dialog_settings_f2f import Ui_Dialog as Ui_Dialog_f2f
 from Dialog_settings_gdal import Ui_Dialog as Ui_Dialog_gdal
 from Dialog_layer_selector import Ui_Dialog as Ui_Dialog_layer_selector
 from Dialog_creation_options import Ui_Dialog as Ui_Dialog_creation_options
+from Dialog_affine import Ui_Dialog as Ui_Dialog_affine
+from Widget_affine import Ui_Form as Ui_Widget_affine
 import resources
 import Minilabel
 import TrLib
@@ -305,7 +307,110 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_cancel_clicked(self):
 		self.reject()
-			
+
+class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
+	"""Widget for editing affine parameters"""
+	def __init__(self,parent,title):
+		QtGui.QWidget.__init__(self,parent)
+		self.setupUi(self)
+		self.groupBox.setTitle(title)
+		self.chb_invert_x.toggled.connect(self.onInvertX)
+		self.R=[[self.r11,self.r12,self.r13],[self.r21,self.r22,self.r23],[self.r31,self.r32,self.r33]]
+		self.T=[self.t1,self.t2,self.t3]
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_reset_clicked(self):
+		self.setRotation({})
+		self.setTranslation({})
+	def onInvertX(self):
+		self.setRotation({(0,0):-1})
+		self.setTranslation({})
+		self.chb_apply.setChecked(True)
+	def setRotation(self,R):
+		for i in range(3):
+			for j in range(3):
+				if (i,j) in R:
+					self.R[i][j].setText(str(R[(i,j)]))
+				else:
+					if (i!=j):
+						self.R[i][j].setText("0")
+					else:
+						self.R[i][j].setText("1")
+	def setTranslation(self,T):
+		for i in range(3):
+			if i in T:
+				self.T[i].setText(str(T[i]))
+			else:
+				self.T[i].setText("0")
+	def getTranslation(self):
+		vals={}
+		for i in range(3):
+			v=unicode(self.T[i].text())
+			if len(v)>0:
+				try:
+					v=float(v.replace(",","."))
+				except:
+					self.T[i].setFocus()
+					QMessageBox.warning(self,"Error","Specify a numeric input")
+					return None
+				if v!=0.0:
+					vals[i]=v
+		return vals
+	def getRotation(self):
+		vals={}
+		for i in range(3):
+			for j in range(3):
+				v=unicode(self.R[i][j].text())
+				if len(v)>0:
+					try:
+						v=float(v.replace(",","."))
+					except:
+						self.R[i][j].setFocus()
+						QMessageBox.warning(self,"Error","Specify a numeric input")
+						return None
+					if (i==j and v!=1.0) or (i!=j and v!=0.0):
+						vals[(i,j)]=v
+		return vals
+	
+				
+				
+				
+				
+
+class DialogSetupAffine(QtGui.QDialog,Ui_Dialog_affine):
+	"""Class for setting up affine transformation"""
+	def __init__(self,parent,params):
+		QtGui.QDialog.__init__(self,parent)
+		self.setupUi(self)
+		self.affine_in=AffineWidget(self,"Modify input")
+		self.affine_out=AffineWidget(self,"Modify output")
+		self.layout_horizontal.addWidget(self.affine_in)
+		self.layout_horizontal.addWidget(self.affine_out)
+		self.params=params
+		for pos,widget in enumerate([self.affine_in,self.affine_out]):
+			if pos in params: #then the relevant dict *must* have correct keys... otherwise the keys cannot be set...
+				widget.setRotation(params[pos]["R"])
+				widget.setTranslation(params[pos]["T"])
+		
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_cancel_clicked(self):
+		self.reject()
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_apply_clicked(self):
+		for pos,widget in enumerate([self.affine_in,self.affine_out]):
+			apply=widget.chb_apply.isChecked()
+			if apply: #only save if apply is checked...
+				R=widget.getRotation()
+				if R is None:
+					return
+				T=widget.getTranslation()
+				if T is None:
+					return
+				self.params[pos]["R"]=R
+				self.params[pos]["T"]=T
+			self.params[pos]["apply"]=bool(apply)
+		self.accept()
+				
+		
 			
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
 	"""Class for specifying options to TEXT and KMS drivers"""
@@ -702,6 +807,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		self.rdobt_f2f_ogr.toggled.connect(self.onRdobtOGRToggled)
+		self.chb_apply_affine.toggled.connect(self.onSetupAffine)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
 		self.actionExit.triggered.connect(self.onExit)
@@ -1356,6 +1462,28 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		drv=str(self.cb_f2f_ogr_driver.currentText())
 		dlg=DialogCreationOptions(self,drv,File2File.OGR_LONG_TO_SHORT)
 		dlg.exec_()
+	def onSetupAffine(self):
+		if self.chb_apply_affine.isChecked():
+			dlg=DialogSetupAffine(self,self.f2f_settings.affine_parameters)
+			r=dlg.exec_()
+			#Consider some logic here for when to apply an affine transformation if the dialog was cancelled...
+			if r!=QDialog.Accepted:
+				self.chb_apply_affine.setChecked(False)
+				self.log_f2f("Affine setup was cancelled... will not use affine modifications.","orange")
+			else:
+				values=0
+				for pos in self.f2f_settings.affine_parameters:
+					par=self.f2f_settings.affine_parameters[pos]
+					if par["apply"]:
+						for key in ["T","R"]:
+							values+=len(par[key])
+				if values==0:
+					self.log_f2f("No nontrivial affine modifications. will not use affine modifications.","red")
+					self.chb_apply_affine.setChecked(False)
+				else:
+					self.log_f2f("Affine modifications set.","blue")
+					
+					
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_list_formats_clicked(self):
 		text=File2File.ListFormats()
@@ -1438,6 +1566,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.f2f_settings.mlb_in=mlb_in
 		else:
 			self.f2f_settings.mlb_in=None
+		if self.chb_apply_affine.isChecked():
+			self.f2f_settings.apply_affine=True
+		else:
+			self.f2f_settings.apply_affine=False
 		ok,msg=File2File.TransformDatasource(self.f2f_settings,self.message_poster.PostFileMessage,self.message_poster.PostReturnCode)
 		if not ok:
 			self.message(msg)

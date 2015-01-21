@@ -1,0 +1,152 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'UI\Affine_params.ui'
+#
+# Created: Wed Jan 21 13:10:45 2015
+#      by: PyQt4 UI code generator 4.10
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName(_fromUtf8("Form"))
+        Form.resize(643, 222)
+        self.verticalLayout = QtGui.QVBoxLayout(Form)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.groupBox = QtGui.QGroupBox(Form)
+        self.groupBox.setObjectName(_fromUtf8("groupBox"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.chb_apply = QtGui.QCheckBox(self.groupBox)
+        self.chb_apply.setObjectName(_fromUtf8("chb_apply"))
+        self.horizontalLayout.addWidget(self.chb_apply)
+        self.chb_invert_x = QtGui.QCheckBox(self.groupBox)
+        self.chb_invert_x.setObjectName(_fromUtf8("chb_invert_x"))
+        self.horizontalLayout.addWidget(self.chb_invert_x)
+        self.bt_reset = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bt_reset.sizePolicy().hasHeightForWidth())
+        self.bt_reset.setSizePolicy(sizePolicy)
+        self.bt_reset.setObjectName(_fromUtf8("bt_reset"))
+        self.horizontalLayout.addWidget(self.bt_reset)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.params = QtGui.QWidget(self.groupBox)
+        self.params.setEnabled(False)
+        self.params.setObjectName(_fromUtf8("params"))
+        self.gridLayout = QtGui.QGridLayout(self.params)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.t1 = QtGui.QLineEdit(self.params)
+        self.t1.setObjectName(_fromUtf8("t1"))
+        self.gridLayout.addWidget(self.t1, 1, 4, 1, 1)
+        self.r12 = QtGui.QLineEdit(self.params)
+        self.r12.setObjectName(_fromUtf8("r12"))
+        self.gridLayout.addWidget(self.r12, 1, 2, 1, 1)
+        self.r33 = QtGui.QLineEdit(self.params)
+        self.r33.setObjectName(_fromUtf8("r33"))
+        self.gridLayout.addWidget(self.r33, 3, 3, 1, 1)
+        self.r21 = QtGui.QLineEdit(self.params)
+        self.r21.setObjectName(_fromUtf8("r21"))
+        self.gridLayout.addWidget(self.r21, 2, 1, 1, 1)
+        self.label_6 = QtGui.QLabel(self.params)
+        self.label_6.setObjectName(_fromUtf8("label_6"))
+        self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
+        self.r11 = QtGui.QLineEdit(self.params)
+        self.r11.setObjectName(_fromUtf8("r11"))
+        self.gridLayout.addWidget(self.r11, 1, 1, 1, 1)
+        self.label_5 = QtGui.QLabel(self.params)
+        self.label_5.setText(_fromUtf8(""))
+        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.gridLayout.addWidget(self.label_5, 0, 0, 1, 1)
+        self.r13 = QtGui.QLineEdit(self.params)
+        self.r13.setObjectName(_fromUtf8("r13"))
+        self.gridLayout.addWidget(self.r13, 1, 3, 1, 1)
+        self.label_8 = QtGui.QLabel(self.params)
+        self.label_8.setObjectName(_fromUtf8("label_8"))
+        self.gridLayout.addWidget(self.label_8, 3, 0, 1, 1)
+        self.label_7 = QtGui.QLabel(self.params)
+        self.label_7.setObjectName(_fromUtf8("label_7"))
+        self.gridLayout.addWidget(self.label_7, 2, 0, 1, 1)
+        self.t3 = QtGui.QLineEdit(self.params)
+        self.t3.setObjectName(_fromUtf8("t3"))
+        self.gridLayout.addWidget(self.t3, 3, 4, 1, 1)
+        self.label_3 = QtGui.QLabel(self.params)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.gridLayout.addWidget(self.label_3, 0, 3, 1, 1)
+        self.label_4 = QtGui.QLabel(self.params)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.gridLayout.addWidget(self.label_4, 0, 4, 1, 1)
+        self.label_2 = QtGui.QLabel(self.params)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.gridLayout.addWidget(self.label_2, 0, 2, 1, 1)
+        self.r31 = QtGui.QLineEdit(self.params)
+        self.r31.setObjectName(_fromUtf8("r31"))
+        self.gridLayout.addWidget(self.r31, 3, 1, 1, 1)
+        self.r32 = QtGui.QLineEdit(self.params)
+        self.r32.setObjectName(_fromUtf8("r32"))
+        self.gridLayout.addWidget(self.r32, 3, 2, 1, 1)
+        self.r23 = QtGui.QLineEdit(self.params)
+        self.r23.setObjectName(_fromUtf8("r23"))
+        self.gridLayout.addWidget(self.r23, 2, 3, 1, 1)
+        self.t2 = QtGui.QLineEdit(self.params)
+        self.t2.setObjectName(_fromUtf8("t2"))
+        self.gridLayout.addWidget(self.t2, 2, 4, 1, 1)
+        self.r22 = QtGui.QLineEdit(self.params)
+        self.r22.setObjectName(_fromUtf8("r22"))
+        self.gridLayout.addWidget(self.r22, 2, 2, 1, 1)
+        self.label = QtGui.QLabel(self.params)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.gridLayout.addWidget(self.label, 0, 1, 1, 1)
+        self.verticalLayout_2.addWidget(self.params)
+        self.verticalLayout.addWidget(self.groupBox)
+
+        self.retranslateUi(Form)
+        QtCore.QObject.connect(self.chb_apply, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.params.setEnabled)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        Form.setWindowTitle(_translate("Form", "Form", None))
+        self.groupBox.setTitle(_translate("Form", "GroupBox", None))
+        self.chb_apply.setText(_translate("Form", "Use affine modification", None))
+        self.chb_invert_x.setText(_translate("Form", "Set x-axis inversion only (System34 etc.)", None))
+        self.bt_reset.setText(_translate("Form", "Reset", None))
+        self.t1.setText(_translate("Form", "0", None))
+        self.r12.setText(_translate("Form", "0", None))
+        self.r33.setText(_translate("Form", "1", None))
+        self.r21.setText(_translate("Form", "0", None))
+        self.label_6.setText(_translate("Form", " x ", None))
+        self.r11.setText(_translate("Form", "1", None))
+        self.r13.setText(_translate("Form", "0", None))
+        self.label_8.setText(_translate("Form", " z ", None))
+        self.label_7.setText(_translate("Form", " y ", None))
+        self.t3.setText(_translate("Form", "0", None))
+        self.label_3.setText(_translate("Form", "c3", None))
+        self.label_4.setText(_translate("Form", "Translation", None))
+        self.label_2.setText(_translate("Form", "c2", None))
+        self.r31.setText(_translate("Form", "0", None))
+        self.r32.setText(_translate("Form", "0", None))
+        self.r23.setText(_translate("Form", "0", None))
+        self.t2.setText(_translate("Form", "0", None))
+        self.r22.setText(_translate("Form", "1", None))
+        self.label.setText(_translate("Form", "c1", None))
+

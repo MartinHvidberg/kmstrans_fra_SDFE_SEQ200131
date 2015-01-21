@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Thu Sep 26 21:36:47 2013
+# Created: Wed Jan 21 13:00:45 2015
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -700,6 +700,9 @@ class Ui_Trui(object):
         self.chb_f2f_set_projection.setChecked(True)
         self.chb_f2f_set_projection.setObjectName(_fromUtf8("chb_f2f_set_projection"))
         self.horizontalLayout_10.addWidget(self.chb_f2f_set_projection)
+        self.chb_apply_affine = QtGui.QCheckBox(self.groupBox_2)
+        self.chb_apply_affine.setObjectName(_fromUtf8("chb_apply_affine"))
+        self.horizontalLayout_10.addWidget(self.chb_apply_affine)
         spacerItem18 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem18)
         self.verticalLayout_12.addLayout(self.horizontalLayout_10)
@@ -1057,6 +1060,7 @@ class Ui_Trui(object):
         self.chb_f2f_label_in_file.setText(_translate("Trui", "Label / projection metadata  in source", None))
         self.chb_f2f_set_projection.setWhatsThis(_translate("Trui", "<html><head/><body><p>If checked, will attempt to write output projection metadata in destionation datasource.</p><p>This might fail for some OGR-drivers like e.g. \'FileGDB\', in which case the metadata can be attached via some appropriate tool afterwards, like e.g. ogr2ogr. </p></body></html>", None))
         self.chb_f2f_set_projection.setText(_translate("Trui", "Set output projection metadata in destination", None))
+        self.chb_apply_affine.setText(_translate("Trui", "Apply affine transformations (s34 etc.)", None))
         self.label_3.setText(_translate("Trui", "Input system:", None))
         self.cb_f2f_input_system.setToolTip(_translate("Trui", "Specify input system", None))
         self.cb_f2f_input_system.setWhatsThis(_translate("Trui", "Specify an input spatial reference system as a minilabel, either by selecting from the dropdown list or simply typing one yourself (hit enter to try to parse it).", None))

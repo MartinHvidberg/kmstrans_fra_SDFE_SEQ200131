@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os,sys
-os.chdir(os.path.dirname(__file__))
+HERE=os.path.dirname(__file__)
+if len(HERE)>0:
+	os.chdir(HERE)
 uis={"Trui.ui":"Main_gui.py",
 "Launcher.ui":"Launcher.py",
 "Dialog_settings_f2f.ui":"Dialog_settings_f2f.py",
@@ -8,6 +10,8 @@ uis={"Trui.ui":"Main_gui.py",
 "Tab_bshlm.ui":"Tab_bshlm.py",
 "Tab_python.ui":"Tab_python.py",
 "Dialog_settings_gdal.ui":"Dialog_settings_gdal.py",
+"Affine_params.ui":"Widget_affine.py",
+"Dialog_affine.ui":"Dialog_affine.py",
 "Dialog_creation_options.ui":"Dialog_creation_options.py"}
 print("Building UIs...")
 for ui in uis:

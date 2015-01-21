@@ -1852,6 +1852,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="chb_apply_affine">
+               <property name="text">
+                <string>Apply affine transformations (s34 etc.)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_10">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>

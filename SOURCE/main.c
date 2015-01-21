@@ -28,6 +28,7 @@
 #include "trlib_api.h"
 #include "Report.h"
 #include "lord.h"
+#include "affine.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
 #define VERSION  ("1.08 (" __DATE__ "," __TIME__ ")")
@@ -213,14 +214,15 @@ char **ParseCreationOptions(char *text){
 
 int main(int argc, char *argv[])
 {  
-    char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, **layer_names=NULL;
+    char *inname=NULL,*outname=NULL,*mlb_in=NULL,*mlb_out=NULL,*drv_in=NULL, *drv_out=NULL,*sep_char=NULL, *affin=NULL,*affout=NULL, **layer_names=NULL;
     char *log_name=NULL,*dsco=NULL,*lco=NULL,**dscos=NULL,**lcos=NULL;
-    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;flipxyin;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
+    char *key,*val,opts[]="pin:drv:of:sep:x:y:z:log:affin:affout:dco:lco:comments:prc:geoin:geoout:nop;verb;debug;alog;ounits;flipxy;flipxyin;naxyz;lazyh;cpbad;nounits;"; /*for processing command line options*/
     char *output_geo_unit="dg",*input_geo_unit="dg",*comments=NULL;
     /* defaults here */
     int set_output_projection=1, n_layers=0,col_x=0, col_y=1, col_z=-1,err=0,is_init=0,be_verbose=0,n_opts, append_to_log=0,units_in_output=0,flip_xy=0;
     int flip_xy_in=0,copy_bad=0, n_decimals=4, kms_no_unit=0,crt_xyz=1,zlazy=0,debug=0;
     struct format_options frmt;
+    affine_params *paffin=NULL,*paffout=NULL;
     time_t rawtime;
     struct tm * timeinfo;
     TR *trf=NULL;
@@ -279,6 +281,18 @@ int main(int argc, char *argv[])
 		else if (!strcmp(key,"dco")){
 			if (val)
 				dsco=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"affin")){
+			if (val)
+				affin=val;
+			else
+				goto usage;
+		}
+		else if (!strcmp(key,"affout")){
+			if (val)
+				affout=val;
 			else
 				goto usage;
 		}
@@ -453,9 +467,20 @@ int main(int argc, char *argv[])
 	    }
 		    
     }
+   
     if (!drv_out)
 	    drv_out="ESRI Shapefile";
-    
+    /* setup affine transformations*/
+    if (affin){
+	    paffin=affine_from_string(affin);
+	    if (!paffin)
+		    goto usage;
+    }
+    if (affout){
+	    paffout=affine_from_string(affout);
+	    if (!paffout)
+		    goto usage;
+    }
     is_init=TR_InitLibrary("");
     if (is_init!=TR_OK){
 	    fprintf(stderr,"Failed to initialise KMS-transformation library! Did you set TR_TABDIR to a proper geoid folder?\n");

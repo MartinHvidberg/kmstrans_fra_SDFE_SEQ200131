@@ -89,6 +89,8 @@ class F2F_Settings(object):
 		self.log_file=None
 		self.is_done=False
 		self.is_started=False
+		self.apply_affine=False
+		self.affine_parameters={0:{"apply":False,"R":{},"T":{}},1:{"apply":False,"R":{},"T":{}}}  # a dictionary which can contain two keys 0,1 (before and after transformation). Each entry is a dict with keys "apply","R" and "T".
 		self.output_files=[]
 		#serialized state of settings dialog
 		self.saved_state_chbs=[] #check boxes
@@ -274,7 +276,7 @@ def TransformDatasource(options,log_method,post_method):
 			args+=['-flipxyin']
 		if options.kms_flip_xy_out:
 			args+=['-flipxy']
-		#TODO: implement extra options for KMS-driver#
+		
 	if options.driver=="KMS" or options.driver=="TEXT":
 		if options.output_geo_unit!="dg":
 			args+=['-geoout',options.output_geo_unit]
@@ -285,6 +287,20 @@ def TransformDatasource(options,log_method,post_method):
 		if options.copy_bad_lines:
 			args+=['-cpbad']
 		args+=['-prc','%d'%options.n_decimals]
+	if options.apply_affine:
+		#setup params for affine transformations...
+		for key,opt in ((0,"-affin"),(1,"-affout")):
+			val=""
+			par=options.affine_parameters[key]
+			if par["apply"]:
+				for ij in par["R"]:
+					val+="r{0:d}{1:d}={2:s},".format(ij[0],ij[1],str(par["R"][ij]))
+				for i in par["T"]:
+					val+="t{0:d}={1:s},".format(i,str(par["T"][i]))
+				if len(val)>0:
+					val=val[:-1]
+				args+=[opt,val]
+		
 	files=glob.glob(options.ds_in)
 	if len(files)==0:
 		files=[options.ds_in]  #OK so we assume its not a file - could be a db or url.... TODO: see if WFS or similar driver is specified....
