@@ -98,7 +98,7 @@ else:
 REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
-VERSION="KMSTrans2 v2.1"
+VERSION="KMSTrans2 v2.2b0"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -807,7 +807,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.bt_interactive_transform.clicked.connect(self.transform_input)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		self.rdobt_f2f_ogr.toggled.connect(self.onRdobtOGRToggled)
-		self.chb_apply_affine.toggled.connect(self.onSetupAffine)
+		self.chb_apply_affine.toggled.connect(self.onApplyAffine)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
 		self.actionExit.triggered.connect(self.onExit)
@@ -1462,27 +1462,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		drv=str(self.cb_f2f_ogr_driver.currentText())
 		dlg=DialogCreationOptions(self,drv,File2File.OGR_LONG_TO_SHORT)
 		dlg.exec_()
-	def onSetupAffine(self):
+	@pyqtSignature('') #prevents actions being handled twice
+	def on_bt_setup_affine_clicked(self):
+		self.setupAffine()
+	def onApplyAffine(self):
 		if self.chb_apply_affine.isChecked():
-			dlg=DialogSetupAffine(self,self.f2f_settings.affine_parameters)
-			r=dlg.exec_()
-			#Consider some logic here for when to apply an affine transformation if the dialog was cancelled...
-			if r!=QDialog.Accepted:
-				self.chb_apply_affine.setChecked(False)
-				self.log_f2f("Affine setup was cancelled... will not use affine modifications.","orange")
-			else:
-				values=0
-				for pos in self.f2f_settings.affine_parameters:
-					par=self.f2f_settings.affine_parameters[pos]
-					if par["apply"]:
-						for key in ["T","R"]:
-							values+=len(par[key])
-				if values==0:
-					self.log_f2f("No nontrivial affine modifications. will not use affine modifications.","red")
-					self.chb_apply_affine.setChecked(False)
-				else:
-					self.log_f2f("Affine modifications set.","blue")
-					
+			self.setupAffine()
+	
 					
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_list_formats_clicked(self):
@@ -1499,6 +1485,26 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
 		text=TrLib.DescribeLabel(mlb_out)
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)
+	def setupAffine(self):
+		#setup params for affine transformation...
+		dlg=DialogSetupAffine(self,self.f2f_settings.affine_parameters)
+		r=dlg.exec_()
+		#Consider some logic here for when to apply an affine transformation if the dialog was cancelled...
+		if r!=QDialog.Accepted:
+			self.chb_apply_affine.setChecked(False)
+			self.log_f2f("Affine setup was cancelled... will not use affine modifications.","orange")
+		else:
+			values=0
+			for pos in self.f2f_settings.affine_parameters:
+				par=self.f2f_settings.affine_parameters[pos]
+				if par["apply"]:
+					for key in ["T","R"]:
+						values+=len(par[key])
+			if values==0:
+				self.log_f2f("No nontrivial affine modifications. will not use affine modifications.","red")
+				self.chb_apply_affine.setChecked(False)
+			else:
+				self.log_f2f("Affine modifications set.","blue")
 	def transformFile2File(self):
 		file_in=unicode(self.txt_f2f_input_file.text())
 		file_out=unicode(self.txt_f2f_output_file.text())
@@ -1566,7 +1572,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.f2f_settings.mlb_in=mlb_in
 		else:
 			self.f2f_settings.mlb_in=None
-		if self.chb_apply_affine.isChecked():
+		if self.chb_apply_affine.isChecked() and self.f2f_settings.driver!="DSFL": #affine mod not implemented for DSFL
 			self.f2f_settings.apply_affine=True
 		else:
 			self.f2f_settings.apply_affine=False

@@ -82,8 +82,9 @@
  
 
  void affine_transformation(affine_params *A, double *x, double *y, double *z){
-	 *x=A->R[0]*(*x)+A->R[1]*(*y)+A->R[2]*(*z)+A->T[0];
-	 *y=A->R[3]*(*x)+A->R[4]*(*y)+A->R[5]*(*z)+A->T[1];
-	 *z=A->R[6]*(*x)+A->R[7]*(*y)+A->R[8]*(*z)+A->T[2];
-		 
+	 double x0=*x,y0=*y,z0=*z;
+	 *x=A->R[0]*x0+A->R[1]*y0+A->R[2]*z0+A->T[0];
+	 *y=A->R[3]*x0+A->R[4]*y0+A->R[5]*z0+A->T[1];
+	 *z=A->R[6]*x0+A->R[7]*y0+A->R[8]*z0+A->T[2];
 }
+

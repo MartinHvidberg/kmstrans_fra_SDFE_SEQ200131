@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Affine_params.ui'
 #
-# Created: Wed Jan 21 13:10:45 2015
+# Created: Wed Jan 21 22:08:56 2015
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -140,13 +140,13 @@ class Ui_Form(object):
         self.label_8.setText(_translate("Form", " z ", None))
         self.label_7.setText(_translate("Form", " y ", None))
         self.t3.setText(_translate("Form", "0", None))
-        self.label_3.setText(_translate("Form", "c3", None))
+        self.label_3.setText(_translate("Form", "z", None))
         self.label_4.setText(_translate("Form", "Translation", None))
-        self.label_2.setText(_translate("Form", "c2", None))
+        self.label_2.setText(_translate("Form", "y", None))
         self.r31.setText(_translate("Form", "0", None))
         self.r32.setText(_translate("Form", "0", None))
         self.r23.setText(_translate("Form", "0", None))
         self.t2.setText(_translate("Form", "0", None))
         self.r22.setText(_translate("Form", "1", None))
-        self.label.setText(_translate("Form", "c1", None))
+        self.label.setText(_translate("Form", "x", None))
 

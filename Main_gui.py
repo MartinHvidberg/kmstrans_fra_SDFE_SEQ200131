@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Trui.ui'
 #
-# Created: Wed Jan 21 13:00:45 2015
+# Created: Wed Jan 21 23:35:55 2015
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -701,8 +701,13 @@ class Ui_Trui(object):
         self.chb_f2f_set_projection.setObjectName(_fromUtf8("chb_f2f_set_projection"))
         self.horizontalLayout_10.addWidget(self.chb_f2f_set_projection)
         self.chb_apply_affine = QtGui.QCheckBox(self.groupBox_2)
+        self.chb_apply_affine.setWhatsThis(_fromUtf8("Apply an affine modification, e.g. flip first axis for GIS-layers using System34."))
         self.chb_apply_affine.setObjectName(_fromUtf8("chb_apply_affine"))
         self.horizontalLayout_10.addWidget(self.chb_apply_affine)
+        self.bt_setup_affine = QtGui.QPushButton(self.groupBox_2)
+        self.bt_setup_affine.setEnabled(False)
+        self.bt_setup_affine.setObjectName(_fromUtf8("bt_setup_affine"))
+        self.horizontalLayout_10.addWidget(self.bt_setup_affine)
         spacerItem18 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem18)
         self.verticalLayout_12.addLayout(self.horizontalLayout_10)
@@ -953,6 +958,9 @@ class Ui_Trui(object):
         QtCore.QObject.connect(self.chb_f2f_label_in_file, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_change_h_in.setDisabled)
         QtCore.QObject.connect(self.chb_f2f_use_log, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_browse_log.setEnabled)
         QtCore.QObject.connect(self.chb_f2f_all_layers, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_f2f_input_layers.setDisabled)
+        QtCore.QObject.connect(self.chb_apply_affine, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_setup_affine.setEnabled)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.chb_apply_affine.setHidden)
+        QtCore.QObject.connect(self.rdobt_f2f_dsfl, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.bt_setup_affine.setHidden)
         QtCore.QMetaObject.connectSlotsByName(Trui)
 
     def retranslateUi(self, Trui):
@@ -1060,7 +1068,8 @@ class Ui_Trui(object):
         self.chb_f2f_label_in_file.setText(_translate("Trui", "Label / projection metadata  in source", None))
         self.chb_f2f_set_projection.setWhatsThis(_translate("Trui", "<html><head/><body><p>If checked, will attempt to write output projection metadata in destionation datasource.</p><p>This might fail for some OGR-drivers like e.g. \'FileGDB\', in which case the metadata can be attached via some appropriate tool afterwards, like e.g. ogr2ogr. </p></body></html>", None))
         self.chb_f2f_set_projection.setText(_translate("Trui", "Set output projection metadata in destination", None))
-        self.chb_apply_affine.setText(_translate("Trui", "Apply affine transformations (s34 etc.)", None))
+        self.chb_apply_affine.setText(_translate("Trui", "Apply affine modifications (s34 etc.)", None))
+        self.bt_setup_affine.setText(_translate("Trui", "Set affine parameters", None))
         self.label_3.setText(_translate("Trui", "Input system:", None))
         self.cb_f2f_input_system.setToolTip(_translate("Trui", "Specify input system", None))
         self.cb_f2f_input_system.setWhatsThis(_translate("Trui", "Specify an input spatial reference system as a minilabel, either by selecting from the dropdown list or simply typing one yourself (hit enter to try to parse it).", None))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_affine.ui'
 #
-# Created: Wed Jan 21 13:00:45 2015
+# Created: Wed Jan 21 23:39:12 2015
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,7 +66,9 @@ class Ui_Dialog(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\"> (x,y,z)=R*(x,y,z)+T, where R is a matrix (e.g. a rotation matrix) and T is a translation.</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To invert x-axis only, e.g. for System34, set first element of the R-matrix to -1, and all other diagonal elements to 1.</span></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To invert x-axis only, e.g. for System34, set first element of the R-matrix to -1, and all other diagonal elements to 1.</span></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To only apply a 2D affine transformation, modify only the upper right (x-y) part of the matrix and translation vector.</span></p></body></html>", None))
         self.bt_apply.setText(_translate("Dialog", "Apply", None))
         self.bt_cancel.setText(_translate("Dialog", "Cancel", None))
 

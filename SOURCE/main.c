@@ -31,13 +31,21 @@
 #include "affine.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.08 (" __DATE__ "," __TIME__ ")")
+#define VERSION  ("1.1 (" __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
 static void unescape(char*);
 static int validate_geo_unit(char*);
 static char *INPUT_DRIVERS[]={"DSFL","TEXT","KMS","OGR",0};
+static void present_affine(affine_params *par);
+
+static void present_affine(affine_params *P){
+	int i;
+	for(i=0; i<3; i++){
+		Report(REP_INFO,0,VERB_LOW, "   R_%dj: %.4f %.4f %.4f, T_%d: %.3f",i,P->R[3*i],P->R[3*i+1],P->R[3*i+2],i,P->T[i]);
+	}
+}
 
 /* quick and dirty unescaper - can be hard to enter literal tabs,newlines etc in some shells*/
 static void unescape(char *text){
@@ -98,6 +106,9 @@ void Usage(int help){
 		printf("Useful for some drivers which fail to create layers unless projection metadata satisfy striqt requirements.\n");
 	printf("-verb Be verbose - i.e. enable info and debug messages.\n");
 	printf("-debug  Turn on debug info (mainly relevant for developers)\n");
+	printf("-affin r00=val,..,rij=val,...,t0=val,..t2=val , specify values for affine transformation of input coords.\n");
+	printf("-affout r00=val,..,rij=val,...,t0=val,..t2=val , specify values for affine transformation of output coords.\n");
+	printf("Affine modifications NOT available for DSFL-format.\n");
 	printf("\nOptions specific for the 'TEXT' driver:\n");
 	printf("-sep <sep_char> is used to specify separation char for 'TEXT' format. **Defaults to whitespace.**\n");
 	printf("-x <int> Specify x-column for 'TEXT' driver (default: first column).\n");
@@ -380,6 +391,19 @@ int main(int argc, char *argv[])
    } /*end do*/
     while (n_opts == 0 && key); 
    /*validate some choices...*/
+   if (drv_in){
+	   /* test that driver name is a proper one*/
+ 	   char **p=INPUT_DRIVERS;
+	   while (*p && strcmp(drv_in,*p)) p++;
+	   if (!(*p)){
+		   fprintf(stderr,"Driver %s not available, use option --formats to list recognized formats.\n",drv_in);
+		   exit(1);
+	   }
+   }
+   if (drv_in && !strcmp(drv_in,"DSFL") && (affin || affout)){
+	   fprintf(stderr,"Affine modifications not implemented for DSFL-format\n");
+	   goto usage;
+   }
    if (drv_in && (!strcmp(drv_in,"KMS") || !strcmp(drv_in,"TEXT"))){
 	   if (!validate_geo_unit(input_geo_unit) || !validate_geo_unit(output_geo_unit)){
 		fprintf(stderr,"Geographic unit not supported. Only 'dg','sx','nt' or 'rad' allowed.\n");
@@ -529,14 +553,21 @@ int main(int argc, char *argv[])
     if (fp_log!=NULL)
 	    Report(REP_INFO,0,VERB_LOW,"%-25s: %s","Log file",log_name);
     if (mlb_in)
-	    Report(REP_INFO,0,VERB_LOW,"Projection: %s->%s",mlb_in,mlb_out);
+	    Report(REP_INFO,0,VERB_LOW,"Transformation: %s->%s",mlb_in,mlb_out);
     else
 	    Report(REP_INFO,0,VERB_LOW,"Using output projection: %s. Looking for projection metadata in input datasource.",mlb_out);
     if (n_layers>0)
 	    Report(REP_INFO,0,VERB_LOW,"%d layer(s) specified.",n_layers);
     else
 	    Report(REP_INFO,0,VERB_LOW,"Reading all layers in input datasource.");
-    
+    if (paffin!=NULL){
+	    Report(REP_INFO,0,VERB_LOW,"Affine modification of input:");
+	    present_affine(paffin);
+    }
+    if (paffout!=NULL){
+	    Report(REP_INFO,0,VERB_LOW,"Affine modification of output:");
+	    present_affine(paffout);
+    }
     {/*test if output exists*/
     struct stat buf;
     int f_err=stat(outname, &buf);
@@ -599,7 +630,7 @@ int main(int argc, char *argv[])
 	frmt.copy_bad=copy_bad;
 	frmt.units_in_output=units_in_output;
 	frmt.comments=comments;
-        err=TransformText(inname,outname,trf,frmt);
+        err=TransformText(inname,outname,trf,frmt,paffin,paffout);
     } /* end simple text /KMS */
     else if (!strcmp(drv_in,"OGR")){ /*begin OGR */
 	   err=TransformOGR(inname, outname, trf, drv_out,layer_names, set_output_projection,dscos,lcos,paffin,paffout);
@@ -631,6 +662,10 @@ int main(int argc, char *argv[])
 	free(lcos);
     if (dscos!=NULL)
 	free(dscos);
+    if (paffin!=NULL)
+	free(paffin);
+    if (paffout!=NULL)
+	free(paffout);
     return err;
     usage:
 	fprintf(stderr,"Invalid specification of options...\n");

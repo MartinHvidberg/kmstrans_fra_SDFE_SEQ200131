@@ -207,7 +207,7 @@ static int set_coordinate_order(TR *trf, int *output_order, struct format_option
 * TODO: consider using col numbers for KMS-format.
 * Implement a general flip_xy arg 
 */
-int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt)
+int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt, affine_params *paffin, affine_params *paffout)
 {  
     double r2d=R2D;
     double d2r=D2R;
@@ -492,12 +492,13 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		return TR_ERROR;
 	}
        
-	/*TODO: fixup what is to be writen to log */
+	if (paffin){
+		affine_transformation(paffin,coords,coords+1,coords+2);
+	}
 	err = TR_Transform(trf,coords,coords+1,coords+2,1);
 	if (err==TR_OK){
 		n_trans_ok++;
 		/*perhaps do this in all cases?*/
-		
 		if (log_geoids){
 			TR_GetGeoidName(trf,geoid_name);
 			AppendGeoid(geoid_name);
@@ -509,7 +510,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		Report(REP_ERROR,err,VERB_HIGH,"Error: %d, In: %.5f %.5f %.5f ",TR_GetLastError(),x,y,z);
 	}
 	/*continue even after an error?*/
-	
+	if (paffout){
+		affine_transformation(paffout,coords,coords+1,coords+2);
+	}
 	/*calculate extent */
 	if (n_trans_ok>1 || n_trans_bad>1){
 			
