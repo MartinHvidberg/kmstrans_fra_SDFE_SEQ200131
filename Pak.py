@@ -17,19 +17,23 @@ sys.argv.append("py2exe")
 extra_files=["LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
-excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","javaxx","numpy"]
-setup(   options = {'py2exe': {'excludes': excludes, 'includes':['encodings','sip']}},
+excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","numpy","setup","distutils","pywin","pywin.dialogs","pywin.dialogs.list"]
+setup(   options = {'py2exe': { 'excludes': excludes, 'includes':['encodings','sip'], "optimize" : 1}},
 windows=[{"script" : "Trui.py"}],
 data_files=[("",extra_files),("bin",BIN),("coast",COAST),])
-MSVCP=glob.glob(".\\dist\\msvcp*.dll")
+MS_DLLS=glob.glob(".\\dist\\msvcp*.dll") #ms dlls to manually remove afterwards...
+MS_DLLS.extend(glob.glob(".\\dist\\API-MS*.dll"))
+MS_DLLS.extend([".\\dist\\"+x for x in ["KERNELBASE.dll","MSASN1.dll","CRYPT32.dll"]])
 try:
 	shutil.copytree("gdal","dist\\gdal")
 except:
 	print("Could not copy gdal installation")
-try:
-        os.remove(MSVCP[0])
-except:
-        pass
+for name in MS_DLLS:
+	try:
+		print("Removing "+name)
+		os.remove(name)
+	except:
+		print("Failed...")
 try:
 	shutil.copytree("doc","dist\\doc")
 except:
