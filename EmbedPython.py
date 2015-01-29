@@ -5,10 +5,10 @@ class PythonConsole(object):
 		self.namespace=namespace
 		self.cmd_buffer=[]
 		self.index=-1
-	def ClearCache(self):
+	def clearCache(self):
 		self.cmd_buffer=[]
 		self.index=-1
-	def ExecuteCode(self,code_lines):
+	def executeCode(self,code_lines):
 		#TODO weird namespace stuff in class definitions....
 		simple=False
 		code=None
@@ -34,23 +34,23 @@ class PythonConsole(object):
 				sys.stderr.flush()
 			else:
 				if simple:
-					self.AddToCommandBuffer(lines[-1])
+					self.addToCommandBuffer(lines[-1])
 				return True
 		else:
 			sys.stderr.write(repr(err))
 			sys.stderr.flush()
 		return False
-	def UpdateNameSpace(self,key,value):
+	def updateNameSpace(self,key,value):
 		self.namespace[key]=value
-	def AddToCommandBuffer(self,cmd):
+	def addToCommandBuffer(self,cmd):
 		if len(self.cmd_buffer)==BUFFER_MAX:
 			self.cmd_buffer.pop(0)
 		self.cmd_buffer.append(cmd)
-	def SpoolUp(self):
+	def spoolUp(self):
 		self.index+=1
 		self.index=self.index%len(self.cmd_buffer)
 		return self.cmd_buffer[self.index]
-	def SpoolDown(self):
+	def spoolDown(self):
 		self.index-=1
 		self.index=self.index%len(self.cmd_buffer)
 		return self.cmd_buffer[self.index]

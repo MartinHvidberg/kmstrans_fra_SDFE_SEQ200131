@@ -24,3 +24,4 @@ EXPORTS
    TransformDSFL
    affine_from_string
    affine_transformation
+   affine_destroy

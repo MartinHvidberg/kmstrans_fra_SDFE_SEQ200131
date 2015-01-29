@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'UI\Affine_params.ui'
 #
-# Created: Wed Jan 21 22:08:56 2015
-#      by: PyQt4 UI code generator 4.10
+# Created: Mon Jan 26 11:27:12 2015
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,9 +38,14 @@ class Ui_Form(object):
         self.chb_apply = QtGui.QCheckBox(self.groupBox)
         self.chb_apply.setObjectName(_fromUtf8("chb_apply"))
         self.horizontalLayout.addWidget(self.chb_apply)
-        self.chb_invert_x = QtGui.QCheckBox(self.groupBox)
-        self.chb_invert_x.setObjectName(_fromUtf8("chb_invert_x"))
-        self.horizontalLayout.addWidget(self.chb_invert_x)
+        self.bt_invert_x = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bt_invert_x.sizePolicy().hasHeightForWidth())
+        self.bt_invert_x.setSizePolicy(sizePolicy)
+        self.bt_invert_x.setObjectName(_fromUtf8("bt_invert_x"))
+        self.horizontalLayout.addWidget(self.bt_invert_x)
         self.bt_reset = QtGui.QPushButton(self.groupBox)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -128,7 +133,7 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form", None))
         self.groupBox.setTitle(_translate("Form", "GroupBox", None))
         self.chb_apply.setText(_translate("Form", "Use affine modification", None))
-        self.chb_invert_x.setText(_translate("Form", "Set x-axis inversion only (System34 etc.)", None))
+        self.bt_invert_x.setText(_translate("Form", "Set x-axis inversion only", None))
         self.bt_reset.setText(_translate("Form", "Reset", None))
         self.t1.setText(_translate("Form", "0", None))
         self.r12.setText(_translate("Form", "0", None))

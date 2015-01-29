@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_affine.ui'
 #
-# Created: Wed Jan 21 23:39:12 2015
-#      by: PyQt4 UI code generator 4.10
+# Created: Mon Jan 26 16:25:44 2015
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(461, 362)
+        Dialog.resize(567, 362)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.textBrowser = QtGui.QTextBrowser(Dialog)
@@ -39,6 +39,12 @@ class Ui_Dialog(object):
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
+        self.chb_apply_interactive = QtGui.QCheckBox(Dialog)
+        self.chb_apply_interactive.setObjectName(_fromUtf8("chb_apply_interactive"))
+        self.horizontalLayout.addWidget(self.chb_apply_interactive)
+        self.chb_apply_f2f = QtGui.QCheckBox(Dialog)
+        self.chb_apply_f2f.setObjectName(_fromUtf8("chb_apply_f2f"))
+        self.horizontalLayout.addWidget(self.chb_apply_f2f)
         self.bt_apply = QtGui.QPushButton(Dialog)
         self.bt_apply.setObjectName(_fromUtf8("bt_apply"))
         self.horizontalLayout.addWidget(self.bt_apply)
@@ -66,9 +72,11 @@ class Ui_Dialog(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\"> (x,y,z)=R*(x,y,z)+T, where R is a matrix (e.g. a rotation matrix) and T is a translation.</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To invert x-axis only, e.g. for System34, set first element of the R-matrix to -1, and all other diagonal elements to 1.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To invert x-axis only, e.g. for System34, set first element of the R-matrix to -1, and all other diagonal elements to 1 (a button does this).</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To only apply a 2D affine transformation, modify only the upper right (x-y) part of the matrix and translation vector.</span></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To only apply a 2D affine transformation, modify only the upper left (x-y) part of the matrix and translation vector.</span></p></body></html>", None))
+        self.chb_apply_interactive.setText(_translate("Dialog", "Apply modifications in interactive tab", None))
+        self.chb_apply_f2f.setText(_translate("Dialog", "Apply modifications in batch tab", None))
         self.bt_apply.setText(_translate("Dialog", "Apply", None))
         self.bt_cancel.setText(_translate("Dialog", "Cancel", None))
 

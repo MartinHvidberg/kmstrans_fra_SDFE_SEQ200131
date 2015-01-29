@@ -17,7 +17,14 @@
  * 
  */
  """
- #simlk, 2012-2013
+ #simlk, 2012-2015
+ #Naming conventions - not totally PEP8 compliant, which is also the case for PyQt4
+ #Thus - try to comply with the Qt4 style for methods: lowerUpper. See also: https://code.google.com/p/soc/wiki/PythonStyleGuide
+ 
+
+ 
+import sys,os,time
+import math
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import *
@@ -37,9 +44,10 @@ import TrLib
 from TrLib_constants import *
 import threading, subprocess
 import File2File
-import sys,os,time
+import LibTrui
+
 import WidgetUtils
-import math
+
 try:
 	import importlib
 except ImportError:
@@ -76,7 +84,7 @@ PLUGIN_PATH_USER=os.path.expanduser(os.path.join("~","."+PROG_NAME,"plugins"))
 PLUGIN_PATH_LOCAL=os.path.join(PREFIX,"plugins")
 if not os.path.exists(PLUGIN_PATH_USER):
 	try:
-		os.makedirs(PLUGIN_PATH)
+		os.makedirs(PLUGIN_PATH_USER)
 	except:
 		pass
 DOC_PATH="file://"+PREFIX+"/"+"doc"
@@ -98,7 +106,7 @@ else:
 REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
-VERSION="KMSTrans2 v2.2b0"
+VERSION="KMSTrans2 v2.2b1"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -118,26 +126,26 @@ FILE_LOG_EVENT=1235
 RETURN_CODE_EVENT=1236
 
 class MapEvent(QEvent):
-	def __init__(self,type=RENDER_COMPLETE):
-		QEvent.__init__(self,type)
+	def __init__(self,etype=RENDER_COMPLETE):
+		QEvent.__init__(self,etype)
 
 class FileLogEvent(QEvent):
-	def __init__(self,msg,type=FILE_LOG_EVENT):
-		QEvent.__init__(self,type)
+	def __init__(self,msg,etype=FILE_LOG_EVENT):
+		QEvent.__init__(self,etype)
 		self.msg=msg
 
 class ReturnCodeEvent(QEvent):
-	def __init__(self,rc,type=RETURN_CODE_EVENT):
-		QEvent.__init__(self,type)
+	def __init__(self,rc,etype=RETURN_CODE_EVENT):
+		QEvent.__init__(self,etype)
 		self.rc=rc
 		
 class MessagePoster(object):
 	def __init__(self,win):
 		self.win=win
-	def PostFileMessage(self,text):
+	def postFileMessage(self,text):
 		event=FileLogEvent(text)
 		app.postEvent(self.win,event)
-	def PostReturnCode(self,rc):
+	def postReturnCode(self,rc):
 		event=ReturnCodeEvent(rc)
 		app.postEvent(self.win,event)
 		
@@ -148,27 +156,25 @@ class MapThread(threading.Thread):
 		self.win=win
 		self.region=region #not used at the moment - for selecting coastline according to region....
 	def run(self):
-		t1=time.clock()
-		lines=File2File.GetLines(COAST_PATH)
+		lines=LibTrui.GetLines(COAST_PATH)
 		self.paths=[]
 		for line in lines:
 			path=QPainterPath(QPointF(line[0][0],-line[0][1]))
 			for i in range(1,len(line)):
 				path.lineTo(line[i][0],-line[i][1])
 			self.paths.append(path)
-		t2=time.clock()
 		app.postEvent(self.win,MapEvent(RENDER_COMPLETE))
 
 
 #Very very simple callback handling messages from TrLib and libtrui# 
-def LordCallback(err_class,err_code,msg):
+def lordCallback(err_class,err_code,msg):
 	try:
 		MainWindow.displayCallbackMessage(msg.strip())
 	except:
 		pass
 
 #Get a list of plugins - now from several paths. Enables plugins in root dir also
-def GetPlugins(plugin_paths):
+def getPlugins(plugin_paths):
 	plugins=set()
 	dublicates=set()
 	for path in plugin_paths:
@@ -197,7 +203,7 @@ class PointData(object):
 		self.proj_weakly_defined=False #flag for type 8 and 10 systems - right now detected on minilabel level. Would be great to expose the proj object (and thereby cstm code etc.)
 
 #Hack to get scale and convergence for type 8 and 10 systems...
-def GetNumericScale(x1,y1,coord_transf,axis,flat):
+def getNumericScale(x1,y1,coord_transf,axis,flat):
 	lon1,lat1,z=coord_transf.Transform(x1,y1)
 	lat2=lat1+8e-5
 	x2,y2,z=coord_transf.InverseTransform(lon1,lat2)
@@ -211,6 +217,9 @@ def GetNumericScale(x1,y1,coord_transf,axis,flat):
 		print("Exception during calculation of scale and convergence.") #or simply raise an exception
 		sc,m=-1,-1
 	return sc,m
+
+
+			
 
 class GDALSettings(object):
 	""" Class which holds saved gdal settings """
@@ -308,20 +317,33 @@ class DialogGDALSettings(QtGui.QDialog,Ui_Dialog_gdal):
 	def on_bt_cancel_clicked(self):
 		self.reject()
 
+class AffineModifications(object):
+	def __init__(self):
+		self.input=LibTrui.AffineTransformation()
+		self.output=LibTrui.AffineTransformation()
+		self.apply_interactive=False
+		self.apply_f2f=False
+		self.input.apply=False
+		self.output.apply=False
+
 class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
 	"""Widget for editing affine parameters"""
-	def __init__(self,parent,title):
+	def __init__(self,parent,title,params):
 		QtGui.QWidget.__init__(self,parent)
 		self.setupUi(self)
 		self.groupBox.setTitle(title)
-		self.chb_invert_x.toggled.connect(self.onInvertX)
+		self.params=params
+		self.chb_apply.setChecked(params.apply)
 		self.R=[[self.r11,self.r12,self.r13],[self.r21,self.r22,self.r23],[self.r31,self.r32,self.r33]]
 		self.T=[self.t1,self.t2,self.t3]
+		self.setRotation(params.R)
+		self.setTranslation(params.T)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_reset_clicked(self):
 		self.setRotation({})
 		self.setTranslation({})
-	def onInvertX(self):
+	@pyqtSignature('') #prevents actions being handled twice	
+	def on_bt_invert_x_clicked(self):
 		self.setRotation({(0,0):-1})
 		self.setTranslation({})
 		self.chb_apply.setChecked(True)
@@ -370,6 +392,11 @@ class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
 					if (i==j and v!=1.0) or (i!=j and v!=0.0):
 						vals[(i,j)]=v
 		return vals
+	def setParameters(self):
+		self.params.apply=bool(self.chb_apply.isChecked())
+		self.params.R=self.getRotation()
+		self.params.T=self.getTranslation()
+		self.params.setup()
 	
 				
 				
@@ -381,35 +408,58 @@ class DialogSetupAffine(QtGui.QDialog,Ui_Dialog_affine):
 	def __init__(self,parent,params):
 		QtGui.QDialog.__init__(self,parent)
 		self.setupUi(self)
-		self.affine_in=AffineWidget(self,"Modify input")
-		self.affine_out=AffineWidget(self,"Modify output")
+		self.affine_in=AffineWidget(self,"Modify input",params.input)
+		#self.affine_in.chb_apply.toggled.connect(self.onEnableAffine) #check event propagation!
+		self.affine_out=AffineWidget(self,"Modify output",params.output)
 		self.layout_horizontal.addWidget(self.affine_in)
 		self.layout_horizontal.addWidget(self.affine_out)
 		self.params=params
-		for pos,widget in enumerate([self.affine_in,self.affine_out]):
-			if pos in params: #then the relevant dict *must* have correct keys... otherwise the keys cannot be set...
-				widget.setRotation(params[pos]["R"])
-				widget.setTranslation(params[pos]["T"])
+		self.chb_apply_f2f.setChecked(params.apply_f2f)
+		self.chb_apply_interactive.setChecked(params.apply_interactive)
+	
 		
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_cancel_clicked(self):
 		self.reject()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_apply_clicked(self):
-		for pos,widget in enumerate([self.affine_in,self.affine_out]):
-			apply=widget.chb_apply.isChecked()
-			if apply: #only save if apply is checked...
+		#make sure that we can only return ACCEPT in a consistent state.
+		#i.e. if no real affine modifacations - we cannot apply in one of the tabs.
+		#and non-trivial mods which are not applied should also trigger message.
+		nvals=0
+		#first check if a modification is set
+		for widget,name in [(self.affine_in,"input"),(self.affine_out,"output")]:
+			do_apply=widget.chb_apply.isChecked()
+			if do_apply: #only save if apply is checked...
 				R=widget.getRotation()
 				if R is None:
 					return
 				T=widget.getTranslation()
 				if T is None:
 					return
-				self.params[pos]["R"]=R
-				self.params[pos]["T"]=T
-			self.params[pos]["apply"]=bool(apply)
+				#TODO: handle the situatuon where one the transormations is trivial...
+				vals_here=len(R)+len(T)
+				if vals_here==0:
+					msg="Affine modification enabled in "+name+"- but no nontrivial values set."
+					QMessageBox.information(self,"Affine setup",msg)
+					widget.setFocus()
+					return
+				nvals+=vals_here
+		if (self.chb_apply_f2f.isChecked() or self.chb_apply_interactive.isChecked()):
+			if nvals==0:
+				QMessageBox.information(self,"Affine setup","No nontrivial modifications to apply. Cancel or set some!")
+				return
+		else:
+			if nvals>0:
+				QMessageBox.information(self,"Affine setup","You have enabled affine modificaitions, but they are not applied in any tab.")
+				return
+		#in a consistent state and ready to fly, so modify stored params.
+		self.params.apply_f2f=bool(self.chb_apply_f2f.isChecked())
+		self.params.apply_interactive=bool(self.chb_apply_interactive.isChecked())
+		for widget in (self.affine_in,self.affine_out):
+			widget.setParameters()
 		self.accept()
-				
+		
 		
 			
 class DialogFile2FileSettings(QtGui.QDialog,Ui_Dialog_f2f):
@@ -684,7 +734,7 @@ def InitTransformationLibrary():
 		else:
 			msg+="\nYou may need to rebuild libraries..."
 		return False,msg
-	TrLib.SetMessageHandler(LordCallback)
+	TrLib.SetMessageHandler(lordCallback)
 	TrLib.SetMaxMessages(-1)
 	TrLib.SetThreadMode(False)
 	#Will still need to set geoid library before  TrLib is fully initialised!
@@ -791,12 +841,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.setWindowIcon(QIcon(":/UI/icon.png"))
 		self.setWindowTitle(VERSION)
 		#Set log methods - tabs work as general plugins do#
-		self.tab_interactive.handleStdOut=self.log_interactive_StdOut
-		self.tab_interactive.handleStdErr=self.log_interactive_StdErr
-		self.tab_interactive.handleCallBack=self.log_interactive_CallBack
-		self.tab_ogr.handleStdOut=self.log_f2f_StdOut
-		self.tab_ogr.handleStdErr=self.log_f2f_StdErr
-		self.tab_ogr.handleCallBack=self.log_f2f_CallBack
+		self.tab_interactive.handleStdOut=self.logInteractiveStdout
+		self.tab_interactive.handleStdErr=self.logInteractiveStderr
+		self.tab_interactive.handleCallBack=self.logInteractiveCallBack
+		self.tab_ogr.handleStdOut=self.logF2Fstdout
+		self.tab_ogr.handleStdErr=self.logF2FStderr
+		self.tab_ogr.handleCallBack=self.logF2FCallback
 		#Set up event handlers#
 		#some event handlers defined directly by special method names#
 		self.cb_input_system.currentIndexChanged.connect(self.onSystemInChanged)
@@ -804,15 +854,16 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.cb_f2f_input_system.currentIndexChanged.connect(self.onF2FSystemInChanged)
 		self.cb_f2f_output_system.currentIndexChanged.connect(self.onF2FSystemOutChanged)
 		self.chb_show_scale.clicked.connect(self.onShowScale)
-		self.bt_interactive_transform.clicked.connect(self.transform_input)
+		self.bt_interactive_transform.clicked.connect(self.transformInput)
 		self.chb_f2f_label_in_file.toggled.connect(self.onF2FSystemInChanged)
 		self.rdobt_f2f_ogr.toggled.connect(self.onRdobtOGRToggled)
-		self.chb_apply_affine.toggled.connect(self.onApplyAffine)
+		#self.chb_f2f_apply_affine.toggled.connect(self.onF2FApplyAffine)
+		#self.chb_apply_affine.toggled.connect(self.onInteractiveApplyAffine)
 		#Menu event handlers#
 		self.actionNew_KMSTrans.triggered.connect(self.onNewKMSTrans)
 		self.actionExit.triggered.connect(self.onExit)
 		self.actionAbout_KMSTrans.triggered.connect(self.onAbout)
-		self.actionHelp_local.triggered.connect(self.onHelp_local)
+		self.actionHelp_local.triggered.connect(self.onHelpLocal)
 		self.actionDK.triggered.connect(self.setRegionDK)
 		self.actionFO.triggered.connect(self.setRegionFO)
 		self.actionGR.triggered.connect(self.setRegionGR)
@@ -829,6 +880,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.actionFile2file_settings.triggered.connect(self.openFile2FileSettings)
 		self.actionGDAL_settings.triggered.connect(self.openGDALSettings)
 		self.actionPlugins_enabled.triggered.connect(self.togglePluginsEnabled)
+		self.actionSetup_affine_modifications.triggered.connect(self.setupAffine)
 		#end setup event handlers#
 		#Set up convienient pointers to input and output#
 		self.input=[self.txt_x_in,self.txt_y_in,self.txt_z_in]
@@ -842,13 +894,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		ANGULAR_UNIT_SX:self.actionSx_derived,ANGULAR_UNIT_NT:self.actionNt_derived}
 		#SET UP INPUT EVENT HANDLERS: TRANSFORM ON RETURN. TODO: ADD VALIDATOR#
 		for field in self.input:
-			field.returnPressed.connect(self.transform_input)
+			field.returnPressed.connect(self.transformInput)
 		#END SETUP INPUT EVENT HANDLERS#
 		#Create Whatsthis in help menu#
 		self.menuHelp.addSeparator()
 		self.menuHelp.addAction(QWhatsThis.createAction(self))
 		#SETUP VARIOUS ATTRIBUTES#
 		self.coord_precision=4 # 4 decimals in metric output - translates to something else for angular output...
+		self.affine_modifications=AffineModifications()
 		self.message_poster=MessagePoster(self)
 		self.f2f_settings=File2File.F2F_Settings()
 		self.f2f_settings.n_decimals=self.coord_precision
@@ -867,7 +920,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		except:
 			pass
 		else:
-			self.log_interactive("Running through py2exe.")
+			self.logInteractive("Running through py2exe.")
 		#move to interactive tab - messages will appear there afterwards,,,,#
 		try:
 			self.main_tab_host.setCurrentIndex(0)
@@ -899,7 +952,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		#initialise the map#
 		self.initMap()
 		#load OGR dependent things...
-		self.loadOGR()
+		self.loadLibtrui()
 		#important to set this var which will be passed on to trogr when running batch mode 
 		os.environ["TR_TABDIR"]=self.geoids.encode(sys.getfilesystemencoding())
 		#Now that trlib is initlialised we can define these tranformation objects#
@@ -917,7 +970,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.loadPlugins()
 		else:
 			self.actionPlugins_enabled.setText("Enable plugins")
-			self.log_interactive("Plugins disabled...",color="brown")
+			self.logInteractive("Plugins disabled...",color="brown")
 		#Only now - redirect python stderr - to be able to see errors in the initialisation#
 		self.initRegion()
 		sys.stderr=RedirectOutput(self.handleStdErr)
@@ -941,7 +994,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.close()
 	def onActionWhatsThis(self):
 		QWhatsThis.enterWhatsThisMode()
-	def onHelp_local(self):
+	def onHelpLocal(self):
 		try:
 			import webbrowser
 			webbrowser.open(URL_HELP_LOCAL)
@@ -958,7 +1011,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		dlg.exec_()
 	def onNewKMSTrans(self):
 		subprocess.Popen([sys.executable,sys.argv[0]],env=UNMODIFIED_ENV)
-		self.log_interactive("Starting new process")
+		self.logInteractive("Starting new process")
 	#Map Stuff#	
 	def initMap(self):
 		self.scene=QtGui.QGraphicsScene(self.gv_map)
@@ -975,17 +1028,17 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	def customEvent(self,event):
 		if int(event.type())==RENDER_COMPLETE:
 			paths=self.mapthread.paths
-			self.log_interactive("Load of coastline completed. Rendering...")
+			self.logInteractive("Load of coastline completed. Rendering...")
 			t1=time.clock()
 			self.scene.removeItem(self.map_point)
 			for path in paths:
 				self.scene.addPath(path)
 			t2=time.clock()
 			if DEBUG:
-				self.log_interactive("Render time: %.4f s" %(t2-t1))
+				self.logInteractive("Render time: %.4f s" %(t2-t1))
 			self.scene.addItem(self.map_point)
 		if int(event.type())==FILE_LOG_EVENT:
-			self.log_f2f(event.msg)
+			self.logF2F(event.msg)
 		if int(event.type())==RETURN_CODE_EVENT:
 			self.onF2FReturnCode(event.rc)
 			
@@ -997,7 +1050,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			x,y,z=self.map_transformation.TransformPoint(x,y,z)
 		except:
 			self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 90)))
-			self.log_interactive("Error in map transformation - failed to draw map point","red")
+			self.logInteractive("Error in map transformation - failed to draw map point","red")
 		else:
 			self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 200)))
 			r=2**(-self.map_zoom)*10
@@ -1050,7 +1103,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.cb_input_system.setCurrentIndex(0) #TODO: dont emit signal!
 		self.cb_output_system.setCurrentIndex(0)
 		self._handle_system_change=True
-		self.transform_input() #this should trigger the redraw of the point
+		self.transformInput() #this should trigger the redraw of the point
 		self.zoomMap()
 		for widget in self.getAdditionalWidgets():
 			if hasattr(widget,"handleRegionChange"):
@@ -1060,30 +1113,34 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if not self._handle_system_change:
 			return
 		#Trigger a transformation#
-		self.transform_input(True,False)
+		self.transformInput(True,False)
 		
 	
 	def onSystemOutChanged(self):
 		if not self._handle_system_change:
 			return
 		#Trigger a transformation#
-		self.transform_input(False,True)
+		self.transformInput(False,True)
 		
 			
 	def setSystemInfo(self,do_input=True,do_output=False):
 		if do_input:
 			mlb_in=str(self.cb_input_system.currentText())
 			text=TrLib.DescribeLabel(mlb_in)
+			if self.affine_modifications.apply_interactive and self.affine_modifications.input.apply:
+				text+=",+affine modification"
 			self.lbl_input_info.setText("Input system info: %s" %text)
-			labels=Minilabel.GetSystemLabels(mlb_in)
+			labels=Minilabel.getSystemLabels(mlb_in)
 			if labels is not None:
 				for i in range(3):
 					self.input_labels[i].setText(labels[i])
 		if do_output:
 			mlb_out=str(self.cb_output_system.currentText())
 			text=TrLib.DescribeLabel(mlb_out)
+			if self.affine_modifications.apply_interactive and self.affine_modifications.output.apply:
+				text+=",+affine modification"
 			self.lbl_output_info.setText("Output system info: %s" %text)
-			labels=Minilabel.GetSystemLabels(mlb_out)
+			labels=Minilabel.getSystemLabels(mlb_out)
 			if labels is not None:
 				for i in range(3):
 					self.output_labels[i].setText(labels[i])
@@ -1094,7 +1151,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS,False)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
-			self.transform_input(True,False)
+			self.transformInput(True,False)
 		
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_out_clicked(self):
@@ -1102,22 +1159,23 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_out:
 			self.cb_output_system.setEditText(mlb)
-			self.transform_input(False,True)
+			self.transformInput(False,True)
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_interactive_swap_clicked(self):
 		#Transform - then swap input/output
-		self.transform_input()
+		#TODO - consider how to handle affine modifications on a swap. Perhaps failing is ok... 
+		#OR we can flip the affine modifications also...
+		self.transformInput()
 		if self.output_cache.is_valid:
 			self._handle_system_change=False
 			mlb_in=str(self.cb_input_system.currentText())
 			mlb_out=self.output_cache.mlb
-			in_vals=self.getInteractiveInput()
 			self.setInteractiveInput(self.output_cache.coords,mlb_out)
 			self.cb_input_system.setEditText(mlb_out)
 			self.cb_output_system.setEditText(mlb_in)
 			self._handle_system_change=True
-			self.transform_input()
-			
+			self.transformInput()
+	
 	def setRegionDK(self):
 		if self.region!=REGION_DK:
 			self.region=REGION_DK
@@ -1208,17 +1266,17 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 				if (self.output_cache.proj_weakly_defined):
 					if (self.output_cache.mlb!=self.numeric_scale_transf.mlb_in):
 						self.numeric_scale_transf.Insert(self.output_cache.mlb,True)
-					sc,m=GetNumericScale(self.output_cache.coords[0],self.output_cache.coords[1],self.numeric_scale_transf,self.fallback_ellipsoid[1],self.fallback_ellipsoid[2])
-					self.log_interactive("INFO: calculating scale and convergence numerically relative to ETRS89 datum","blue")
+					sc,m=getNumericScale(self.output_cache.coords[0],self.output_cache.coords[1],self.numeric_scale_transf,self.fallback_ellipsoid[1],self.fallback_ellipsoid[2])
+					self.logInteractive("INFO: calculating scale and convergence numerically relative to ETRS89 datum","blue")
 				else:
 					sc,m=self.coordinate_transformation.GetLocalGeometry(self.output_cache.coords[0],self.output_cache.coords[1])
 				self.output_cache.scale=sc
 				self.output_cache.meridian_convergence=m
 				self.output_cache.has_scale=True
 			self.txt_scale.setText("%.7f" %self.output_cache.scale)
-			self.txt_meridian_convergence.setText(TranslateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived,precision=0))
+			self.txt_meridian_convergence.setText(translateFromDegrees(self.output_cache.meridian_convergence,self.geo_unit_derived,precision=0))
 			if DEBUG:
-				self.log_interactive(repr(self.output_cache.coords)+"\n"+self.output_cache.mlb)
+				self.logInteractive(repr(self.output_cache.coords)+"\n"+self.output_cache.mlb)
 		else:
 			self.txt_scale.setText("")
 			self.txt_meridian_convergence.setText("")
@@ -1229,7 +1287,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		is_angle=TrLib.IsGeographic(mlb_in)
 		coords,msg=WidgetUtils.getInput(self.input,is_angle,angular_unit=self.geo_unit)
 		if len(msg)>0:
-			self.log_interactive(msg)
+			self.logInteractive(msg)
 		return coords
 	
 	def setInteractiveOutput(self,coords,mlb_out=None):
@@ -1249,9 +1307,9 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		WidgetUtils.setOutput(coords,self.input,is_angle,z_fields=[2],angular_unit=self.geo_unit,precision=self.coord_precision)
 		
 		
-	def transform_input(self,input_index_changed=False,output_index_changed=False):
+	def transformInput(self,input_index_changed=False,output_index_changed=False):
 		if self._clear_log:
-			self.log_interactive("",clear=True)
+			self.logInteractive("",clear=True)
 		self.output_cache.is_valid=False
 		self.output_cache.has_scale=False
 		mlb_in=str(self.cb_input_system.currentText())
@@ -1266,12 +1324,16 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.output_cache.proj_weakly_defined=Minilabel.IsProjWeaklyDefined(mlb_out)
 		coords=self.getInteractiveInput(mlb_in)
 		if len(coords)!=3:
-			self.log_interactive("Input coordinate in field %d not OK!" %(len(coords)+1),"red")
+			self.logInteractive("Input coordinate in field %d not OK!" %(len(coords)+1),"red")
 			self.setInteractiveOutput([])
 			self.onShowScale()
 			self.input[len(coords)].setFocus()
 			return
 		x_in,y_in,z_in=coords
+		#Apply affine mod first.
+		if self.affine_modifications.apply_interactive and self.affine_modifications.input.apply:
+			x_in,y_in,z_in=self.affine_modifications.input.transform(x_in,y_in,z_in)
+			self.logInteractive("Applying affine modification of input. Modified input: {0:.3f} {1:.3f} {2:.3f}".format(x_in,y_in,z_in),"blue")
 		if  mlb_in!=self.coordinate_transformation.mlb_in: 
 			try:
 				self.coordinate_transformation.Insert(mlb_in)
@@ -1283,7 +1345,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					self.cb_input_system.setEditText(mlb_in)
 					self._handle_system_change=True
 				self.setInteractiveOutput([])
-				self.log_interactive("Input label not OK!\n%s" %repr(msg),color="red")
+				self.logInteractive("Input label not OK!\n%s" %repr(msg),color="red")
 				return
 		#at this point mbl in and input coords are validated and we can attempt to draw the map point
 		self.drawPoint(x_in,y_in,z_in,mlb_in)
@@ -1297,7 +1359,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					self.cb_output_system.setEditText(mlb_out)
 					self._handle_system_change=True
 				self.setInteractiveOutput([])
-				self.log_interactive("Output label not OK!\n%s" %repr(msg),color="red")
+				self.logInteractive("Output label not OK!\n%s" %repr(msg),color="red")
 				return
 		try:
 			x,y,z,h=self.coordinate_transformation.TransformGH(x_in,y_in,z_in)
@@ -1305,20 +1367,25 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.setInteractiveOutput([])
 			err=TrLib.GetLastError()
 			if err in ERRORS:
-				self.log_interactive("%s" %ERRORS[err],color="red")
+				self.logInteractive("%s" %ERRORS[err],color="red")
 			else:
-				self.log_interactive("Error in transformation",color="red")
+				self.logInteractive("Error in transformation",color="red")
 			self.onShowScale()
 			return
 		#Cache output after succesfull transformation#
 		self.output_cache.is_valid=True
 		self.output_cache.coords=[x,y,z]
-		self.setInteractiveOutput([x,y,z]) #here we cache scale ond convergence also!
-		self.onShowScale()
+		self.onShowScale()#here we cache scale ond convergence also!
 		self.txt_geoid_height.setText("%.4f m" %h)
 		geoid_name=self.coordinate_transformation.GetGeoidName()
 		if DEBUG:
-			self.log_interactive("Geoid: %s" %geoid_name)
+			self.logInteractive("Geoid: %s" %geoid_name)
+		#the affine modification should not infect scale, caching etc. - only used in display.
+		if self.affine_modifications.apply_interactive and self.affine_modifications.output.apply:
+			#check when in the logical chain to apply this.....
+			x,y,z=self.affine_modifications.output.transform(x,y,z)
+			self.logInteractive("Applying affine modification of output.","blue")
+		self.setInteractiveOutput([x,y,z]) #does nothing but display the coords
 		self.txt_geoid_name.setText(geoid_name)
 		
 	#TAB  File2File#
@@ -1329,12 +1396,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		#completer.setCompletionMode(QCompleter.InlineCompletion)
 		#self.txt_f2f_input_file.setCompleter(completer)
 		if self.gdal_settings.load_mode==1:
-			self.log_f2f("Using included GDAL installation.")
+			self.logF2F("Using included GDAL installation.")
 		elif self.gdal_settings.load_mode==2:
-			self.log_f2f("Using custom GDAL installation.")
+			self.logF2F("Using custom GDAL installation.")
 		else:
-			self.log_f2f("Using system GDAL installation.")
-		frmts=File2File.GetOGRFormats()
+			self.logF2F("Using system GDAL installation.")
+		frmts=LibTrui.GetOGRFormats()
 		self.cb_f2f_ogr_driver.clear()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
@@ -1342,18 +1409,18 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if (rc!=0):
 			self.message("Batch transformation program %s not availabe!" %TROGR)
 			self.tab_ogr.setEnabled(False)
-		self.log_f2f(msg)
+		self.logF2F(msg)
 	
 	
-	def loadOGR(self):
-		self.has_ogr,msg=File2File.InitOGR(BIN_PREFIX)
+	def loadLibtrui(self):
+		self.has_ogr,msg=LibTrui.InitLibrary(BIN_PREFIX)
 		if not self.has_ogr:
-			dmsg="OGR library not available: "+msg
-			dmsg+="\nA proper gdal installation might not be present?\nConsider changing your GDAL settings from the 'Settings' menu."
+			dmsg="Unable to load c extension library, libtrui: "+msg
+			dmsg+="\nA proper GDAL installation might not be present?\nConsider changing your GDAL settings from the 'Settings' menu."
 			self.message(dmsg)
 			self.tab_ogr.setEnabled(False)
 			return
-		File2File.SetMessageHandler(LordCallback)
+		LibTrui.SetMessageHandler(lordCallback)
 		self.initF2FTab()
 		#decide if a mapthread should be started#
 		self.mapthread=MapThread(self)
@@ -1366,6 +1433,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.chb_f2f_all_layers.setEnabled(checked)
 		if (not checked):
 			self.chb_f2f_all_layers.setChecked(True)
+		else:
+			self.logF2F("Note: If your vector datasource is not 3-dimensional you should toglle off height in your input and output systems.","blue")
 			
 			
 	@pyqtSignature('') #prevents actions being handled twice
@@ -1451,8 +1520,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		if len(inname)>0:
 			ds=File2File.Open(inname.encode(sys.getfilesystemencoding())) #do encoding here?
 			if ds is not None:
-				layers=File2File.GetLayerNames(ds)
-				File2File.Close(ds)
+				layers=LibTrui.GetLayerNames(ds)
+				LibTrui.Close(ds)
 				dlg=LayerSelector(self,layers,self.txt_f2f_layers_in)
 				dlg.exec_()
 			else:
@@ -1460,51 +1529,43 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_creation_options_clicked(self):
 		drv=str(self.cb_f2f_ogr_driver.currentText())
-		dlg=DialogCreationOptions(self,drv,File2File.OGR_LONG_TO_SHORT)
+		dlg=DialogCreationOptions(self,drv,LibTrui.OGR_LONG_TO_SHORT)
 		dlg.exec_()
-	@pyqtSignature('') #prevents actions being handled twice
-	def on_bt_setup_affine_clicked(self):
-		self.setupAffine()
-	def onApplyAffine(self):
-		if self.chb_apply_affine.isChecked():
-			self.setupAffine()
 	
-					
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_list_formats_clicked(self):
 		text=File2File.ListFormats()
-		self.log_f2f(text,"blue")
+		self.logF2F(text,"blue")
 	def onF2FSystemInChanged(self):
 		if self.chb_f2f_label_in_file.isChecked():
-			self.lbl_f2f_input_info.setText("Input system info: metadata in source")
+			text="metadata in source"
 		else:
 			mlb_in=str(self.cb_f2f_input_system.currentText())
 			text=TrLib.DescribeLabel(mlb_in)
-			self.lbl_f2f_input_info.setText("Input system info: %s" %text)
+			if self.affine_modifications.apply_f2f and self.affine_modifications.input.apply:
+				text+=",+affine modification"
+		self.lbl_f2f_input_info.setText("Input system info: %s" %text)
 	def onF2FSystemOutChanged(self):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
 		text=TrLib.DescribeLabel(mlb_out)
+		if self.affine_modifications.apply_f2f and self.affine_modifications.output.apply:
+				text+=",+affine modification"
 		self.lbl_f2f_output_info.setText("Output system info: %s" %text)
 	def setupAffine(self):
 		#setup params for affine transformation...
-		dlg=DialogSetupAffine(self,self.f2f_settings.affine_parameters)
+		dlg=DialogSetupAffine(self,self.affine_modifications)
 		r=dlg.exec_()
-		#Consider some logic here for when to apply an affine transformation if the dialog was cancelled...
-		if r!=QDialog.Accepted:
-			self.chb_apply_affine.setChecked(False)
-			self.log_f2f("Affine setup was cancelled... will not use affine modifications.","orange")
-		else:
-			values=0
-			for pos in self.f2f_settings.affine_parameters:
-				par=self.f2f_settings.affine_parameters[pos]
-				if par["apply"]:
-					for key in ["T","R"]:
-						values+=len(par[key])
-			if values==0:
-				self.log_f2f("No nontrivial affine modifications. will not use affine modifications.","red")
-				self.chb_apply_affine.setChecked(False)
-			else:
-				self.log_f2f("Affine modifications set.","blue")
+		if r==QDialog.Accepted:
+			#I guess we should trigger a transformation if there are changes
+			#we probably have changes in affine modifications - but perhaps not in any mlbs. 
+			#Set system info is only called in interactive tab on changes in real systems.
+			self.setSystemInfo(True,True)
+			self.onF2FSystemOutChanged()
+			self.onF2FSystemInChanged()
+			#trigger a retransformation
+			if self.affine_modifications.apply_interactive:
+				self.transformInput() #system info is already set.
+		#do something here...
 	def transformFile2File(self):
 		file_in=unicode(self.txt_f2f_input_file.text())
 		file_out=unicode(self.txt_f2f_output_file.text())
@@ -1572,11 +1633,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.f2f_settings.mlb_in=mlb_in
 		else:
 			self.f2f_settings.mlb_in=None
-		if self.chb_apply_affine.isChecked() and self.f2f_settings.driver!="DSFL": #affine mod not implemented for DSFL
+		if self.chb_f2f_apply_affine.isChecked() and self.f2f_settings.driver!="DSFL": #affine mod not implemented for DSFL
 			self.f2f_settings.apply_affine=True
 		else:
 			self.f2f_settings.apply_affine=False
-		ok,msg=File2File.TransformDatasource(self.f2f_settings,self.message_poster.PostFileMessage,self.message_poster.PostReturnCode)
+		ok,msg=File2File.transformDatasource(self.f2f_settings,self.message_poster.postFileMessage,self.message_poster.postReturnCode)
 		if not ok:
 			self.message(msg)
 		else:
@@ -1591,13 +1652,13 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	def on_bt_f2f_kill_clicked(self):
 		self.killBatchProcess()
 	def killBatchProcess(self):
-		self.log_f2f("Sending kill signal...")
+		self.logF2F("Sending kill signal...")
 		File2File.KillThreads()
 	def onF2FReturnCode(self,rc):
 		if rc==TrLib.TR_OK:
-			self.log_f2f("....done....")
+			self.logF2F("....done....")
 		elif rc==File2File.PROCESS_TERMINATED:
-			self.log_f2f("Process was terminated!")
+			self.logF2F("Process was terminated!")
 		else:
 			self.message("Errors occured during transformation - see log field.")
 		#we're running - a method terminating the process could also enable buttons... and probably will#
@@ -1610,20 +1671,20 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	
 	
 	#MESSAGE AND LOG METHODS#
-	def log_interactive(self,text,color="black",clear=False):
+	def logInteractive(self,text,color="black",clear=False):
 		self.txt_log.setTextColor(QColor(color))
 		if clear:
 			self.txt_log.setText(text)
 		else:
 			self.txt_log.append(text)
 		self.txt_log.ensureCursorVisible()
-	def log_interactive_StdOut(self,text):
-		self.log_interactive(text,"green")
-	def log_interactive_StdErr(self,text):
-		self.log_interactive(text,"red")
-	def log_interactive_CallBack(self,text):
-		self.log_interactive(text,"blue")
-	def log_f2f(self,text,color="black",insert=False):
+	def logInteractiveStdout(self,text):
+		self.logInteractive(text,"green")
+	def logInteractiveStderr(self,text):
+		self.logInteractive(text,"red")
+	def logInteractiveCallBack(self,text):
+		self.logInteractive(text,"blue")
+	def logF2F(self,text,color="black",insert=False):
 		self.txt_f2f_log.setTextColor(QColor(color))
 		if insert:
 			self.txt_f2f_log.insertPlainText(text)
@@ -1631,12 +1692,12 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.txt_f2f_log.append(text)
 		self.txt_f2f_log.ensureCursorVisible()
 	
-	def log_f2f_StdOut(self,text):
-		self.log_f2f(text,"green")
-	def log_f2f_StdErr(self,text):
-		self.log_f2f(text,"red")
-	def log_f2f_CallBack(self,text):
-		self.log_f2f(text,"blue")
+	def logF2Fstdout(self,text):
+		self.logF2F(text,"green")
+	def logF2FStderr(self,text):
+		self.logF2F(text,"red")
+	def logF2FCallback(self,text):
+		self.logF2F(text,"blue")
 	
 	def message(self,text,title="Error"):
 		QMessageBox.warning(self,title,text)
@@ -1776,19 +1837,19 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		QMessageBox.information(self,"Plugins "+state ,"Changes will take effect after a restart.")
 	#PLUGIN LOADER#
 	def loadPlugins(self):
-		plugins,dublicates=GetPlugins([PLUGIN_PATH_USER,PLUGIN_PATH_LOCAL])
+		plugins,dublicates=getPlugins([PLUGIN_PATH_USER,PLUGIN_PATH_LOCAL])
 		if len(plugins)>0:
 			if not HAS_IMPORTLIB:
-				self.log_interactive("Plugin loader needs importlib (python version>=2.7)",color="red")
+				self.logInteractive("Plugin loader needs importlib (python version>=2.7)",color="red")
 				return
 			if not PLUGIN_PATH_LOCAL in sys.path:
 				sys.path.insert(0,PLUGIN_PATH_LOCAL)
 			if not PLUGIN_PATH_USER in sys.path:
 				sys.path.insert(0,PLUGIN_PATH_USER)
 			if len(dublicates)>0:
-				self.log_interactive("Dublicate plugin modules:\n%s\nModules defined in user directory will have precedence." %repr(dublicates),"brown")
+				self.logInteractive("Dublicate plugin modules:\n%s\nModules defined in user directory will have precedence." %repr(dublicates),"brown")
 			for plugin in plugins:
-				self.log_interactive("Loading plugin: %s" %plugin,color="brown")
+				self.logInteractive("Loading plugin: %s" %plugin,color="brown")
 				try:
 					_plugin=importlib.import_module(plugin)
 				except Exception,msg:
@@ -1802,7 +1863,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 					if hasattr(_plugin,"startPlugin"):
 						_plugin.startPlugin(self)
 		else:
-			self.log_interactive("No python plugins found...")
+			self.logInteractive("No python plugins found...")
 	#Add TAB - for widget type plugins#
 	def addPluginWidget(self,plugin):
 		#TODO: implement a manager, which allows enabling/disabling plugins - which means that we should store info 
@@ -1811,7 +1872,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			name=plugin.getName()
 		else:
 			name="some_plugin"
-		self.log_interactive("Widget type plugin - added as tab: %s" %name,color="brown")
+		self.logInteractive("Widget type plugin - added as tab: %s" %name,color="brown")
 		widget=plugin.getWidget(self)
 		self.main_tab_host.addTab(widget,name)
 	def getAdditionalWidgets(self):

@@ -24,5 +24,6 @@
  affine_params;
 
 affine_params *affine_from_string(char *txt);
-void affine_transformation(affine_params *A,double *x, double *y, double *z); 
+void affine_transformation(affine_params *A,double *x, double *y, double *z);
+void affine_destroy(affine_params *A); 
 #endif

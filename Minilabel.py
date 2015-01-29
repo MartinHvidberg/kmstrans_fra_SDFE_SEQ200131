@@ -12,7 +12,7 @@ GEO_LABELS=["Longitude:","Latitude:","H:"]
 PROJ_LABELS=["Easting:","Northing:","H:"]
 S34_LABELS=["X (Westing):","Y (Northing):","H:"]
 CRT_LABELS=["X:","Y:","Z:"]
-def GetSystemLabels(mlb): 
+def getSystemLabels(mlb): 
 	try:
 		region,proj,datum,hdatum,htype=SplitMLB(mlb)
 	except:

@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1013</width>
-    <height>721</height>
+    <width>1061</width>
+    <height>743</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1052,6 +1052,19 @@
          </layout>
         </item>
         <item>
+         <spacer name="verticalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="bt_interactive_swap">
@@ -1852,22 +1865,9 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="chb_apply_affine">
-               <property name="whatsThis">
-                <string notr="true">Apply an affine modification, e.g. flip first axis for GIS-layers using System34.</string>
-               </property>
+              <widget class="QLabel" name="label">
                <property name="text">
-                <string>Apply affine modifications (s34 etc.)</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="bt_setup_affine">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Set affine parameters</string>
+                <string>(Affine modifications (for sys34 etc) can be set up in the Settings menu.)</string>
                </property>
               </widget>
              </item>
@@ -2167,7 +2167,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1013</width>
+     <width>1061</width>
      <height>21</height>
     </rect>
    </property>
@@ -2227,6 +2227,8 @@
     <addaction name="actionGDAL_settings"/>
     <addaction name="separator"/>
     <addaction name="actionPlugins_enabled"/>
+    <addaction name="separator"/>
+    <addaction name="actionSetup_affine_modifications"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -2435,6 +2437,11 @@
    </property>
    <property name="text">
     <string>Plugins enabled</string>
+   </property>
+  </action>
+  <action name="actionSetup_affine_modifications">
+   <property name="text">
+    <string>Setup affine modifications</string>
    </property>
   </action>
  </widget>
@@ -2661,54 +2668,6 @@
     <hint type="destinationlabel">
      <x>931</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chb_apply_affine</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>bt_setup_affine</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>592</x>
-     <y>446</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>759</x>
-     <y>446</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rdobt_f2f_dsfl</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>chb_apply_affine</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>624</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>592</x>
-     <y>446</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rdobt_f2f_dsfl</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>bt_setup_affine</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>624</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>759</x>
-     <y>446</y>
     </hint>
    </hints>
   </connection>

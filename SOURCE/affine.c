@@ -81,6 +81,11 @@
  }
  
 
+ void affine_destroy(affine_params *A){
+	 if (A)
+		 free(A);
+ }
+ 
  void affine_transformation(affine_params *A, double *x, double *y, double *z){
 	 double x0=*x,y0=*y,z0=*z;
 	 *x=A->R[0]*x0+A->R[1]*y0+A->R[2]*z0+A->T[0];

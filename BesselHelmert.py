@@ -83,7 +83,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			self.txt_bshlm_ellipsoid.setText("custom")
 			self.txt_bshlm_axis.setEnabled(True)
 			self.txt_bshlm_flattening.setEnabled(True)
-			labels=Minilabel.GetSystemLabels("geo_wgs84") # a dummy label
+			labels=Minilabel.getSystemLabels("geo_wgs84") # a dummy label
 			self.lbl_bshlm_description.setText("Custom ellipsoid - geographical coordinates")
 			for i in range(2):
 				self.input_labels_bshlm[i].setText(labels[i])
@@ -101,13 +101,13 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		self.cache.is_valid=False #signal no valid output YET!
 		self.cache.valid_label=False #will only be set to true if nothing goes wrong below....
 		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
-		self.log_bshlm("",clear=True)
+		self.logBshlm("",clear=True)
 		if (is_custom):
 			self.cache.is_custom=True
 			self.cache.mlb="custom"
 			ell_data,msg=WidgetUtils.getInput([self.txt_bshlm_axis,self.txt_bshlm_flattening],False)
 			if len(ell_data)!=2 or ell_data[0]<0 or ell_data[1]<0:
-				self.log_bshlm("Bad ellipsoid data:\n%s"%msg,"red")
+				self.logBshlm("Bad ellipsoid data:\n%s"%msg,"red")
 				self.cache.valid_label=False
 				return
 			self.cache.axis=ell_data[0]
@@ -121,13 +121,13 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			self.cache.mlb=mlb
 			text=TrLib.DescribeLabel(mlb)
 			self.lbl_bshlm_description.setText("%s" %text)
-			labels=Minilabel.GetSystemLabels(mlb)
+			labels=Minilabel.getSystemLabels(mlb)
 			if labels is not None:
 				for i in range(2):
 					self.input_labels_bshlm[i].setText(labels[i])
 			if Minilabel.IsProjWeaklyDefined(mlb):
 				self.cache.proj_weakly_defined=True
-				self.log_bshlm("INFO: distance and azimuths will be calculated in ED50 datum","blue")
+				self.logBshlm("INFO: distance and azimuths will be calculated in ED50 datum","blue")
 				name,a,f=self.ed50_ellipsoid
 				self.cache.geo_mlb="geo_ed50"
 			else:
@@ -136,7 +136,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					name,a,f=TrLib.GetEllipsoidParametersFromDatum(dtm)
 					self.cache.geo_mlb=TrLib.Convert2Geo(mlb)
 				except Exception,msg:
-					self.log_bshlm("Invalid label:\n%s" %msg,"red")
+					self.logBshlm("Invalid label:\n%s" %msg,"red")
 					if called_by_index_change: #if called by handler which adds label to list
 						self._handle_system_change=False
 						self.cb_bshlm_system.removeItem(self.cb_bshlm_system.currentIndex())
@@ -156,7 +156,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				self.cache.ellipsoid=name
 				self.cache.valid_label=True
 			else:
-				self.log_bshlm("Invalid input label - unable to set ellipsoid data...","red")
+				self.logBshlm("Invalid input label - unable to set ellipsoid data...","red")
 				if called_by_index_change: #if called by handler which adds label to list
 					self._handle_system_change=False
 					self.cb_bshlm_system.removeItem(self.cb_bshlm_system.currentIndex())
@@ -169,11 +169,11 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		# Check if we need to update data....
 		is_custom=self.chb_bshlm_custom_ellipsoid.isChecked()
 		self.cache.is_valid=False
-		self.log_bshlm("",clear=True)
+		self.logBshlm("",clear=True)
 		if is_custom or str(self.cb_bshlm_system.currentText())!=self.cache.mlb:
 			self.onBshlmSystemChanged(False)
 		if not self.cache.valid_label:
-			self.log_bshlm("Invalid input label...","red")
+			self.logBshlm("Invalid input label...","red")
 			self.clearOutput()
 			return
 		is_mode1=self.rdobt_bshlm_mode1.isChecked()
@@ -184,7 +184,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		if is_mode1:
 			coords,msg=WidgetUtils.getInput(self.input_bshlm,is_geo_in,z_fields=[],angular_unit=self.geo_unit)
 			if len(coords)!=4:
-				self.log_bshlm("Input coordinate %d not OK.\n%s" %(len(coords)+1,msg),"red")
+				self.logBshlm("Input coordinate %d not OK.\n%s" %(len(coords)+1,msg),"red")
 				self.input_bshlm[len(coords)].setFocus()
 				self.clearOutput()
 				return
@@ -193,13 +193,13 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		else:
 			coords,msg=WidgetUtils.getInput(self.input_bshlm[0:2],is_geo_in,z_fields=[],angular_unit=self.geo_unit)
 			if len(coords)!=2:
-				self.log_bshlm("Station1 coordinates not OK.\n%s" %msg,"red")
+				self.logBshlm("Station1 coordinates not OK.\n%s" %msg,"red")
 				self.input_bshlm[len(coords)].setFocus()
 				self.clearOutput()
 				return
 			input_data,msg=WidgetUtils.getInput(self.input_bshlm_azimuth,True,z_fields=[0],angular_unit=self.geo_unit_derived)
 			if len(input_data)!=2:
-				self.log_bshlm("Input distance and azimuth not OK.\n%s" %msg,"red")
+				self.logBshlm("Input distance and azimuth not OK.\n%s" %msg,"red")
 				self.input_bshlm_azimuth[len(input_data)].setFocus()
 				self.clearOutput()
 				return
@@ -214,7 +214,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			try:
 				ct=TrLib.CoordinateTransformation(mlb,geo_mlb)
 			except:
-				self.log_bshlm("Input label not OK!","red")
+				self.logBshlm("Input label not OK!","red")
 				self.clearOutput()
 				return
 			try:
@@ -224,7 +224,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				err=TrLib.GetLastError()
 				if err in ERRORS:
 					msg="\n%s" %ERRORS[err]
-				self.log_bshlm("Error in transformation of coords for station1"+msg,"red")
+				self.logBshlm("Error in transformation of coords for station1"+msg,"red")
 				self.clearOutput()
 				return
 		#display output of first transformation, x1,y1 should now alwyas be in geo-coords#
@@ -240,7 +240,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					err=TrLib.GetLastError()
 					if err in ERRORS:
 						msg="\n%s" %ERRORS[err]
-					self.log_bshlm("Error in transformation of coords for station2"+msg,"red")
+					self.logBshlm("Error in transformation of coords for station2"+msg,"red")
 					self.clearOutput()
 					return
 			data=TrLib.BesselHelmert(a,f,x1,y1,x2,y2)
@@ -248,8 +248,8 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 				a1,a2=data[1:]
 				#WidgetUtils.setOutput(data,self.output_bshlm_azimuth,True,z_fields=[0],angular_unit=self.geo_unit_derived)
 				self.output_bshlm_azimuth[0].setText("%.3f m" %data[0])
-				self.output_bshlm_azimuth[1].setText(TranslateFromDegrees(data[1],self.geo_unit_derived,precision=1))
-				self.output_bshlm_azimuth[2].setText(TranslateFromDegrees(data[2],self.geo_unit_derived,precision=1))
+				self.output_bshlm_azimuth[1].setText(translateFromDegrees(data[1],self.geo_unit_derived,precision=1))
+				self.output_bshlm_azimuth[2].setText(translateFromDegrees(data[2],self.geo_unit_derived,precision=1))
 			else:
 				self.message("Error: could not calculate azimuth!")
 				self.clearOutput()
@@ -266,7 +266,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 						err=TrLib.GetLastError()
 						if err in ERRORS:
 							msg="\n%s" %ERRORS[err]
-						self.log_bshlm("Error in transformation of coords for station2"+msg,"red")
+						self.logBshlm("Error in transformation of coords for station2"+msg,"red")
 						self.clearOutput()
 						return 
 				else:
@@ -274,7 +274,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 					y2_out=y2
 				#display result...
 				WidgetUtils.setOutput([x2_out,y2_out],self.input_bshlm[2:],is_geo_in,z_fields=[],angular_unit=self.geo_unit)
-				self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(a2,self.geo_unit_derived,precision=1))
+				self.txt_bshlm_azimuth2.setText(translateFromDegrees(a2,self.geo_unit_derived,precision=1))
 			else:
 				self.message("Error: could not do inverse Bessel Helmert calculation")
 				self.clearOutput()
@@ -294,7 +294,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			WidgetUtils.setOutput([],self.input_bshlm[2:])
 			WidgetUtils.setOutput([],self.output_bshlm_azimuth[2:])
 		WidgetUtils.setOutput([],self.output_bshlm_geo)
-	def log_bshlm(self,text,color="black",clear=False):
+	def logBshlm(self,text,color="black",clear=False):
 		self.txt_bshlm_log.setTextColor(QColor(color))
 		if (not clear):
 			self.txt_bshlm_log.append(text)
@@ -303,11 +303,11 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		self.txt_bshlm_log.ensureCursorVisible()
 	#Override methods#
 	def handleStdOut(self,text):
-		self.log_bshlm(text,color="green")
+		self.logBshlm(text,color="green")
 	def handleStdErr(self,text):
-		self.log_bshlm(text,color="red")
+		self.logBshlm(text,color="red")
 	def handleCallBack(self,text):
-		self.log_bshlm(text,color="blue")
+		self.logBshlm(text,color="blue")
 	def handleRegionChange(self,region):
 		self.cb_bshlm_system.clear()
 		if region in BSHLM_SYSTEMS:
@@ -326,8 +326,8 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 		self.geo_unit_derived=geo_unit
 		is_mode1=self.rdobt_bshlm_mode1.isChecked()
 		if is_mode1 and self.cache.is_valid and self.cache.mode==0:
-			self.txt_bshlm_azimuth1.setText(TranslateFromDegrees(self.cache.a1,geo_unit,precision=1))
-			self.txt_bshlm_azimuth2.setText(TranslateFromDegrees(self.cache.a2,geo_unit,precision=1))
+			self.txt_bshlm_azimuth1.setText(translateFromDegrees(self.cache.a1,geo_unit,precision=1))
+			self.txt_bshlm_azimuth2.setText(translateFromDegrees(self.cache.a2,geo_unit,precision=1))
 		else:
 			for field in self.derived_angular_output:
 				WidgetUtils.translateAngularField(field,geo_unit,precision=3)

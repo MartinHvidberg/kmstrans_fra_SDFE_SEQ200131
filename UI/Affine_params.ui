@@ -30,9 +30,15 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chb_invert_x">
+         <widget class="QPushButton" name="bt_invert_x">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>Set x-axis inversion only (System34 etc.)</string>
+           <string>Set x-axis inversion only</string>
           </property>
          </widget>
         </item>

@@ -95,7 +95,7 @@ LOGR=7
 LOGM=3
 LOGS=2
 LOGD=5
-def GetFrmt(geo_unit,precision):
+def getFrmt(geo_unit,precision):
 	if geo_unit==ANGULAR_UNIT_RADIANS:
 		return "{0:."+str(LOGR+precision)+"f}"
 	if geo_unit==ANGULAR_UNIT_NT:
@@ -106,8 +106,8 @@ def GetFrmt(geo_unit,precision):
 
 #Translate from dg to other geo units
 #DONE: avoid round up to 60 seconds/minutes - handling negative input ok...
-def TranslateFromDegrees(x,geo_unit, precision=4):
-	frmt=GetFrmt(geo_unit,precision)
+def translateFromDegrees(x,geo_unit, precision=4):
+	frmt=getFrmt(geo_unit,precision)
 	if geo_unit==ANGULAR_UNIT_RADIANS:
 		return frmt.format(x*pi/180.0)+" "+geo_unit
 	if geo_unit==ANGULAR_UNIT_NT or geo_unit==ANGULAR_UNIT_SX:
@@ -144,7 +144,7 @@ def TranslateFromDegrees(x,geo_unit, precision=4):
 		return out
 	return frmt.format(x)+" "+geo_unit
 
-def TranslateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...
+def translateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...
 	for unit in ANGULAR_UNITS:
 		if unit in x:
 			geo_unit=unit
