@@ -26,7 +26,7 @@ def getSystemLabels(mlb):
 	return PROJ_LABELS
 
 
-def IsProjWeaklyDefined(mlb):
+def isProjWeaklyDefined(mlb):
 	try:
 		region,proj,datum,hdatum,htype=SplitMLB(mlb)
 	except:
@@ -35,7 +35,7 @@ def IsProjWeaklyDefined(mlb):
 		return True
 	return False
 
-def GetPlanarSystems(mlbs):
+def getPlanarSystems(mlbs):
 	systems=[]
 	for mlb in mlbs:
 		try:
@@ -52,13 +52,13 @@ def GetPlanarSystems(mlbs):
 		systems.append(out)
 	return systems
 
-def GetImplicitDatum(mlb_prj):
+def getImplicitDatum(mlb_prj):
 	descr_prj,impl_dtm=DescribeProjection(mlb_prj)
 	if descr_prj is None or len(impl_dtm)==0:
 		raise LabelException("Label not OK!")
 	return impl_dtm
 
-def ChangeHeightSystem(mlb,default_systems, allowed_systems=None,allow_no_heights=True):
+def changeHeightSystem(mlb,default_systems, allowed_systems=None,allow_no_heights=True):
 	try:
 		region,proj,datum,hdatum,htype=SplitMLB(mlb)
 	except:
@@ -67,7 +67,7 @@ def ChangeHeightSystem(mlb,default_systems, allowed_systems=None,allow_no_height
 	if proj=="crt":
 		return mlb
 	if len(datum)==0:
-		sdtm=GetImplicitDatum(proj)
+		sdtm=getImplicitDatum(proj)
 	else:
 		sdtm=datum
 	if allowed_systems is not None and sdtm in allowed_systems:

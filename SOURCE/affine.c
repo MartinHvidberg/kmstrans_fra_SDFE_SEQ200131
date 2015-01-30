@@ -19,7 +19,7 @@
  #include <stdlib.h>
  #include <string.h>
  #include <ctype.h>
-  #include "affine.h"
+ #include "affine.h"
  
  /*parse a comma-separated list of key,value pairs and return params*/
  affine_params *affine_from_string(char *txt){
@@ -47,7 +47,9 @@
 							if (p3>p2){
 								A->R[3*i+j]=v;
 								p1=p3;
+								#ifdef DEBUG
 								printf("Read r%d%d: val: %.4f\n",i,j,v);
+								#endif
 							}
 							else
 								goto ERR;
@@ -63,7 +65,9 @@
 							if (p3>p2){
 								A->T[i]=v;
 								p1=p3;
+								#ifdef DEBUG
 								printf("Read t%d, val: %.4f\n",i,v);
+								#endif
 							}
 						}
 						else 

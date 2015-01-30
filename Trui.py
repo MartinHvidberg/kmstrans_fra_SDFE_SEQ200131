@@ -156,7 +156,7 @@ class MapThread(threading.Thread):
 		self.win=win
 		self.region=region #not used at the moment - for selecting coastline according to region....
 	def run(self):
-		lines=LibTrui.GetLines(COAST_PATH)
+		lines=LibTrui.getLines(COAST_PATH)
 		self.paths=[]
 		for line in lines:
 			path=QPainterPath(QPointF(line[0][0],-line[0][1]))
@@ -394,8 +394,16 @@ class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
 		return vals
 	def setParameters(self):
 		self.params.apply=bool(self.chb_apply.isChecked())
-		self.params.R=self.getRotation()
-		self.params.T=self.getTranslation()
+		R=self.getRotation()
+		if R is not None:
+			self.params.R=R
+		else:
+			self.params.R={}
+		T=self.getTranslation()
+		if T is not None:
+			self.params.T=T
+		else:
+			self.params.T={}
 		self.params.setup()
 	
 				
@@ -725,7 +733,7 @@ class RedirectOutput(object):
 		self.buffer=""
 		
 
-def InitTransformationLibrary():
+def initTransformationLibrary():
 	#init TrLib and load settings#
 	ok,msg=TrLib.LoadLibrary(TRLIB,BIN_PREFIX)
 	if not ok:
@@ -746,7 +754,7 @@ class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
 		self.setupUi(self)
 		self.setWindowIcon(QIcon(":/UI/icon.png"))
 		self.log("Launcher window for %s" %VERSION,"blue")
-		ok,msg=InitTransformationLibrary()
+		ok,msg=initTransformationLibrary()
 		self.geoids=None
 		if not ok:
 			self.log("Unable to load transformation library!","red")
@@ -979,11 +987,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.show()
 	def closeTransformations(self):
 		if self.numeric_scale_transf is not None:
-			self.numeric_scale_transf.Close()
+			self.numeric_scale_transf.close()
 		if self.coordinate_transformation is not None:
-			self.coordinate_transformation.Close()
+			self.coordinate_transformation.close()
 		if self.map_transformation is not None:
-			self.map_transformation.Close()
+			self.map_transformation.close()
 	def initTransformations(self):
 		self.numeric_scale_transf=TrLib.CoordinateTransformation("","geo_etrs89")
 		self.fallback_ellipsoid=TrLib.GetEllipsoidParametersFromDatum("etrs89")
@@ -1148,7 +1156,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_in_clicked(self):
 		mlb_in=str(self.cb_input_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS,False)
+		mlb=Minilabel.changeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS,False)
 		if mlb!=mlb_in:
 			self.cb_input_system.setEditText(mlb)
 			self.transformInput(True,False)
@@ -1156,7 +1164,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_change_h_out_clicked(self):
 		mlb_out=str(self.cb_output_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
+		mlb=Minilabel.changeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_out:
 			self.cb_output_system.setEditText(mlb)
 			self.transformInput(False,True)
@@ -1175,7 +1183,8 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.cb_output_system.setEditText(mlb_in)
 			self._handle_system_change=True
 			self.transformInput()
-	
+			if self.affine_modifications.apply_interactive:
+				self.logInteractive("NOTE: Systems have been interchanged - but not the affine modifications.","blue")
 	def setRegionDK(self):
 		if self.region!=REGION_DK:
 			self.region=REGION_DK
@@ -1314,6 +1323,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 		self.output_cache.has_scale=False
 		mlb_in=str(self.cb_input_system.currentText())
 		mlb_out=str(self.cb_output_system.currentText())
+		#self.logInteractive(repr(self.output_cache.coords))
 		#Check if we should update system info
 		update_in=(mlb_in!=self.mlb_in)
 		update_out=(mlb_out!=self.output_cache.mlb)
@@ -1321,7 +1331,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.setSystemInfo(update_in,update_out)
 			self.mlb_in=mlb_in
 			self.output_cache.mlb=mlb_out
-			self.output_cache.proj_weakly_defined=Minilabel.IsProjWeaklyDefined(mlb_out)
+			self.output_cache.proj_weakly_defined=Minilabel.isProjWeaklyDefined(mlb_out)
 		coords=self.getInteractiveInput(mlb_in)
 		if len(coords)!=3:
 			self.logInteractive("Input coordinate in field %d not OK!" %(len(coords)+1),"red")
@@ -1385,6 +1395,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			#check when in the logical chain to apply this.....
 			x,y,z=self.affine_modifications.output.transform(x,y,z)
 			self.logInteractive("Applying affine modification of output.","blue")
+		#self.logInteractive(repr(self.output_cache.coords))
 		self.setInteractiveOutput([x,y,z]) #does nothing but display the coords
 		self.txt_geoid_name.setText(geoid_name)
 		
@@ -1401,7 +1412,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.logF2F("Using custom GDAL installation.")
 		else:
 			self.logF2F("Using system GDAL installation.")
-		frmts=LibTrui.GetOGRFormats()
+		frmts=LibTrui.getOGRFormats()
 		self.cb_f2f_ogr_driver.clear()
 		self.cb_f2f_ogr_driver.addItems(frmts)
 		File2File.SetCommand(TROGR)
@@ -1413,14 +1424,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	
 	
 	def loadLibtrui(self):
-		self.has_ogr,msg=LibTrui.InitLibrary(BIN_PREFIX)
+		self.has_ogr,msg=LibTrui.initLibrary(BIN_PREFIX)
 		if not self.has_ogr:
 			dmsg="Unable to load c extension library, libtrui: "+msg
 			dmsg+="\nA proper GDAL installation might not be present?\nConsider changing your GDAL settings from the 'Settings' menu."
 			self.message(dmsg)
 			self.tab_ogr.setEnabled(False)
 			return
-		LibTrui.SetMessageHandler(lordCallback)
+		LibTrui.setMessageHandler(lordCallback)
 		self.initF2FTab()
 		#decide if a mapthread should be started#
 		self.mapthread=MapThread(self)
@@ -1473,14 +1484,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_in_clicked(self):
 		mlb_in=str(self.cb_f2f_input_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
+		mlb=Minilabel.changeHeightSystem(mlb_in,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_in:
 			self.cb_f2f_input_system.setEditText(mlb)
 			self.onF2FSystemInChanged()
 	@pyqtSignature('') #prevents actions being handled twice
 	def on_bt_f2f_change_h_out_clicked(self):
 		mlb_out=str(self.cb_f2f_output_system.currentText())
-		mlb=Minilabel.ChangeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
+		mlb=Minilabel.changeHeightSystem(mlb_out,H_SYSTEMS[self.region],DATUM_ALLOWED_H_SYSTEMS)
 		if mlb!=mlb_out:
 			self.cb_f2f_output_system.setEditText(mlb)
 			self.onF2FSystemOutChanged()
@@ -1518,10 +1529,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 	def on_bt_f2f_input_layers_clicked(self):
 		inname=unicode(self.txt_f2f_input_file.text())
 		if len(inname)>0:
-			ds=File2File.Open(inname.encode(sys.getfilesystemencoding())) #do encoding here?
+			ds=LibTrui.open(inname.encode(sys.getfilesystemencoding())) #do encoding here? depends on what GDAL-bindings does.
 			if ds is not None:
-				layers=LibTrui.GetLayerNames(ds)
-				LibTrui.Close(ds)
+				layers=LibTrui.getLayerNames(ds)
+				LibTrui.close(ds)
 				dlg=LayerSelector(self,layers,self.txt_f2f_layers_in)
 				dlg.exec_()
 			else:

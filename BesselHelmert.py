@@ -125,7 +125,7 @@ class BshlmWidget(WidgetBase,Ui_tab_bshlm):
 			if labels is not None:
 				for i in range(2):
 					self.input_labels_bshlm[i].setText(labels[i])
-			if Minilabel.IsProjWeaklyDefined(mlb):
+			if Minilabel.isProjWeaklyDefined(mlb):
 				self.cache.proj_weakly_defined=True
 				self.logBshlm("INFO: distance and azimuths will be calculated in ED50 datum","blue")
 				name,a,f=self.ed50_ellipsoid
