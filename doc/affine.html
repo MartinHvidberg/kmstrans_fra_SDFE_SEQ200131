@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <title>Batch tab</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <h1>Affine modifications</h1>
+    <p>
+    For some systems, notably System34, it is usual for GIS-datasources to use an inverted / negative first axis in order for geometries to look right (north up, east right) when displayed in a GIS-system. 
+    KMSTrans2 is able to handle such modified systems by applying an affine transformation to input or output coordinates. E.g. one can multiply the first axis coordinates by -1 to get "real" System34 coordinates
+    before applying the actual transformation.
+    </p>
+    <p>    
+    Affine modifications can be setup using the menu entry 'Setup affine modifications' in the 'Settings' menu and can currently be applied in the interactive tab (for experimenation) and in the batch tab to transform datasources. 
+    </p>
+    <p>
+    An affine modification consists of a matrix multiplication and a translation:
+    </p>
+    <p>
+     <strong>(x,y,z) &#8594; R*(x,y,z)+T </strong>, <br> which can be in full 3D or only 2D (no dependency on z / height). 
+    </p>
+    <p>
+    This allows for a large range of modifications, e.g. inversion of an axis, interchanging two coordinates, rotations and Helmert (7-parameter) transformations.
+    </p>
+    <p>
+    If <strong>A1</strong> is an affine modification of input coordinates and <strong>A2</strong> is the modification of output coordinates, the transformation sequence would look like:
+    </p>
+    <p>
+    <strong> (x,y,z) &#8594; A1(x,y,z) &#8594; Tr(A1(x,y,z)) &#8594; A2(Tr(A1(x,y,z)))</strong>,<br> where <strong>Tr</strong> is the actual transformation performed by trlib between two reference systems.
+    </p>
+  </body>
+ </html>
+  
