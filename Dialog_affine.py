@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Dialog_affine.ui'
 #
-# Created: Mon Jan 26 16:25:44 2015
+# Created: Tue Feb 10 12:46:25 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(567, 362)
+        Dialog.resize(568, 362)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.textBrowser = QtGui.QTextBrowser(Dialog)
@@ -75,8 +75,11 @@ class Ui_Dialog(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To invert x-axis only, e.g. for System34, set first element of the R-matrix to -1, and all other diagonal elements to 1 (a button does this).</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">To only apply a 2D affine transformation, modify only the upper left (x-y) part of the matrix and translation vector.</span></p></body></html>", None))
+        self.chb_apply_interactive.setWhatsThis(_translate("Dialog", "<html><head/><body><p>Check this to apply modifications in the interactive tab - for experimentation etc.</p></body></html>", None))
         self.chb_apply_interactive.setText(_translate("Dialog", "Apply modifications in interactive tab", None))
+        self.chb_apply_f2f.setWhatsThis(_translate("Dialog", "<html><head/><body><p>Check this to apply affine modifications in batch mode, when transforming datasources.</p></body></html>", None))
         self.chb_apply_f2f.setText(_translate("Dialog", "Apply modifications in batch tab", None))
+        self.bt_apply.setToolTip(_translate("Dialog", "<html><head/><body><p>Click to apply changes.</p></body></html>", None))
         self.bt_apply.setText(_translate("Dialog", "Apply", None))
         self.bt_cancel.setText(_translate("Dialog", "Cancel", None))
 

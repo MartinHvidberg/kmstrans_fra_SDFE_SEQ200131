@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI\Affine_params.ui'
 #
-# Created: Mon Jan 26 11:27:12 2015
+# Created: Tue Feb 10 12:46:25 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -132,8 +132,11 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
         self.groupBox.setTitle(_translate("Form", "GroupBox", None))
+        self.chb_apply.setToolTip(_translate("Form", "<html><head/><body><p>Check to apply a modification in this direction (input or output).</p></body></html>", None))
         self.chb_apply.setText(_translate("Form", "Use affine modification", None))
+        self.bt_invert_x.setToolTip(_translate("Form", "<html><head/><body><p>Click to set parameters for an inversion of the first axis only.</p></body></html>", None))
         self.bt_invert_x.setText(_translate("Form", "Set x-axis inversion only", None))
+        self.bt_reset.setToolTip(_translate("Form", "<html><head/><body><p>Reset parameters to a trivial (i.e. no) modification.</p></body></html>", None))
         self.bt_reset.setText(_translate("Form", "Reset", None))
         self.t1.setText(_translate("Form", "0", None))
         self.r12.setText(_translate("Form", "0", None))

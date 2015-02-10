@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>567</width>
+    <width>568</width>
     <height>362</height>
    </rect>
   </property>
@@ -52,6 +52,9 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QCheckBox" name="chb_apply_interactive">
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to apply modifications in the interactive tab - for experimentation etc.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Apply modifications in interactive tab</string>
        </property>
@@ -59,6 +62,9 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QCheckBox" name="chb_apply_f2f">
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to apply affine modifications in batch mode, when transforming datasources.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Apply modifications in batch tab</string>
        </property>
@@ -66,6 +72,9 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QPushButton" name="bt_apply">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click to apply changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Apply</string>
        </property>
