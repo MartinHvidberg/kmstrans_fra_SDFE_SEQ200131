@@ -22,6 +22,7 @@ import subprocess
 import glob
 import threading
 import time
+from OGR_drivers import *
 
 IS_WINDOWS=sys.platform.startswith("win")
 DEBUG=False
@@ -73,7 +74,8 @@ class F2F_Settings(object):
 		self.is_done=False
 		self.is_started=False
 		self.apply_affine=False
-		self.affine_parameters={0:{"apply":False,"R":{},"T":{}},1:{"apply":False,"R":{},"T":{}}}  # a dictionary which can contain two keys 0,1 (before and after transformation). Each entry is a dict with keys "apply","R" and "T".
+		self.affine_mod_in=None 
+		self.affine_mod_out=None
 		self.output_files=[]
 		#serialized state of settings dialog
 		self.saved_state_chbs=[] #check boxes
@@ -220,19 +222,11 @@ def transformDatasource(options,log_method,post_method):
 		if options.copy_bad_lines:
 			args+=['-cpbad']
 		args+=['-prc','%d'%options.n_decimals]
-	if options.apply_affine:
-		#setup params for affine transformations...
-		for key,opt in ((0,"-affin"),(1,"-affout")):
-			val=""
-			par=options.affine_parameters[key]
-			if par["apply"]:
-				for ij in par["R"]:
-					val+="r{0:d}{1:d}={2:s},".format(ij[0],ij[1],str(par["R"][ij]))
-				for i in par["T"]:
-					val+="t{0:d}={1:s},".format(i,str(par["T"][i]))
-				if len(val)>0:
-					val=val[:-1]
-				args+=[opt,val]
+	
+	#setup params for affine transformations...
+	for obj,opt in ((options.affine_mod_in,"-affin"),(options.affine_mod_out,"-affout")):
+		if obj is not None and obj.apply:
+			args+=[opt,obj.tostring()]
 		
 	files=glob.glob(options.ds_in)
 	if len(files)==0:

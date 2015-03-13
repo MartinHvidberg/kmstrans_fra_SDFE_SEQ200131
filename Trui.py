@@ -106,7 +106,7 @@ else:
 REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
-VERSION="KMSTrans2 v2.2b1"
+VERSION="KMSTrans2 v2.2b2"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -1644,10 +1644,16 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 			self.f2f_settings.mlb_in=mlb_in
 		else:
 			self.f2f_settings.mlb_in=None
-		if self.chb_f2f_apply_affine.isChecked() and self.f2f_settings.driver!="DSFL": #affine mod not implemented for DSFL
-			self.f2f_settings.apply_affine=True
+		if self.affine_modifications.apply_f2f:#affine mod not implemented for DSFL
+			if self.f2f_settings.driver!="DSFL": 
+				self.f2f_settings.affine_mod_in=self.affine_modifications.input
+				self.f2f_settings.affine_mod_out=self.affine_modifications.output
+			else:
+				self.log_f2f("Note: Affine modifications not supported for DSFL-formate","orange")
 		else:
-			self.f2f_settings.apply_affine=False
+			self.f2f_settings.affine_mod_in=None
+			self.f2f_settings.affine_mod_out=None
+			
 		ok,msg=File2File.transformDatasource(self.f2f_settings,self.message_poster.postFileMessage,self.message_poster.postReturnCode)
 		if not ok:
 			self.message(msg)
