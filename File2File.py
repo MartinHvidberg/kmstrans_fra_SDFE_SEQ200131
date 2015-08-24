@@ -224,9 +224,10 @@ def transformDatasource(options,log_method,post_method):
 		args+=['-prc','%d'%options.n_decimals]
 	
 	#setup params for affine transformations...
-	for obj,opt in ((options.affine_mod_in,"-affin"),(options.affine_mod_out,"-affout")):
-		if obj is not None and obj.apply:
-			args+=[opt,obj.tostring()]
+	if options.apply_affine:
+		for obj,opt in ((options.affine_mod_in,"-affin"),(options.affine_mod_out,"-affout")):
+			if obj is not None and obj.apply:
+				args+=[opt,obj.tostring()]
 		
 	files=glob.glob(options.ds_in)
 	if len(files)==0:
