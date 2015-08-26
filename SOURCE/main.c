@@ -212,7 +212,7 @@ void log_geoids(struct mgde_str *tab_table, int *cached){
     Report(REP_INFO,0,VERB_LOW,"+++ Tables / geoids used (if any) +++");
     for (g = 0, t_lab = &(tab_table->table_u[0]);   g < tab_table->tab_max;  g++, t_lab++) { /* thanks KE!*/
         if (cached[g]<t_lab->used){
-            Report(REP_INFO,0,VERB_LOW,"    -Table: %s, hits: %d",t_lab->mlb,t_lab->used-cached[g]);
+            Report(REP_INFO,0,VERB_LOW,"     %-12s:   hits: %d",t_lab->mlb,t_lab->used-cached[g]);
             n_used++;
         }
     }
@@ -690,6 +690,7 @@ int main(int argc, char *argv[])
     /* log table / geoid usage*/
     if (trf->geoid_pt && geoid_usage){
         log_geoids(trf->geoid_pt, geoid_usage);
+        free(geoid_usage);
     }
     TR_Close(trf);
      /* Clean Up */
