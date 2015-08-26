@@ -207,19 +207,19 @@ static int set_coordinate_order(TR *trf, int *output_order, struct format_option
 * TODO: consider using col numbers for KMS-format.
 * Implement a general flip_xy arg 
 */
-int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt)
+int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt, affine_params *paffin, affine_params *paffout)
 {  
     double r2d=R2D;
     double d2r=D2R;
     FILE *f_in, *f_out;
     int ERR = 0,is_geo_in=0,is_geo_out=0;
     int n_trans_ok=0, n_trans_bad=0, n_warnings=0;
-    int look_for_label,log_geoids=0;
+    int look_for_label;
     int lines_read=0, mlbs_found=0, max_col, coords_to_find=2,is_stdout,is_stdin;
     int  output_order[3]={0,1,2};
     enum {BUFSIZE = 4096};
     char buf[BUFSIZE],buf_out[BUFSIZE];
-    char mlb_in_file[128],geoid_name[128],*tmp1,*tmp2;
+    char mlb_in_file[128],*tmp1,*tmp2;
     char *unit_out;
     struct typ_dec type_out, type_h, *p_type_h;
     int flip_xy=0, append_unit=0, space_in_sep=0,is_comment; /*flag to determine if we should 'eat' a space before appending unit*/
@@ -237,7 +237,6 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
     *tmp2='\0';
      is_stdout=(!strcmp(buf,"stdout"));
      /*start reporting*/
-    InitialiseReport();
     if (!frmt.sep_char) /*defaults to all whitespace*/
 	    frmt.sep_char=" \t\r\n";
    
@@ -298,8 +297,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	max_col=set_coordinate_order(trf,output_order,&frmt);
 	is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
 	coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
-	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
-	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
+	
     }
     
     if (!is_stdin)
@@ -338,7 +336,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	
 	/*look for input system label*/
 	if (look_for_label){
-		argc=sscanf(buf,"#%s",mlb_in_file);
+		argc=sscanf(buf," #%s",mlb_in_file); /*skip leading whitespace*/
 		if (argc==1){
 			err=TR_Insert(trf,mlb_in_file,0);
 			if (err==TR_OK){
@@ -351,8 +349,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 				mlbs_found++;
 				max_col=set_coordinate_order(trf,output_order,&frmt);
 				is_geo_in=IS_GEOGRAPHIC(trf->proj_in);
-				log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
-				log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
+				
 				coords_to_find=(IS_3D(trf->proj_in))? 3 : 2;
 				
 			}
@@ -488,20 +485,16 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	/*Test if we should break - perhaps a bad separator?*/
 	if (lines_read>SKIP_NOW && n_trans_ok==0){
 		Report(REP_ERROR,TR_ERROR,VERB_LOW,"%d lines read - no transformations done - perhaps a bad separator? Aborting now....",lines_read);
-		TerminateReport();
 		return TR_ERROR;
 	}
        
-	/*TODO: fixup what is to be writen to log */
+	if (paffin){
+		affine_transformation(paffin,coords,coords+1,coords+2);
+	}
 	err = TR_Transform(trf,coords,coords+1,coords+2,1);
 	if (err==TR_OK){
 		n_trans_ok++;
-		/*perhaps do this in all cases?*/
-		
-		if (log_geoids){
-			TR_GetGeoidName(trf,geoid_name);
-			AppendGeoid(geoid_name);
-		}
+    
 	}
 	else{
 		n_trans_bad++;
@@ -509,7 +502,9 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 		Report(REP_ERROR,err,VERB_HIGH,"Error: %d, In: %.5f %.5f %.5f ",TR_GetLastError(),x,y,z);
 	}
 	/*continue even after an error?*/
-	
+	if (paffout){
+		affine_transformation(paffout,coords,coords+1,coords+2);
+	}
 	/*calculate extent */
 	if (n_trans_ok>1 || n_trans_bad>1){
 			
@@ -639,8 +634,7 @@ int TransformText(char *inname, char *outname,TR *trf,struct format_options frmt
 	    }
 	    Report(REP_INFO,0,VERB_LOW,"Is this what you would expect from input data? Otherwise you should perhaps adjsut the column order.");
     }
-    LogGeoids();
-    TerminateReport();
+   
     return ERR? TR_ERROR: TR_OK;
 }
 	

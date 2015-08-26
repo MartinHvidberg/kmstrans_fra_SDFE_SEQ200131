@@ -11,14 +11,14 @@ EXPORTS
    RedirectOGRErrors
    GetGDALVersion
    Report
+   ResetReport
    SetCallBack
-   InitialiseReport
-   TerminateReport
    SetLogFile
    GetErrors
-   AppendGeoid
-   LogGeoids
    SetIgnoreMessages
    ReportDebugMessages
    TransformText
    TransformDSFL
+   affine_from_string
+   affine_transformation
+   affine_destroy

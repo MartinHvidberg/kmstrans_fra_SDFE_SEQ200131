@@ -47,7 +47,7 @@ outdir=curdir #use this dir as output....
 #Paths
 BIN_DIR=os.path.join(outdir,"bin")
 SRC_DIR=os.path.join(curdir,"SOURCE")
-SRC_LIBTRUI=[os.path.join(SRC_DIR,fname) for fname in ("ogrTRogr.c","Report.c","TransformText.c","TransformDSFL.c","tr_DSFL.c")]
+SRC_LIBTRUI=[os.path.join(SRC_DIR,fname) for fname in ("ogrTRogr.c","Report.c","TransformText.c","TransformDSFL.c","tr_DSFL.c","affine.c")]
 DEF_LIBTRUI=os.path.join(SRC_DIR,"libtrui.def")
 SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","my_get_opt.c"]]
 INC_TRLIB=[os.path.join(trlib,"TR_INC")]

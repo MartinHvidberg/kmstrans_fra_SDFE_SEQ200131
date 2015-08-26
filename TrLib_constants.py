@@ -1,35 +1,34 @@
-"""/*
-* Copyright (c) 2011, National Survey and Cadastre, Denmark
-* (Kort- og Matrikelstyrelsen), kms@kms.dk
- * 
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- * 
- */
- """
+# Copyright (c) 2013, National Geodata Agency, Denmark
+# (Geodatastyrelsen), gst@gst.dk
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+#purpose with or without fee is hereby granted, provided that the above
+#copyright notice and this permission notice appear in all copies.
+#  
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN 
+#ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#########################################
+## Module containing some constants and utility functions  #
+#########################################
 from math import pi,floor
 import sys
 IS_WINDOWS=sys.platform.startswith("win")
 #LIBRARYNAMES
 #PATH TO TRLIB, OGRLIB#
 if IS_WINDOWS:
-	TRLIB="libtr.dll"
-	LIBTRUI="libtrui.dll"
+    TRLIB="libtr.dll"
+    LIBTRUI="libtrui.dll"
 elif "darwin" in sys.platform:
-	TRLIB="libtr.dylib"
-	LIBTRUI="libtrui.dylib"
+    TRLIB="libtr.dylib"
+    LIBTRUI="libtrui.dylib"
 else:
-	TRLIB="libtr.so"
-	LIBTRUI="libtrui.so"
+    TRLIB="libtr.so"
+    LIBTRUI="libtrui.so"
 TROGRNAME="trogr"
 
 #CONSTANTS RELEVANT TO KMSTRLIB
@@ -95,98 +94,98 @@ LOGR=7
 LOGM=3
 LOGS=2
 LOGD=5
-def GetFrmt(geo_unit,precision):
-	if geo_unit==ANGULAR_UNIT_RADIANS:
-		return "{0:."+str(LOGR+precision)+"f}"
-	if geo_unit==ANGULAR_UNIT_NT:
-		return "{0:0"+str(LOGM+precision+3)+"."+str(LOGM+precision)+"f}"
-	if geo_unit==ANGULAR_UNIT_SX:
-		return "{0:02d} {1:0"+str(LOGS+precision+3)+"."+str(LOGS+precision)+"f}"
-	return "{0:."+str(LOGD+precision)+"f}"
+def getFrmt(geo_unit,precision):
+    if geo_unit==ANGULAR_UNIT_RADIANS:
+        return "{0:."+str(LOGR+precision)+"f}"
+    if geo_unit==ANGULAR_UNIT_NT:
+        return "{0:0"+str(LOGM+precision+3)+"."+str(LOGM+precision)+"f}"
+    if geo_unit==ANGULAR_UNIT_SX:
+        return "{0:02d} {1:0"+str(LOGS+precision+3)+"."+str(LOGS+precision)+"f}"
+    return "{0:."+str(LOGD+precision)+"f}"
 
 #Translate from dg to other geo units
 #DONE: avoid round up to 60 seconds/minutes - handling negative input ok...
-def TranslateFromDegrees(x,geo_unit, precision=4):
-	frmt=GetFrmt(geo_unit,precision)
-	if geo_unit==ANGULAR_UNIT_RADIANS:
-		return frmt.format(x*pi/180.0)+" "+geo_unit
-	if geo_unit==ANGULAR_UNIT_NT or geo_unit==ANGULAR_UNIT_SX:
-		sign=""
-		dec=""
-		if x<0:
-			sign="-"
-			x=abs(x)
-		dg=floor(x)
-		m=(x-dg)*60.0 #between 0 and 1 - thus output below 60
-		if geo_unit==ANGULAR_UNIT_NT:
-			if (60.0-m)<10**(-precision-LOGM):
-				m=0.0
-				dg=round(x)
-			dec=frmt.format(m)
-		else:
-			if (60.0-m)<10**(-precision-LOGM): #double check this logic
-				m=0.0
-				s=0.0
-				dg=round(x)
-			else:	
-				s=(m-floor(m))*60 #between 0 and 1 - thus output below 60
-				if (60.0-s)<10**(-precision-LOGS):
-					m=int(round(m))
-					s=0.0
-					if (m==60):
-						m=0.0
-						dg=round(x)
-			dec=frmt.format(int(m),s)
-		out=sign
-		if (dg>0):
-			out+="{0:d} ".format(int(dg))
-		out+=dec+" "+geo_unit
-		return out
-	return frmt.format(x)+" "+geo_unit
+def translateFromDegrees(x,geo_unit, precision=4):
+    frmt=getFrmt(geo_unit,precision)
+    if geo_unit==ANGULAR_UNIT_RADIANS:
+        return frmt.format(x*pi/180.0)+" "+geo_unit
+    if geo_unit==ANGULAR_UNIT_NT or geo_unit==ANGULAR_UNIT_SX:
+        sign=""
+        dec=""
+        if x<0:
+            sign="-"
+            x=abs(x)
+        dg=floor(x)
+        m=(x-dg)*60.0 #between 0 and 1 - thus output below 60
+        if geo_unit==ANGULAR_UNIT_NT:
+            if (60.0-m)<10**(-precision-LOGM):
+                m=0.0
+                dg=round(x)
+            dec=frmt.format(m)
+        else:
+            if (60.0-m)<10**(-precision-LOGM): #double check this logic
+                m=0.0
+                s=0.0
+                dg=round(x)
+            else:	
+                s=(m-floor(m))*60 #between 0 and 1 - thus output below 60
+                if (60.0-s)<10**(-precision-LOGS):
+                    m=int(round(m))
+                    s=0.0
+                    if (m==60):
+                        m=0.0
+                        dg=round(x)
+            dec=frmt.format(int(m),s)
+        out=sign
+        if (dg>0):
+            out+="{0:d} ".format(int(dg))
+        out+=dec+" "+geo_unit
+        return out
+    return frmt.format(x)+" "+geo_unit
 
-def TranslateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...
-	for unit in ANGULAR_UNITS:
-		if unit in x:
-			geo_unit=unit
-			break
-	x=x.replace(geo_unit,"").replace(" ","").strip()
-	x=x.replace(",",".")
-	if geo_unit==ANGULAR_UNIT_RADIANS:
-		return float(x)*180.0/pi
-	if geo_unit==ANGULAR_UNIT_NT or  geo_unit==ANGULAR_UNIT_SX:
-		#TODO: taking care of sign
-		sign=1
-		if x[0]=="-":
-			sign=-1
-			x=x[1:]
-		elif x[0]=="+":
-			x=x[1:]
-		index_dot=x.find(".")
-		if index_dot==-1:
-			index_dot=len(x)
-		if geo_unit==ANGULAR_UNIT_NT:
-			index_m=max(0,index_dot-2)
-			m=float(x[index_m:])
-			if (m>60):
-				raise ValueError("Minutes must be between 0 and 60")
-			if index_m>0:
-				dg=int(x[:index_m])
-			else:
-				dg=0
-			return sign*(dg+m/60.0)
-		else: 
-			index_s=max(0,index_dot-2)
-			s=float(x[index_s:])
-			m=0
-			dg=0
-			if (s>60):
-				raise ValueError("Seconds must be between 0 and 60")
-			if index_s>0:
-				index_m=max(0,index_s-2)
-				m=int(x[index_m:index_s])
-				if (m>60):
-					raise ValueError("Minutes must be between 0 and 60")
-				if index_m>0:
-						dg=int(x[:index_m])
-			return sign*(dg+m/60.0+s/3600.0)
-	return float(x)
+def translateToDegrees(x,geo_unit): #geo_unit acts as a default if unit is not specified...
+    for unit in ANGULAR_UNITS:
+        if unit in x:
+            geo_unit=unit
+            break
+    x=x.replace(geo_unit,"").replace(" ","").strip()
+    x=x.replace(",",".")
+    if geo_unit==ANGULAR_UNIT_RADIANS:
+        return float(x)*180.0/pi
+    if geo_unit==ANGULAR_UNIT_NT or  geo_unit==ANGULAR_UNIT_SX:
+        #TODO: taking care of sign
+        sign=1
+        if x[0]=="-":
+            sign=-1
+            x=x[1:]
+        elif x[0]=="+":
+            x=x[1:]
+        index_dot=x.find(".")
+        if index_dot==-1:
+            index_dot=len(x)
+        if geo_unit==ANGULAR_UNIT_NT:
+            index_m=max(0,index_dot-2)
+            m=float(x[index_m:])
+            if (m>60):
+                raise ValueError("Minutes must be between 0 and 60")
+            if index_m>0:
+                dg=int(x[:index_m])
+            else:
+                dg=0
+            return sign*(dg+m/60.0)
+        else: 
+            index_s=max(0,index_dot-2)
+            s=float(x[index_s:])
+            m=0
+            dg=0
+            if (s>60):
+                raise ValueError("Seconds must be between 0 and 60")
+            if index_s>0:
+                index_m=max(0,index_s-2)
+                m=int(x[index_m:index_s])
+                if (m>60):
+                    raise ValueError("Minutes must be between 0 and 60")
+                if index_m>0:
+                        dg=int(x[:index_m])
+            return sign*(dg+m/60.0+s/3600.0)
+    return float(x)

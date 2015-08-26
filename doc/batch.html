@@ -20,7 +20,12 @@
     system in order for the program to run. Prepackaged versions of
     KMSTrans2 will come with a default GDAL installation.<br>
     <br>
-    <h2>Formats </h2>
+    <h2>Affine modifications</h2>
+    For some systems, notably System34, it is usual for GIS-datasources to use an inverted / negative first axis in order for geometries to look right (north up, east right) when displayed in a GIS-system. 
+    KMSTrans2 is able to handle such modified systems by applying an affine transformation to input or output coordinates. E.g. one can multiply the first axis coordinates by -1 to get "real" System34 coordinates
+    before applying the actual transformation. <br>
+    Affine modifications can be setup using the menu entry 'Setup affine modifications' in the 'Settings' menu.
+     <h2>Formats </h2>
     KMSTrans2 uses the following data formats:<br>
     <ul>
       <li><a href="#OGR">OGR</a> – A library of vector data formats
@@ -30,7 +35,7 @@
         modified</li>
       <li><a href="#DSFL">DSFL</a> – Format developed for exchange of
         data by Dansk Selskab for Fotogrammetri og Landmåling (now
-        GeoForum)</li>
+        GeoForum). Affine modifications (see above) are not available for this format.</li>
       <li><a href="#KMS_format">KMS format</a> – Internal data format
         from Kort &amp; Matrikelstyrelsen (now Geodatastyrelsen)<br>
       </li>

@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1013</width>
-    <height>721</height>
+    <width>1061</width>
+    <height>743</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1052,6 +1052,19 @@
          </layout>
         </item>
         <item>
+         <spacer name="verticalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="bt_interactive_swap">
@@ -1852,6 +1865,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>(Affine modifications (for sys34 etc) can be set up in the Settings menu.)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_10">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -2147,7 +2167,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1013</width>
+     <width>1061</width>
      <height>21</height>
     </rect>
    </property>
@@ -2207,6 +2227,8 @@
     <addaction name="actionGDAL_settings"/>
     <addaction name="separator"/>
     <addaction name="actionPlugins_enabled"/>
+    <addaction name="separator"/>
+    <addaction name="actionSetup_affine_modifications"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -2415,6 +2437,11 @@
    </property>
    <property name="text">
     <string>Plugins enabled</string>
+   </property>
+  </action>
+  <action name="actionSetup_affine_modifications">
+   <property name="text">
+    <string>Setup affine modifications</string>
    </property>
   </action>
  </widget>

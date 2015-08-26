@@ -15,6 +15,7 @@
  * 
  */
 #include "trlib_api.h"
+#include "affine.h"
 struct format_options{
 int is_kms_format;
 int col_x,col_y,col_z,flip_xy,flip_xy_in,crt_xyz,zlazy;
@@ -26,4 +27,4 @@ char *input_geo_unit;
 char *comments;
 };
 
-int TransformText(char *inname, char *outname, TR *trf, struct format_options frmt);
+int TransformText(char *inname, char *outname, TR *trf, struct format_options frmt, affine_params *paffin, affine_params *paffout);

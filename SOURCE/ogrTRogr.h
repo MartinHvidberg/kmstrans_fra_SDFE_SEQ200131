@@ -17,10 +17,11 @@
 #include "ogr_api.h"
 #include "ogr_srs_api.h"
 #include "trlib_api.h"
+#include "affine.h"
 
-int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad);
-int TransformOGRDatasource(TR *trf, OGRDataSourceH hDSin, OGRDataSourceH hDSout, OGRSpatialReferenceH srs_out, char **layer_names, char **lcos, char **extra_lcos);
-int TransformOGR(char *inname,  char *outname, TR *trf, char *drv_out, char **layer_names, int set_projection, char **dscos, char **lcos);
+int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad, affine_params *paffin, affine_params *paffout);
+int TransformOGRDatasource(TR *trf, OGRDataSourceH hDSin, OGRDataSourceH hDSout, OGRSpatialReferenceH srs_out, char **layer_names, char **lcos, char **extra_lcos, affine_params *paffin, affine_params *paffout);
+int TransformOGR(char *inname,  char *outname, TR *trf, char *drv_out, char **layer_names, int set_projection, char **dscos, char **lcos, affine_params *paffin, affine_params *paffout);
 OGRSpatialReferenceH TranslateMiniLabel(char *mlb);
 int TranslateSrs( OGRSpatialReferenceH srs, char *mlb, int buf_len);
 int FlattenMLB(char *mlb_in, char *mlb_flat);

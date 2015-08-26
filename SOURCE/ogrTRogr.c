@@ -275,7 +275,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	}
 }
 
- int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection, char **dscos, char **lcos){
+ int TransformOGR(char *inname, char *outname, TR *trf, char *drv_out, char **layer_names, int set_output_projection, char **dscos, char **lcos, affine_params *paffin, affine_params *paffout){
 	OGRSpatialReferenceH srs_out=NULL;
 	OGRDataSourceH hDSin,hDSout;
 	OGRSFDriverH hDriver_in, hDriver_out;
@@ -286,7 +286,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	OGRErr err;
 	int tr_err;
 	OGRRegisterAll();
-	InitialiseReport();
+	
 	if (trf==NULL || trf->proj_out==NULL){
 		Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Output projection not set!");
 		return TR_LABEL_ERROR;
@@ -407,7 +407,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 		}/*end malloc ok*/
 	} /*end set extra lcos*/
 		
-	tr_err=TransformOGRDatasource(trf,hDSin,hDSout,srs_out,layer_names,lcos,extra_lcos);
+	tr_err=TransformOGRDatasource(trf,hDSin,hDSout,srs_out,layer_names,lcos,extra_lcos, paffin, paffout);
 	OGR_DS_Destroy( hDSin );
 	OGR_DS_Destroy( hDSout);
 	if (srs_out!=NULL)
@@ -419,15 +419,13 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 		}
 		free(extra_lcos);
 	}
-	LogGeoids();
-	TerminateReport();
 	return tr_err;
 }
 
-int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad){
+int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad, affine_params *paffin, affine_params *paffout){
 	double x,y,z,xo,yo,zo;
-	int i,np,tr_err,ERR=TR_OK,log_geoids=0;
-	char geoid_name[64];
+	int i,np,tr_err,ERR=TR_OK;
+	
 	/*OGRErr err;*/
 	const double d2r=D2R;
 	const double r2d=R2D;
@@ -436,8 +434,6 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 	int ngeom=OGR_G_GetGeometryCount(hGeometry);
 	int is_poly=(g_dim>1 && ngeom>0);
 	OGRGeometryH hGeometry2;
-	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
-	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 	while (--ngeom>=0 || (!is_poly)){
 		if (is_poly)
 			hGeometry2=OGR_G_GetGeometryRef(hGeometry,ngeom);
@@ -453,6 +449,9 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 			x*=d2r;
 			y*=d2r;
 		}
+		if (paffin){
+			affine_transformation(paffin,&x,&y,&z);
+		}
 		tr_err=TR_TransformPoint(trf,x,y,z,&xo,&yo,&zo);
 		if (tr_err!=TR_OK){
 			ERR=tr_err;
@@ -462,15 +461,14 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 		else{
 			(*n_ok)++;
 		}
-		if (log_geoids){
-			TR_GetGeoidName(trf,geoid_name);
-			AppendGeoid(geoid_name);
-		}
+		
 		if (is_geo_out){
 			yo*=r2d;
 			xo*=r2d;
 		}
-		
+		if (paffout){ /*consider what to do about z...*/
+			affine_transformation(paffout,&xo,&yo,&zo);
+		}
 		if (c_dim<3)
 			OGR_G_SetPoint_2D(hGeometry2,i,xo,yo);
 		else
@@ -496,7 +494,8 @@ int TransformOGRDatasource(
     OGRSpatialReferenceH srs_out,
     char **layer_names,
     char **lcos, /*an array with an extra slot in the end....*/
-    char **extra_lcos
+    char **extra_lcos,
+    affine_params *paffin, affine_params *paffout
 )
     {
 	
@@ -616,7 +615,7 @@ int TransformOGRDatasource(
 					else 
 						hGeometry2=hGeometry;
 						
-				tr_err=TransformGeometry(trf,hGeometry2,is_geo_in,is_geo_out, &ntrans_ok, &ntrans_bad);
+				tr_err=TransformGeometry(trf,hGeometry2,is_geo_in,is_geo_out, &ntrans_ok, &ntrans_bad, paffin, paffout);
 				if (tr_err!=TR_OK){
 					Report(REP_ERROR,tr_err,VERB_HIGH,"Error: %d, transforming geometry of feature: %d",TR_GetLastError(),feat_num);
 					ERR=err;
