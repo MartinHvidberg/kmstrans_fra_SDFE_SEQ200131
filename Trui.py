@@ -106,7 +106,7 @@ else:
 REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
-VERSION="KMSTrans2 v2.2b2"
+VERSION="KMSTrans2 v2.2"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
