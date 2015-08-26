@@ -286,7 +286,7 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 	OGRErr err;
 	int tr_err;
 	OGRRegisterAll();
-	InitialiseReport();
+	
 	if (trf==NULL || trf->proj_out==NULL){
 		Report(REP_ERROR,TR_LABEL_ERROR,VERB_LOW,"Output projection not set!");
 		return TR_LABEL_ERROR;
@@ -419,15 +419,13 @@ static void ParseFileGDBLayerPath(OGRDataSourceH hDS,const char *layer_name, cha
 		}
 		free(extra_lcos);
 	}
-	LogGeoids();
-	TerminateReport();
 	return tr_err;
 }
 
 int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo_out, int *n_ok, int *n_bad, affine_params *paffin, affine_params *paffout){
 	double x,y,z,xo,yo,zo;
-	int i,np,tr_err,ERR=TR_OK,log_geoids=0;
-	char geoid_name[64];
+	int i,np,tr_err,ERR=TR_OK;
+	
 	/*OGRErr err;*/
 	const double d2r=D2R;
 	const double r2d=R2D;
@@ -436,8 +434,6 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 	int ngeom=OGR_G_GetGeometryCount(hGeometry);
 	int is_poly=(g_dim>1 && ngeom>0);
 	OGRGeometryH hGeometry2;
-	log_geoids=((HAS_HEIGHTS(trf->proj_in) ||  HAS_HEIGHTS(trf->proj_out)));
-	log_geoids=log_geoids && ((GET_HDTM(trf->proj_in)!=GET_HDTM(trf->proj_out)) || (GET_DTM(trf->proj_in)!=GET_DTM(trf->proj_out))) ;
 	while (--ngeom>=0 || (!is_poly)){
 		if (is_poly)
 			hGeometry2=OGR_G_GetGeometryRef(hGeometry,ngeom);
@@ -465,10 +461,7 @@ int TransformGeometry(TR *trf, OGRGeometryH hGeometry, int is_geo_in, int is_geo
 		else{
 			(*n_ok)++;
 		}
-		if (log_geoids){
-			TR_GetGeoidName(trf,geoid_name);
-			AppendGeoid(geoid_name);
-		}
+		
 		if (is_geo_out){
 			yo*=r2d;
 			xo*=r2d;
