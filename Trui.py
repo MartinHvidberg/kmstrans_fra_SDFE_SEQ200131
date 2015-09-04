@@ -800,6 +800,7 @@ class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
                     
             if self.geoids is None and "TR_TABDIR" in os.environ:
                 self.geoids=os.environ["TR_TABDIR"]
+                self.log("Using geoid library defined in env var TR_TABDIR-","green")
             if self.geoids is None:
                 self.log("Geoid library not set.","red")
                 self.log("Please select a valid geoid library.","blue")
@@ -807,11 +808,13 @@ class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
                 self.bt_launch.setEnabled(False)
                 self.show()
             else:
-                self.log("Geoid directory currently set to: %s" %self.geoids,"blue")
+                self.log("Geoid library currently set to: %s" %self.geoids,"blue")
                 ok=self.setGeoidLibrary()
                 if ok:
                     self.launch()
                 else:
+					self.log("Unable to initialise with current geoid library.","red")
+					self.bt_launch.setEnabled(False)
                     self.show()
     def launch(self):
         global MainWindow
@@ -1008,11 +1011,11 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
         self.show()
     def closeTransformations(self):
         if self.numeric_scale_transf is not None:
-            self.numeric_scale_transf.close()
+            self.numeric_scale_transf.Close()
         if self.coordinate_transformation is not None:
-            self.coordinate_transformation.close()
+            self.coordinate_transformation.Close()
         if self.map_transformation is not None:
-            self.map_transformation.close()
+            self.map_transformation.Close()
     def initTransformations(self):
         self.numeric_scale_transf=TrLib.CoordinateTransformation("","geo_etrs89")
         self.fallback_ellipsoid=TrLib.GetEllipsoidParametersFromDatum("etrs89")
@@ -1923,7 +1926,10 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
 
 def main():
     global app
+    import locale
     app = QtGui.QApplication(sys.argv)
+    #Avoid Qt4 changing the locale for c stdio functions which we wan't to use standard c locale
+    locale.setlocale(locale.LC_NUMERIC,"C")
     launcher=LauncherWindow()
     sys.exit(app.exec_())
 
