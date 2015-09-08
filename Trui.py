@@ -59,7 +59,7 @@ DEBUG="-debug" in sys.argv
 #SEE IF WE ARE RUNNING PY2EXE OR SIMILAR#
 try:
     sys.frozen
-except:
+except Exception,e:
     PREFIX=os.path.realpath(os.path.dirname(__file__))
 else:
     PREFIX=os.path.realpath(os.path.dirname(sys.executable))
@@ -85,7 +85,7 @@ PLUGIN_PATH_LOCAL=os.path.join(PREFIX,"plugins")
 if not os.path.exists(PLUGIN_PATH_USER):
     try:
         os.makedirs(PLUGIN_PATH_USER)
-    except:
+    except Exception,e:
         pass
 DOC_PATH="file://"+PREFIX+"/"+"doc"
 #POINTER TO WEB PAGES
@@ -106,7 +106,7 @@ else:
 REQUIRED_FILES=["def_lab.txt","manager.tab"]
 
 
-VERSION="KMSTrans2 v2.2"
+VERSION="KMSTrans2 v2.21"
 
 #SOME DEFAULT TEXT VALUES
 ABOUT=VERSION+"""
@@ -178,7 +178,7 @@ class MapThread(threading.Thread):
 def lordCallback(err_class,err_code,msg):
     try:
         MainWindow.displayCallbackMessage(msg.strip())
-    except:
+    except Exception,e:
         pass
 
 #Get a list of plugins - now from several paths. Enables plugins in root dir also
@@ -384,7 +384,7 @@ class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
             if len(v)>0:
                 try:
                     v=float(v.replace(",","."))
-                except:
+                except Exception,e:
                     self.T[i].setFocus()
                     QMessageBox.warning(self,"Error","Specify a numeric input")
                     return None
@@ -399,7 +399,7 @@ class AffineWidget(QtGui.QWidget,Ui_Widget_affine):
                 if len(v)>0:
                     try:
                         v=float(v.replace(",","."))
-                    except:
+                    except Exception,e:
                         self.R[i][j].setFocus()
                         QMessageBox.warning(self,"Error","Specify a numeric input")
                         return None
@@ -679,7 +679,7 @@ class TextViewer(QDialog):
             if os.path.exists(fname):
                 try:
                     n=os.path.getsize(fname)
-                except:
+                except Exception,e:
                     pass
                 else:
                     fok=True
@@ -795,7 +795,7 @@ class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
             if geoids.isValid():
                 try:
                     self.geoids=unicode(geoids.toString())
-                except:
+                except Exception,e:
                     self.log("Encoding error for stored geoid dir.\n","red")
                     
             if self.geoids is None and "TR_TABDIR" in os.environ:
@@ -813,8 +813,8 @@ class LauncherWindow(QtGui.QMainWindow,Ui_LauncherWindow):
                 if ok:
                     self.launch()
                 else:
-					self.log("Unable to initialise with current geoid library.","red")
-					self.bt_launch.setEnabled(False)
+                    self.log("Unable to initialise with current geoid library.","red")
+                    self.bt_launch.setEnabled(False)
                     self.show()
     def launch(self):
         global MainWindow
@@ -949,14 +949,14 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
         self.map_zoom=0
         try:
             sys.frozen
-        except:
+        except Exception,e:
             pass
         else:
             self.logInteractive("Running through py2exe.")
         #move to interactive tab - messages will appear there afterwards,,,,#
         try:
             self.main_tab_host.setCurrentIndex(0)
-        except:
+        except Exception,e:
             pass
         #redirect python output#
         sys.stdout=RedirectOutput(self.handleStdOut)
@@ -1080,7 +1080,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
             self.map_transformation.Insert(mlb_in)
         try:
             x,y,z=self.map_transformation.TransformPoint(x,y,z)
-        except:
+        except Exception,e:
             self.map_point.setBrush(QtGui.QBrush(QColor(255, 10, 10, 90)))
             self.logInteractive("Error in map transformation - failed to draw map point","red")
         else:
@@ -1835,7 +1835,7 @@ class TRUI(QtGui.QMainWindow,Ui_Trui):
             caught+="Path-settings,caught: %s\n" %str(e)
         try:
             region=unicode(settings.value('region',REGION_DK).toString())
-        except:
+        except Exception,e:
             region=REGION_DK
         if not region in REGIONS:
             region=REGION_DK

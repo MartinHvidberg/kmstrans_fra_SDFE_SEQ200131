@@ -19,32 +19,32 @@
  """
 #Very simplistic build instructions which should work under win, linux and mac as long as gdal is built and findable and gcc or something very similar works....
 #Use -cc compiler, e.g. -cc gcc to specify which compiler to use to build trogr.
-#should be compatible with tip of trlib repo
-import os, sys, shutil
+#should be compatible with trlib version 1.1
+import os
+import sys
+import shutil
+import argparse
+from builder import core
 from TrLib_constants import LIBTRUI,TRLIB,TROGRNAME
 
-def Usage():
-	print("To run:")
-	print("%s <path_to_trlib> ..args.." %os.path.basename(sys.argv[0]))
-	print("Available arguments (all except -gdal passed on to build script for trlib (if -notrlib is NOT specified)!")
-	print("-gdal <path_to_gdal_dev_installation> MUST be specified.")
-	print("e.g. -gdal C:\gdal192 or -gdal /opt/local, where these have subdirs 'lib' and 'include'.") 
-	print("Use -notrlib to NOT build TrLib, or append extra args to the trlib build script TR_BUILD/py_build.py")
-	print("-debug to compile with debug symbols.")
-	print("-x64 (Windows only) to use a default 32 to 64bit cross compiler. Alternatively, use -cc")
-	print("-cc <gcc_like_compiler> to override the specific compiler 'gcc' in the builds of trogr and trlib.")
-	print("OR (optionally) -msvc to build with msvc (cl).")
-	print("-bindir <output_dir_for_binaries> (optional) to override the default output dir.")
-	print("Use space between option key and option value! e.g. -cc /opt/local/bin/gcc4.6")
+parser=argparse.ArgumentParser(description="Simple build script for trui / kmstrans")
+parser.add_argument("trlib",help="Path to trlib repo - to build trlib and find header files.")
+parser.add_argument("gdal_include",help="Path to gdal header files.")
+gr_gdal=parser.add_mutually_exclusive_group()
+gr_gdal.add_argument("-gdallib",help="For MSVC only. Path to gdal_i.lib linker stub library.")
+gr_gdal.add_argument("-gdaldir",help="Tell the build script where to look for the gdal library.")
+parser.add_argument("-debug",action="store_true",help="Do debug builds.")
+parser.add_argument("-notrlib",action="store_true",help="Do not build trlib (assuming this has already been done).")
+for key in core.COMPILER_SELECTION_OPTS:
+    parser.add_argument(key,**core.COMPILER_SELECTION_OPTS[key])
 
-if len(sys.argv)<2:
-	Usage()
-	sys.exit()
-args=sys.argv[1:]
-trlib=os.path.realpath(args[0])
+pargs=parser.parse_args()
+here=os.getcwd()
 curdir=os.path.realpath(os.path.dirname(__file__))
-outdir=curdir #use this dir as output....	
+outdir=curdir #use this dir as output....
+
 #Paths
+trlib=pargs.trlib
 BIN_DIR=os.path.join(outdir,"bin")
 SRC_DIR=os.path.join(curdir,"SOURCE")
 SRC_LIBTRUI=[os.path.join(SRC_DIR,fname) for fname in ("ogrTRogr.c","Report.c","TransformText.c","TransformDSFL.c","tr_DSFL.c","affine.c")]
@@ -52,82 +52,77 @@ DEF_LIBTRUI=os.path.join(SRC_DIR,"libtrui.def")
 SRC_MAIN=[os.path.join(SRC_DIR,fname) for fname in ["main.c","my_get_opt.c"]]
 INC_TRLIB=[os.path.join(trlib,"TR_INC")]
 #Import build system
-sys.path.insert(0,os.path.join(trlib,"TR_BUILD"))
-import core
-import cc
-import py_build
+
 #Check options
-IS_MSVC="-msvc" in args
-DEBUG="-debug" in args
-compiler=core.SelectCompiler(args)
-if (not "-gdal" in args) or (not (core.IS_WINDOWS) and IS_MSVC):
-	Usage()
-	sys.exit()
+IS_MSVC=pargs.msvc
+DEBUG=pargs.debug
 
-#pop this arg and its value...
-if "-gdal" in args:
-	index=args.index("-gdal")+1
-	gdal=os.path.realpath(args.pop(index))
-	args.pop(index-1)
-	link_gdal=["-L%s" %os.path.join(gdal,"lib"),"-lgdal"]
-	gdal_include=os.path.join(gdal,"include")
-	gdal_lib=os.path.join(gdal,"lib","gdal_i.lib")
-else:
-	link_gdal=["-lgdal"]
-
-#pop this arg and its value... Useful e.g. when crosscompiling..
-if "-bindir" in args:
-	index=args.index("-bindir")+1
-	BIN_DIR=os.path.join(outdir,args.pop(index))
-	args.pop(index-1)
-	
-#SET OUTPUT NAMES
-
-try:
-	os.mkdir(BIN_DIR)
-except:
-	pass
+if not os.path.exists(BIN_DIR):
+    os.mkdir(BIN_DIR)
+#output names
 libtrui=os.path.join(BIN_DIR,LIBTRUI)
 libtr=os.path.join(BIN_DIR,TRLIB) #.DLL already appended
 trogr=os.path.join(BIN_DIR,TROGRNAME)+core.EXE #.EXE already appended?
-#BUILD C-source#
-if not "-notrlib" in args:
-	print "Building TrLib"
-	py_build_args=["py_build.py"]+[trlib,"-build","-all","-o",libtr]
-	if len(args)>1:
-		py_build_args+=args[1:]
-	ok=py_build.main(py_build_args)
-	sys.stdout=sys.__stdout__
-	sys.stderr=sys.__stderr__
-	print("Build was ok: %s" %(ok==0))
-	if (ok!=0):
-		sys.exit(1)
-	
-BUILD_DIR=os.path.realpath(os.path.join(curdir,"BUILD_PY","trogr"))
-try:
-	os.mkdir(BUILD_DIR)
-except:
-	pass
-#build libtrui
-if core.IS_WINDOWS:
-	link_libraries=compiler.LINK_LIBRARIES+[gdal_lib,libtr]
-else:
-	link_libraries=compiler.LINK_LIBRARIES+link_gdal+[libtr]
 
-include=INC_TRLIB+[gdal_include]
-ok=core.Build(compiler,libtrui,SRC_LIBTRUI,include,is_debug=DEBUG,link_libraries=link_libraries,def_file=DEF_LIBTRUI,build_dir=BUILD_DIR,link_all=False)
+#BUILD C-source#
+if not pargs.notrlib:
+    print("Building trlib")
+    os.chdir(trlib)
+    rc,out=core.run_cmd(["hg","up","1.1"])
+    assert(rc==0)
+    os.chdir(here)
+    py_build=os.path.join(pargs.trlib,"TR_BUILD","py_build.py")
+    py_build_cmd=[sys.executable,py_build,trlib,"-build","-all","-o",libtr]
+    if pargs.msvc:
+        py_build_cmd.append("-msvc")
+    if pargs.cc is not None:
+        py_build_cmd.extend(["-cc",pargs.cc])
+    rc,out=core.run_cmd(py_build_cmd)
+    print("Build was ok: %s" %(rc==0))
+    if (rc!=0):
+        sys.exit(1)
+
+if IS_MSVC:
+    if pargs.gdallib is None:
+       raise ValueError("Please specify path to gdal_i.lib for msvc.")
+    link_gdal=pargs.gdallib
+else:
+    link_gdal=["-lgdal"]
+    if pargs.gdaldir is not None:
+        link_gdal.append("-L"+pargs.gdaldir)
+
+BUILD_DIR=os.path.realpath(os.path.join(curdir,"BUILD_PY","trogr"))
+if not os.path.exists(BUILD_DIR):
+    os.makedirs(BUILD_DIR)
+
+#select the compiler
+#some of the ARGS are not compiler selection args, but can be safely passed on to select_compiler which only checks for the relevant ones...
+compiler=core.select_compiler(sys.argv[1:])
+
+
+#build libtrui
+link_libraries=link_gdal+[libtr]
+include=INC_TRLIB+[pargs.gdal_include]
+ok=core.build(compiler,libtrui,SRC_LIBTRUI,include,is_debug=DEBUG,link_libraries=link_libraries,def_file=DEF_LIBTRUI,build_dir=BUILD_DIR,link_all=False)
 #build trogr
 if (not ok):
-	sys.exit(1)
-link_libraries=compiler.LINK_LIBRARIES+[libtr,libtrui]
-ok=core.Build(compiler,trogr,SRC_MAIN,include,is_library=False,is_debug=DEBUG,link_libraries=link_libraries,build_dir=BUILD_DIR,link_all=False)
+    print("Build failed!")
+    sys.exit(1)
+
+link_libraries=[libtr,libtrui]
+
+ok=core.build(compiler,trogr,SRC_MAIN,include,is_library=False,is_debug=DEBUG,link_libraries=link_libraries,build_dir=BUILD_DIR,link_all=False)
+
 if (not ok):
-	sys.exit(1)
+    print("Build failed!")
+    sys.exit(1)
+
 try:
-	shutil.rmtree("BUILD_PY")
-except:
-	pass
-print("Build succeeded!")
+    shutil.rmtree("BUILD_PY")
+except Exception,e:
+    pass
+
+print("++++++++++++++++\nBuild succeeded!\n++++++++++++++++")
 sys.exit(0)
 
 
