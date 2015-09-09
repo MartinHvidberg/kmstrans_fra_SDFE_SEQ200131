@@ -34,9 +34,10 @@ parser.add_argument(
 parser.add_argument("gdal_include", help="Path to gdal header files.")
 gr_gdal = parser.add_mutually_exclusive_group()
 gr_gdal.add_argument(
-    "-gdallib", help="For MSVC only. Path to gdal_i.lib linker stub library.")
+    "-gdallib", help="Explicit path to  gdallib to link to (e.g. gdal_i.lib linker stub library on windows for MSVC).")
 gr_gdal.add_argument(
     "-gdaldir", help="Tell the build script where to look for the gdal library.")
+parser.add_argument("-lgdal",help="Explicit gdal-library name to link to (linux style).", default="gdal")
 parser.add_argument("-debug", action="store_true", help="Do debug builds.")
 parser.add_argument("-notrlib", action="store_true",
                     help="Do not build trlib (assuming this has already been done).")
@@ -90,12 +91,14 @@ if not pargs.notrlib:
     if (rc != 0):
         sys.exit(1)
 
-if IS_MSVC:
-    if pargs.gdallib is None:
-        raise ValueError("Please specify path to gdal_i.lib for msvc.")
-    link_gdal = pargs.gdallib
+
+if IS_MSVC and parg.gdallib is None:
+    raise ValueError("Please specify path to gdal_i.lib for msvc.")
+
+if pargs.gdallib is not None:
+        link_gdal = [pargs.gdallib]  # ok so if we're MSVC we en up here...
 else:
-    link_gdal = ["-lgdal"]
+    link_gdal = ["-l"+pargs.lgdal]
     if pargs.gdaldir is not None:
         link_gdal.append("-L" + pargs.gdaldir)
 
