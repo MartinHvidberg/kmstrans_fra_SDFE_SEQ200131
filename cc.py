@@ -14,7 +14,7 @@
 #
 
 # A single file version of previous python based -
-# c build systems  developed at the Danish Geodata Agency
+# c build systems developed at the Danish Geodata Agency
 
 import sys
 import os
