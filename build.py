@@ -72,6 +72,10 @@ libtrui = os.path.join(BIN_DIR, LIBTRUI)
 libtr = os.path.join(BIN_DIR, TRLIB)  # .DLL already appended
 trogr = os.path.join(BIN_DIR, TROGRNAME) + cc.EXE  # .EXE already appended?
 
+# Make sure that we link gdal the right way for msvc
+if IS_MSVC and pargs.gdallib is None:
+    raise ValueError("Please specify explcit path to gdal_i.lib for msvc:\n-gdalib <path_to_stub_library>")
+
 # BUILD C-source#
 if not pargs.notrlib:
     print("Building trlib")
@@ -92,12 +96,12 @@ if not pargs.notrlib:
         sys.exit(1)
 
 
-if IS_MSVC and parg.gdallib is None:
-    raise ValueError("Please specify path to gdal_i.lib for msvc.")
+
 
 if pargs.gdallib is not None:
         link_gdal = [pargs.gdallib]  # ok so if we're MSVC we en up here...
 else:
+    # gcc style linking
     link_gdal = ["-l"+pargs.lgdal]
     if pargs.gdaldir is not None:
         link_gdal.append("-L" + pargs.gdaldir)
