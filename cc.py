@@ -1,4 +1,6 @@
-# Copyright (c) 2015, Simon Kokkendorff, <silyko at gmail.com>
+# Original work Copyright (c) 2015, Danish Geodata Agency, Denmark
+# (Geodatastyrelsen), gst@gst.dk
+# Modified work Copyright (c) 2015, Simon Kokkendorff, <silyko at gmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +17,14 @@
 
 # A single file version of previous python based -
 # c build systems developed at the Danish Geodata Agency
+
+"""
+Simplistic wrapper of some well known compilers and linkers (primarily gcc, msvc).
+Simply build some c source files and link resulting object files to a shared libary or an executable.
+Avoids having to maintain several platform specific build systems like make or nmake.
+"""
+
+
 
 import sys
 import os
