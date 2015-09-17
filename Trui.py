@@ -1912,8 +1912,8 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
                 self.message(msg)
         else:
             #we're running#
-            settings.is_started = True
-            settings.is_done = False
+            self.f2f_settings.is_started = True
+            self.f2f_settings.is_done = False
             self.bt_f2f_execute.setEnabled(False)
             self.bt_f2f_view_output.setEnabled(False)
             self.bt_f2f_view_log.setEnabled(False)
