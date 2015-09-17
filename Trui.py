@@ -50,6 +50,8 @@ import File2File
 import LibTrui
 
 import WidgetUtils
+import test  # tests for Trui
+
 
 try:
     import importlib
@@ -1040,14 +1042,16 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
                                      ANGULAR_UNIT_SX: self.actionSx, ANGULAR_UNIT_NT: self.actionNt}
         self.action_angular_units_derived = {ANGULAR_UNIT_DEGREES: self.actionDegrees_derived, ANGULAR_UNIT_RADIANS: self.actionRadians_derived,
                                              ANGULAR_UNIT_SX: self.actionSx_derived, ANGULAR_UNIT_NT: self.actionNt_derived}
-        #SET UP INPUT EVENT HANDLERS: TRANSFORM ON RETURN. TODO: ADD VALIDATOR#
+        # SET UP INPUT EVENT HANDLERS: TRANSFORM ON RETURN. TODO: ADD VALIDATOR#
         for field in self.input:
             field.returnPressed.connect(self.transformInput)
-        #END SETUP INPUT EVENT HANDLERS#
-        #Create Whatsthis in help menu#
+        # END SETUP INPUT EVENT HANDLERS#
+        # Create Whatsthis in help menu#
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(QWhatsThis.createAction(self))
-        #SETUP VARIOUS ATTRIBUTES#
+        # SETUP VARIOUS ATTRIBUTES#
+        # An object which can be used to continue some testing process when the control returns after a background process.
+        self.foreign_hook=None  
         # 4 decimals in metric output - translates to something else for
         # angular output...
         self.coord_precision = 4
@@ -1056,7 +1060,7 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
         self.f2f_settings = File2File.F2F_Settings()
         self.f2f_settings.n_decimals = self.coord_precision
         self.output_cache = PointData()
-        # New attribute - used to test whether we should upodate system
+        # New attribute - used to test whether we should update system-
         # info....
         self.mlb_in = None
         self.geo_unit = ANGULAR_UNIT_DEGREES
@@ -1356,6 +1360,13 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
                 self.logInteractive(
                     "NOTE: Systems have been interchanged - but not the affine modifications.", "blue")
 
+    # Various setters below
+    def setForeignHook(self, hook):
+        # Set the foreign hook used to return control e.g. to a test,
+        # after a background process has finished.
+        assert(hasattr(hook, "proceed"))
+        self.foreign_hook = hook
+        
     def setRegionDK(self):
         if self.region != REGION_DK:
             self.region = REGION_DK
@@ -1622,8 +1633,8 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
         frmts = LibTrui.getOGRFormats()
         self.cb_f2f_ogr_driver.clear()
         self.cb_f2f_ogr_driver.addItems(frmts)
-        File2File.SetCommand(TROGR)
-        rc, msg = File2File.TestCommand()
+        File2File.setCommand(TROGR)
+        rc, msg = File2File.testCommand()
         if (rc != 0):
             self.message(
                 "Batch transformation program %s not availabe!" % TROGR)
@@ -1811,89 +1822,98 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
                 self.transformInput()  # system info is already set.
         # do something here...
 
-    def transformFile2File(self):
-        file_in = unicode(self.txt_f2f_input_file.text())
-        file_out = unicode(self.txt_f2f_output_file.text())
-        self.f2f_settings.is_started = False
-        if len(file_in) == 0:
-            self.message("Set input datasource!")
-            self.txt_f2f_input_file.setFocus()
-            return
-        if len(file_out) == 0:
-            self.message("Set output datasource!")
-            self.txt_f2f_output_file.setFocus()
-            return
-        if file_in == file_out:
-            self.message("Input and output files must differ (for now)")
-            return
-        if file_in[-1] in ["/", "\\"]:
-            file_in = file_in[:-1]
-        if file_out[-1] in ["/", "\\"]:
-            file_out = file_out[:-1]
-        mlb_in = str(self.cb_f2f_input_system.currentText())
-        mlb_out = str(self.cb_f2f_output_system.currentText())
-        # Just do this - in case it hasn't been done already!
-        self.onF2FSystemInChanged()
-        self.onF2FSystemOutChanged()
-        if len(mlb_out) == 0:
-            self.message("Output system label must be specified!")
-            return
-        #clear the log#
-        self.txt_f2f_log.clear()
-        if self.rdobt_f2f_ogr.isChecked():
-            drv = str(self.cb_f2f_ogr_driver.currentText())
-            self.f2f_settings.format_out = drv
-            self.f2f_settings.driver = "OGR"
-        elif self.rdobt_f2f_simple_text.isChecked():
-            self.f2f_settings.driver = "TEXT"
-        elif self.rdobt_f2f_dsfl.isChecked():
-            self.f2f_settings.driver = "DSFL"
+    def transformFile2File(self, settings=None):
+        # We can override GUI settings by explicitely calling with a
+        # File2Fil.F2F_Settings instance
+        if settings is not None:
+            self.f2f_settings = settings
+            self.logF2F("Overriding GUI settings...", "blue")
         else:
-            self.f2f_settings.driver = "KMS"
-        if self.chb_f2f_use_log.isChecked():
-            log_name = unicode(self.txt_f2f_log_name.text())
-            if len(log_name) == 0:
-                self.message("Specify log file name.")
+            file_in = unicode(self.txt_f2f_input_file.text())
+            file_out = unicode(self.txt_f2f_output_file.text())
+            self.f2f_settings.is_started = False
+            if len(file_in) == 0:
+                self.message("Set input datasource!")
+                self.txt_f2f_input_file.setFocus()
                 return
-            self.f2f_settings.be_verbose = self.chb_f2f_verbose.isChecked()
-        else:
-            log_name = None
-            self.f2f_settings.be_verbose = False
-        # encode filenames in file system encoding since we need to pass on to
-        # another executable - done just in time in File2File#
-        self.f2f_settings.log_file = log_name
-        self.f2f_settings.ds_in = file_in
-        self.f2f_settings.ds_out = file_out
-        self.f2f_settings.mlb_out = mlb_out
-        self.f2f_settings.set_projection = self.chb_f2f_set_projection.isChecked()
-        if (not self.chb_f2f_all_layers.isChecked()) and self.f2f_settings.driver == "OGR":
-            _layers = str(self.txt_f2f_layers_in.text()).split(";")
-            layers = []
-            for layer in _layers:
-                if len(layer) > 0:
-                    layers.append(layer.strip())
-            self.f2f_settings.input_layers = layers
-        else:
-            self.f2f_settings.input_layers = []
-        if not self.chb_f2f_label_in_file.isChecked():
-            self.f2f_settings.mlb_in = mlb_in
-        else:
-            self.f2f_settings.mlb_in = None
-        # set the affine modifications
-        self.f2f_settings.apply_affine = self.affine_modifications.apply_f2f
-        self.f2f_settings.affine_mod_in = self.affine_modifications.input
-        self.f2f_settings.affine_mod_out = self.affine_modifications.output
-        if self.affine_modifications.apply_f2f and self.f2f_settings.driver == "DSFL":
-            self.log_f2f(
-                "Note: Affine modifications not supported for DSFL-formate", "orange")
+            if len(file_out) == 0:
+                self.message("Set output datasource!")
+                self.txt_f2f_output_file.setFocus()
+                return
+            if file_in == file_out:
+                self.message("Input and output files must differ (for now)")
+                return
+            if file_in[-1] in ["/", "\\"]:
+                file_in = file_in[:-1]
+            if file_out[-1] in ["/", "\\"]:
+                file_out = file_out[:-1]
+            mlb_in = str(self.cb_f2f_input_system.currentText())
+            mlb_out = str(self.cb_f2f_output_system.currentText())
+            # Just do this - in case it hasn't been done already!
+            self.onF2FSystemInChanged()
+            self.onF2FSystemOutChanged()
+            if len(mlb_out) == 0:
+                self.message("Output system label must be specified!")
+                return
+            #clear the log#
+            self.txt_f2f_log.clear()
+            if self.rdobt_f2f_ogr.isChecked():
+                drv = str(self.cb_f2f_ogr_driver.currentText())
+                self.f2f_settings.format_out = drv
+                self.f2f_settings.driver = "OGR"
+            elif self.rdobt_f2f_simple_text.isChecked():
+                self.f2f_settings.driver = "TEXT"
+            elif self.rdobt_f2f_dsfl.isChecked():
+                self.f2f_settings.driver = "DSFL"
+            else:
+                self.f2f_settings.driver = "KMS"
+            if self.chb_f2f_use_log.isChecked():
+                log_name = unicode(self.txt_f2f_log_name.text())
+                if len(log_name) == 0:
+                    self.message("Specify log file name.")
+                    return
+                self.f2f_settings.be_verbose = self.chb_f2f_verbose.isChecked()
+            else:
+                log_name = None
+                self.f2f_settings.be_verbose = False
+            # encode filenames in file system encoding since we need to pass on to
+            # another executable - done just in time in File2File#
+            self.f2f_settings.log_file = log_name
+            self.f2f_settings.ds_in = file_in
+            self.f2f_settings.ds_out = file_out
+            self.f2f_settings.mlb_out = mlb_out
+            self.f2f_settings.set_projection = self.chb_f2f_set_projection.isChecked()
+            if (not self.chb_f2f_all_layers.isChecked()) and self.f2f_settings.driver == "OGR":
+                _layers = str(self.txt_f2f_layers_in.text()).split(";")
+                layers = []
+                for layer in _layers:
+                    if len(layer) > 0:
+                        layers.append(layer.strip())
+                self.f2f_settings.input_layers = layers
+            else:
+                self.f2f_settings.input_layers = []
+            if not self.chb_f2f_label_in_file.isChecked():
+                self.f2f_settings.mlb_in = mlb_in
+            else:
+                self.f2f_settings.mlb_in = None
+            # set the affine modifications
+            self.f2f_settings.apply_affine = self.affine_modifications.apply_f2f
+            self.f2f_settings.affine_mod_in = self.affine_modifications.input
+            self.f2f_settings.affine_mod_out = self.affine_modifications.output
+            if self.affine_modifications.apply_f2f and self.f2f_settings.driver == "DSFL":
+                self.logF2F(
+                    "Note: Affine modifications not supported for DSFL-formate", "orange")
+            
+            
         ok, msg = File2File.transformDatasource(
             self.f2f_settings, self.message_poster.postFileMessage, self.message_poster.postReturnCode)
         if not ok:
-            self.message(msg)
+            if self.foreign_hook is None:  # else the caller should now what to do!
+                self.message(msg)
         else:
             #we're running#
-            self.f2f_settings.is_started = True
-            self.f2f_settings.is_done = False
+            settings.is_started = True
+            settings.is_done = False
             self.bt_f2f_execute.setEnabled(False)
             self.bt_f2f_view_output.setEnabled(False)
             self.bt_f2f_view_log.setEnabled(False)
@@ -1905,14 +1925,14 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
 
     def killBatchProcess(self):
         self.logF2F("Sending kill signal...")
-        File2File.KillThreads()
+        File2File.killThreads()
 
     def onF2FReturnCode(self, rc):
         if rc == TrLib.TR_OK:
             self.logF2F("....done....")
         elif rc == File2File.PROCESS_TERMINATED:
             self.logF2F("Process was terminated!")
-        else:
+        elif self.foreign_hook is None:
             self.message(
                 "Errors occured during transformation - see log field.")
         # we're running - a method terminating the process could also enable
@@ -1922,6 +1942,10 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
         self.bt_f2f_view_output.setEnabled(True)
         self.bt_f2f_view_log.setEnabled(True)
         self.bt_f2f_kill.setEnabled(False)
+        # here we continue a testing process if the foreign_hook is set
+        if self.foreign_hook is not None:
+            self.logF2F("Foreign hook is set - proceediing!")
+            self.foreign_hook.proceed(rc == TrLib.TR_OK)  # duck typing
 
     #MESSAGE AND LOG METHODS#
     def logInteractive(self, text, color="black", clear=False):
@@ -2157,6 +2181,15 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
             widgets = [self.main_tab_host.widget(i) for i in range(2, count)]
             return widgets
         return []
+    # Testing 
+    def run_tests(self):
+        """Run some simple tests to assure that Trui is working properly
+        Can be called from the python console as: mainWindow.run_tests()
+        """
+        test.test(self)
+        
+        
+    
     #ON CLOSE - SAVE SETTINGS#
 
     def closeEvent(self, event):

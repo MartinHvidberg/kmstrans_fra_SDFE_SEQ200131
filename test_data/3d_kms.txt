@@ -1,0 +1,7 @@
+#utm32Ewgs84
+FIRST  6143200.2 m  600200.1 m  100.2 m *this is a comment;
+* This is also a comment;
+SOME  6143700.2 m  540300.4 m  200.2 m
+OTHER  6143 km  510 km  100 m  *can we handle other units?;
+
+
