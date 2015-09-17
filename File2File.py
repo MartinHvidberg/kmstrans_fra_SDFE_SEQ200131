@@ -176,6 +176,9 @@ def transformDatasource(options, log_method, post_method):
             frmt_out = options.format_out
             if frmt_out in OGR_LONG_TO_SHORT:
                 frmt_out, dco, lco = OGR_LONG_TO_SHORT[frmt_out]
+            else:
+                dco = ""
+                lco = ""
             args += ['-of', frmt_out]
             if len(dco) > 0:
                 args += ['-dco', dco]

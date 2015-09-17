@@ -185,8 +185,7 @@ class AffineTransformation(object):
         self.T = {}
         self.apply = False
         self.paffine = None
-        return
-
+        
     def tostring(self):
         val = ''
         for ij in self.R:

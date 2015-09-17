@@ -22,12 +22,9 @@
 import os
 # import unittest
 import tempfile
-import threading
 import File2File
-from TrLib_constants import TROGRNAME
-TROGR = os.path.join(os.path.dirname(__file__), "bin", TROGRNAME)
-File2File.setCommand(TROGR)
-EVENT = threading.Event()  # used to wait for a thread to finish.
+from LibTrui import AffineTransformation
+
 
 # Some tests to run to test interactive interface:
 # each element is mlbin,mlbout,coords_in,coords_out,tolerance
@@ -47,6 +44,11 @@ TEST_INTERACTIVE = {
             (1716806.0708, -2197411.5650, 5717050.4095), (1e-3, 1e-3, 1e-3)),
     )
 }
+
+affine_mod = AffineTransformation()
+affine_mod.apply = True
+affine_mod.R = {(0,0): 1.5, (1,1): 0.9, (0,1): 0.1}
+affine_mod.T = {0: 100.0, 1: 200.0, 2: 10.1}
 
 # Test some files.
 # A list of dicts whit attrs corresponding to File2File.F2F_Settings
@@ -86,14 +88,32 @@ BATCH_TESTS = (
         {"ds_in": os.path.join(DATA_DIR, "3d_kms.txt"),
          "mlb_out": "crt_wgs84",
          "driver": "KMS"}
-     }
+     },
+     {"shall_fail": False,
+      "ext_out": ".txt",
+      "settings":
+        {"ds_in": os.path.join(DATA_DIR, "3d_kms.txt"),
+         "mlb_out": "crt_wgs84",
+         "apply_affine": True,
+         "affine_mod_out": affine_mod,
+         "driver": "KMS"}
+      },
+     {"shall_fail": False,
+      "ext_out": ".sqlite",
+      "settings":
+        {"ds_in": os.path.join(DATA_DIR, "lines.sqlite"),
+         "mlb_in": "webmrc_wgs84",  # this translation seemingly fails!
+         "mlb_out": "geo_wgs84",
+         "driver": "OGR",
+         "format_out": "SQLite"}
+      }
 )
 
 
 def test_interactive(trui):
     """Run some tests for the interactive tab in Trui"""
     nerr = 0
-    trui.handleStdOut("\m***** Testing interactive tab *****\n")
+    trui.handleStdOut("\n***** Testing interactive tab *****")
     for region_setter in TEST_INTERACTIVE:
         trui.handleStdOut("    Calling: "+region_setter)
         getattr(trui, region_setter)()
@@ -130,7 +150,7 @@ class TestBatch(object):
         self.tests = iter(BATCH_TESTS)
         self.test = None
         trui.handleStdOut(
-            "\n***** Testing some transformations of datasources *****\n")
+            "\n***** Testing some transformations of datasources *****")
 
     def proceed(self, result=None):
         """Go to next test"""
@@ -159,8 +179,8 @@ class TestBatch(object):
             self.test["settings"]["ds_out"] = f.name  # store outname
             settings.__dict__.update(self.test["settings"])
             self.trui.handleStdOut(
-                "    Trying: %s, shall_fail: %s" %
-                (settings.ds_in, self.test["shall_fail"]))
+                "    Trying: %s, shall_fail: %s, affine mods: %s" %
+                (settings.ds_in, self.test["shall_fail"], settings.apply_affine))
             self.trui.transformFile2File(settings)
             if not settings.is_started:
                 self.trui.handleStdErr("    Transformation unable to  start!")
