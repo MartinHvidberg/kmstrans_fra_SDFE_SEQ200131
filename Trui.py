@@ -1908,8 +1908,7 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
         ok, msg = File2File.transformDatasource(
             self.f2f_settings, self.message_poster.postFileMessage, self.message_poster.postReturnCode)
         if not ok:
-            if self.foreign_hook is None:  # else the caller should now what to do!
-                self.message(msg)
+            self.message(msg)
         else:
             #we're running#
             self.f2f_settings.is_started = True
@@ -1932,7 +1931,7 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
             self.logF2F("....done....")
         elif rc == File2File.PROCESS_TERMINATED:
             self.logF2F("Process was terminated!")
-        elif self.foreign_hook is None:
+        else:
             self.message(
                 "Errors occured during transformation - see log field.")
         # we're running - a method terminating the process could also enable
@@ -1983,7 +1982,11 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
         self.logF2F(text, "blue")
 
     def message(self, text, title="Error"):
-        QMessageBox.warning(self, title, text)
+        """Show a message box"""
+        if self.foreign_hook is None:
+            QMessageBox.warning(self, title, text)
+        else:  # if foreign hook for testing is set, don't show a dialog
+            self.handleStdErr(text)
 
     def displayCallbackMessage(self, text):
         # check if current widget handles call_back
@@ -2182,7 +2185,7 @@ class TRUI(QtGui.QMainWindow, Ui_Trui):
             return widgets
         return []
     # Testing 
-    def run_tests(self):
+    def runTests(self):
         """Run some simple tests to assure that Trui is working properly
         Can be called from the python console as: mainWindow.run_tests()
         """
