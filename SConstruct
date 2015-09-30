@@ -7,7 +7,22 @@ TRLIB_CLONE_CMD = "hg clone https://bitbucket.org/kms/trlib -r 1.1"
 TRLIB_PULL_CMD = "hg pull -r 1.1"
 IS_WIN = sys.platform.startswith("win")  # So msvc or mingw - use def file
 TRLIB=os.path.abspath("trlib")
-env = Environment(SHLIBPREFIX="lib")
+if IS_WIN:
+    # Special windows handling - Mingw for now.
+    env = Environment(SHLIBPREFIX="lib", ENV=os.environ, tools = ['mingw'])
+    if (not "gdal" in ARGUMENTS) and (not env.GetOption('clean')):
+        raise ValueError("For windows you need to specify gdal=<\\full\\path\\to\\gdal\\dll\\>")
+else:
+    env = Environment(SHLIBPREFIX="lib")
+if "gdal" in ARGUMENTS:
+    assert os.path.isfile(ARGUMENTS["gdal"])
+    GDAL = os.path.splitext(os.path.basename(ARGUMENTS["gdal"]))[0]
+    GDAL_DIR = os.path.abspath(os.path.dirname(ARGUMENTS["gdal"]))
+else:
+    GDAL = "gdal"
+    GDAL_DIR = "None" #Use system gdal
+    
+
 if not os.path.isdir(TRLIB):
     print(TRLIB_CLONE_CMD)
     rc = subprocess.call(TRLIB_CLONE_CMD, shell=True)
@@ -47,12 +62,12 @@ if ARGUMENTS.get("debug",0):
 env["libtr_name"] = "tr"
 env["libtrui_name"] = "trui"
 env["trogr_name"] = "trogr"
-env["gdal_include"] = gdal_include 
+
 
 # Build trlib
 libtr = env.SConscript("SConscript", variant_dir="buildtr", exports = ["env", "IS_WIN", "TRLIB"], duplicate=0)
 # Build libtrui
-libtrui, trogr = env.SConscript("SOURCE/SConscript", variant_dir="build", exports=["env", "IS_WIN"], duplicate=0)
+libtrui, trogr = env.SConscript("SOURCE/SConscript", variant_dir="build", exports=["env", "IS_WIN", "GDAL", "GDAL_DIR","gdal_include"], duplicate=0)
 INSTALL_DIR = "#bin"
 # Install TODO: add a real install target which moved python files and binary files
 env.Install(INSTALL_DIR, libtr)
