@@ -96,6 +96,9 @@ class Ccompiler(object):
     LINK_LIBRARY_DEBUG = []
     LINK_EXE_RELEASE = []
     LINK_EXE_DEBUG = []
+    LINK_LIBRARY_SWITCH = ""
+    LINK_LIBRARY_SEARCH_DIR = ""
+    DEAFAULT_SYSTEM_LIBRARIES = []
     DEFINE_SWITCH = ""
     INCLUDE_SWITCH = ""
     IMPLIB_EXT = ""
@@ -105,7 +108,11 @@ class Ccompiler(object):
     DEF_FILE_SWITCH = ""
     IMPLIB_SWITCH = ""
     OBJ_EXTENSION = ""
-
+    
+    def set_absolute_linker_path(self, install_path):
+        """Return the linker options to add a specific search path for libraries"""
+        return []
+    
     def override_compiler(self, cc, linker=None):
         """
         Override the compiler (and possibly the linker) command.
@@ -140,6 +147,25 @@ class Ccompiler(object):
             return ver.splitlines()[0]
         else:
             return "error"
+    
+    def link_shared_libraries(self, libs):
+        """Get the commandline options to link to shared
+        libraries specified by paths.
+        These libraries should be findable in startup time.
+        Install in standard folder, modify PATH/LD_LIBRARY_PATH
+        or use Wl,rpath,$INSTALL_DIR
+        """
+        if self.IS_MSVC:
+            return [os.path.abspath(so).replace(".dll", ".lib") for so in libs]
+        instructions = []
+        if self.LINK_LIBRARY_SEARCH_DIR and self.LINK_LIBRARY_SWITCH:
+                for so in libs:
+                    instructions.extend(
+                    [self.LINK_LIBRARY_SEARCH_DIR, os.path.dirname(so),
+                     self.LINK_LIBRARY_SWITCH,os.path.splitext(os.path.basename(so))[0].replace("lib","")])
+        else:
+            instructions = [os.path.absparth(so) for so in libs]
+        return instructions
 
     def build(self, outname, source, include=None, define=None, is_debug=False, is_library=True, link_libraries=None, def_file="", build_dir=".", link_all=True):
         """
@@ -187,8 +213,9 @@ class Ccompiler(object):
             obj_files = ["*"+self.OBJ_EXTENSION]
         else:
             obj_files = [os.path.splitext(os.path.basename(fname))[0] + self.OBJ_EXTENSION for fname in source]
+        link_libraries = self.link_shared_libraries(link_libraries)
+        link_libraries.append(self.set_absolute_linker_path(os.path.dirname(outname)))
         if self.IS_MSVC:
-            link_libraries = map(lambda x: x.replace(".dll", ".lib"), link_libraries)
             link = [self.LINKER] + link_options + outname + [implib, def_file] + link_libraries + obj_files
         else:
             link = [self.LINKER] + link_options + outname + [implib] + obj_files + link_libraries + self.LINK_LIBRARIES + [def_file]  # TODO - do something for MSVC also...
@@ -204,35 +231,6 @@ class Ccompiler(object):
             return False
         return True
 
-
-class Sunc(Ccompiler):
-    """
-    Sunc compiler - just using the cc command to compile and link.
-    """
-    COMPILER = "cc"
-    LINKER = "cc"
-    ALL_BUILD = ["-c"]
-    COMPILE_LIBRARY_RELEASE = ALL_BUILD + ["-O3", "-fpic"]
-    COMPILE_LIBRARY_DEBUG = ALL_BUILD + ["-g", "-O1", "-fpic"]
-    COMPILE_EXE_RELEASE = ALL_BUILD + ["-O3"]
-    COMPILE_EXE_DEBUG = ALL_BUILD + ["-g", "-O1"]
-    LINK_LIBRARY_RELEASE = ["-shared"]
-    LINK_LIBRARY_DEBUG = ["-shared"]
-    LINK_EXE_RELEASE = []
-    LINK_EXE_DEBUG = []
-    LINK_LIBRARIES = ["-lm"]
-    DEFINE_SWITCH = "-D"
-    INCLUDE_SWITCH = "-I"
-    LINK_OUTPUT_SWITCH = "-o"
-    OBJ_EXTENSION = ".o"
-
-
-class Sunc32(Sunc):
-    pass
-
-
-class Sunc64(Sunc):
-    ALL_BUILD = Sunc.ALL_BUILD + ["-m64"]
 
 
 # core gcc class
@@ -251,6 +249,8 @@ class Gcc(Ccompiler):
     LINK_LIBRARY_DEBUG = ["-shared"]
     LINK_EXE_RELEASE = []
     LINK_EXE_DEBUG = []
+    LINK_LIBRARY_SEARCH_DIR = "-L"
+    LINK_LIBRARY_SWITCH = "-l"
     DEFINE_SWITCH = "-D"
     INCLUDE_SWITCH = "-I"
     IMPLIB_EXT = ".a"

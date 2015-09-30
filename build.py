@@ -99,7 +99,7 @@ if not pargs.notrlib:
 
 
 if pargs.gdallib is not None:
-        link_gdal = [pargs.gdallib]  # ok so if we're MSVC we en up here...
+        link_gdal = [pargs.gdallib]  # ok so if we're MSVC we end up here...
 else:
     # gcc style linking
     link_gdal = ["-l"+pargs.lgdal]

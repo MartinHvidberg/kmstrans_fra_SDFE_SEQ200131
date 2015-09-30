@@ -160,6 +160,16 @@ class TruiTest(unittest.TestCase):
         self.trui.handleStdOut("Setting geo unit SX")
         self.trui.setAngularUnitsSx()
         self.assertEqual(self.trui.geo_unit, TrLib_constants.ANGULAR_UNIT_SX)
+    
+    def test_change_h_in_button(self):
+        mlb = self.trui.cb_input_system.currentText()
+        self.trui.on_bt_change_h_in_clicked()
+        self.assertNotEqual(mlb, self.trui.cb_input_system.currentText())
+    
+    def test_change_h_out_button(self):
+        mlb = self.trui.cb_output_system.currentText()
+        self.trui.on_bt_change_h_out_clicked()
+        self.assertNotEqual(mlb, self.trui.cb_output_system.currentText())
 
 
 class TestBatch(object):
