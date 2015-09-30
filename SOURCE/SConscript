@@ -1,7 +1,8 @@
 import glob
-Import("env","IS_WIN","GDAL","GDAL_DIR","gdal_include")
+Import("env","IS_WIN")
 cloned_env=env.Clone()
 SRC_LIBTRUI = ["ogrTRogr.c", "Report.c", "TransformText.c", "TransformDSFL.c", "tr_DSFL.c", "affine.c"]
+TRUI_LIBS = [env["libtr_name"]]
 if IS_WIN:
     DEF_LIBTRUI = "libtrui.def"
     SRC_LIBTRUI.append(DEF_LIBTRUI)
@@ -9,13 +10,14 @@ else:
     # On linux add 'origin' to run time search path. On windows we modify PATH
     cloned_env.Append( RPATH = cloned_env.Literal("\\$$ORIGIN")) 
 SRC_MAIN = ["main.c", "my_get_opt.c"]
-if gdal_include is not None:
-    cloned_env.Append(CPPPATH = [gdal_include])
+if env["gdal_include"] is not None:
+    cloned_env.Append(CPPPATH = [env["gdal_include"]])
 # Build libtrui
 cloned_env.Append(LIBPATH = ["#buildtr","#build"])
-if GDAL_DIR is not None:
-    cloned_env.Append(LIBPATH = [GDAL_DIR])
-libtrui =cloned_env.SharedLibrary(target=env["libtrui_name"], source=SRC_LIBTRUI, LIBS=[env["libtr_name"], GDAL])
+if env["gdal_dir"] is not None:
+    cloned_env.Append(LIBPATH = [env["gdal_dir"]])
+
+libtrui =cloned_env.SharedLibrary(target=env["libtrui_name"], source=SRC_LIBTRUI, LIBS=[env["libtr_name"],  env["gdal_lib"]])
 # Build trogr
-trogr = cloned_env.Program(target=env["trogr_name"], source= SRC_MAIN, LIBS=[env["libtr_name"], env["libtrui_name"], GDAL])
+trogr = cloned_env.Program(target=env["trogr_name"], source= SRC_MAIN, LIBS=[env["libtr_name"],libtrui, env["gdal_lib"]])
 Return('libtrui','trogr')
