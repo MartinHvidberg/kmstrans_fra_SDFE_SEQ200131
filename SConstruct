@@ -18,9 +18,12 @@ if IS_WIN:
     # Special windows handling - Mingw for now.
     env = Environment(SHLIBPREFIX="lib", ENV=os.environ, tools=['mingw'])
     REQUIRED.append(opt_gdal_lib)
+    REQUIRED.append(opt_gdal_dir)
 else:
     env = Environment(SHLIBPREFIX="lib")
+    OPTIONAL.append(opt_gdal_lib)
     OPTIONAL.append(opt_gdal_dir)
+    
 
 # Set defaults
 env["trlib"] = TRLIB
