@@ -1,13 +1,13 @@
 import os
 import glob
-Import("env","IS_WIN")
+Import("env", "IS_WIN")
 cloned_env = env.Clone()
 # Establish source code
 TRLIB = env["trlib"]
-TRLIB_SRC_DIRS=["GEOMETRIC_GEODESY", "PHYSICAL_GEODESY", "UTILITIES",
-            "GENERIC_TRANSFORMATION", "SPECIFIC_TRANSFORMATION", "METADATA", 
-            "API", "LORD", "STRONG"]
-DEF_FILE_API=os.path.join(TRLIB, "TR_BUILD", "trlib.def")
+TRLIB_SRC_DIRS = ["GEOMETRIC_GEODESY", "PHYSICAL_GEODESY", "UTILITIES",
+                  "GENERIC_TRANSFORMATION", "SPECIFIC_TRANSFORMATION", "METADATA",
+                  "API", "LORD", "STRONG"]
+DEF_FILE_API = os.path.join(TRLIB, "TR_BUILD", "trlib.def")
 SRC_TRLIB = []
 for folder in TRLIB_SRC_DIRS:
     SRC_TRLIB.extend(glob.glob(os.path.join(TRLIB, "TR_SRC", folder, "*.c")))
