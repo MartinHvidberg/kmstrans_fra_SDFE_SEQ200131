@@ -7,11 +7,11 @@ TRLIB_CLONE_CMD = "hg clone https://bitbucket.org/kms/trlib -r 1.1"
 TRLIB_PULL_CMD = "hg pull -r 1.1"
 IS_WIN = sys.platform.startswith("win")  # So msvc or mingw - use def file
 TRLIB=os.path.abspath("trlib")
-#Option format: key, checker, converter, help, default_val
+#Option format: key, checker, converter, help
 REQUIRED = [("gdal_include", os.path.isdir, os.path.abspath, "Include files for GDAL")] 
-opt_gdal_lib = ("gdal_lib", None, None, "Path GDAL (import) library.")
+opt_gdal_lib = ("gdal_lib", None, None, "Name of gdal library (if non standard).")
 opt_gdal_dir = ("gdal_dir", os.path.isdir, os.path.abspath,"Search path for gdal library")
-OPTIONAL = [("debug", None, bool, "Do a debug build?")]
+OPTIONAL = [("debug", None, int, "Do a debug build?")]
 if IS_WIN:
     # Special windows handling - Mingw for now.
     env = Environment(SHLIBPREFIX="lib", ENV=os.environ, tools = ['mingw'])
@@ -29,6 +29,8 @@ env["debug"] = 0
 env["gdal_lib"] = "gdal"
 env["gdal_dir"] = None
 env["gdal_include"] = None
+env["TRLIB_REVISON"] = "NA"
+env["TRUI_REVISION"] = "NA"
 
 # Check arguments
 if not env.GetOption('clean'):
@@ -47,9 +49,9 @@ if not env.GetOption('clean'):
                 if converter:
                     val = converter(val)
             except Exception as e:
-                print("Error parsing opt for: "+key)
-                print(help)
+                print("Error parsing val for: "+key+" help: "+help)
                 raise e
+                
             else:
                 print("Setting "+key+"="+val)
                 env[key] = val
@@ -74,14 +76,23 @@ elif not env.GetOption('clean'):
     os.chdir(here)
     assert rc == 0
 
-# Get revision of trlib
-if not env.GetOption('clean'):
-    get_rev = subprocess.Popen("hg id "+TRLIB, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+def get_revision(repo):
+    get_rev = subprocess.Popen("hg id "+repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     stdout,stderr = get_rev.communicate()
     assert get_rev.returncode == 0
-    TRLIB_REV_STRING = stdout.strip()
-    print("trlib revision: "+TRLIB_REV_STRING)
-    env.Append(CPPDEFINES=["TRLIB_REVISION=%s" % TRLIB_REV_STRING])
+    rev_string = stdout.strip()
+    print("revision of "+repo+": "+rev_string)
+    return rev_string
+    
+
+
+# Get revisions - very handy for debugging
+if not env.GetOption('clean'):
+    TRLIB_REVISION= get_revision(TRLIB)
+    env["TRLIB_REVISION"] = TRLIB_REVISION
+    TRUI_REVISION = get_revision(".")
+    env["TRUI_REVISION"] = TRUI_REVISION
+    
 
 # Add (absolute path to) header files for trlib
 env.Append(CPPPATH = [os.path.join(TRLIB, "TR_INC")])

@@ -31,7 +31,12 @@
 #include "affine.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.2 (" __DATE__ "," __TIME__ ")")
+#ifndef TRUI_REVISION
+#define TRUI_REV_STRING "not specified"
+#else
+#define TRUI_REV_STRING TOSTRING(TRUI_REVISION)
+#endif
+#define VERSION  ("v1.2 (rev: " TRUI_REV_STRING ", "   __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
