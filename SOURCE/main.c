@@ -31,7 +31,12 @@
 #include "affine.h"
 #include "my_get_opt.h"
 #define PROG_NAME ("trogr")
-#define VERSION  ("1.2 (" __DATE__ "," __TIME__ ")")
+#ifndef TRUI_REVISION
+#define TRUI_REV_STRING "not specified"
+#else
+#define TRUI_REV_STRING TOSTRING(TRUI_REVISION)
+#endif
+#define VERSION  ("v1.2 (rev: " TRUI_REV_STRING ", "   __DATE__ "," __TIME__ ")")
 void Usage(int help);
 void ListFormats(void);
 void PrintVersion(void);
@@ -206,7 +211,7 @@ int *cache_geoid_usage(struct mgde_str *tab_table){
 }
 
 void log_geoids(struct mgde_str *tab_table, int *cached){
-    int g,*geoid_usage,n_used=0;
+    int g,n_used=0;
     struct gde_lab  *t_lab;
     ResetReport();
     Report(REP_INFO,0,VERB_LOW,"+++ Tables / geoids used (if any) +++");
@@ -269,7 +274,7 @@ int main(int argc, char *argv[])
     struct tm * timeinfo;
     TR *trf=NULL;
     FILE *fp_log=NULL;
-    int *geoid_usage; /* a pointer for keeping info of geoid usage!!*/
+    int *geoid_usage=NULL; /* a pointer for keeping info of geoid usage!!*/
     /*set reporting callback fct.*/
     SetCallBack(message_handler);
     RedirectOGRErrors();

@@ -17,10 +17,11 @@ sys.argv.append("py2exe")
 extra_files=["LICENCE.isc","ReadMe.txt"]
 BIN=glob.glob(".\\bin\\*")
 COAST=glob.glob(".\\coast\\*world*")
+TEST_DATA=glob.glob(".\\test_data\\*")
 excludes=["Tkconstants","Tkinter","tcl","matplotlib","pylab","numpy","setup","distutils","pywin","pywin.dialogs","pywin.dialogs.list"]
 setup(   options = {'py2exe': { 'excludes': excludes, 'includes':['encodings','sip'], "optimize" : 1}},
 windows=[{"script" : "Trui.py"}],
-data_files=[("",extra_files),("bin",BIN),("coast",COAST),])
+data_files=[("",extra_files),("bin",BIN),("coast",COAST),("test_data",TEST_DATA)])
 MS_DLLS=glob.glob(".\\dist\\msvcp*.dll") #ms dlls to manually remove afterwards...
 MS_DLLS.extend(glob.glob(".\\dist\\API-MS*.dll"))
 MS_DLLS.extend([".\\dist\\"+x for x in ["KERNELBASE.dll","MSASN1.dll","CRYPT32.dll"]])
